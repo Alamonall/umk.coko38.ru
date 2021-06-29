@@ -1,0 +1,47 @@
+[
+	{
+		"username": "heavyrain",
+		"password": "alkaline",
+		"email": "a.curov@coko38.ru",
+		"role_code": 1,
+		"gia": 0,
+		"school_id": null,
+		"area_id": null
+	},
+	{
+		"username": "pmo11user",
+		"password": "alkaline",
+		"email": "aragorn_108@mail.ru",
+		"role_code": 3,
+		"gia": 11,
+		"school_id": null,
+		"area_id": "F2701330-8646-4456-B380-9496762DB350"
+	},
+	{
+		"username": "poo11user",
+		"password": "alkaline",
+		"email": "alamonall@gmail.com",
+		"role_code": 2,
+		"gia": 11,
+		"school_id": 1,
+		"area_id": null
+	},
+	{
+		"username": "pmo9user",
+		"password": "alkaline",
+		"email": "aragorn_108@mail.ru",
+		"role_code": 3,
+		"gia": 9,
+		"school_id": null,
+		"area_id": "F2701330-8646-4456-B380-9496762DB350"
+	},
+	{
+		"username": "poo9user",
+		"password": "alkaline",
+		"email": "alamonall@gmail.com",
+		"role_code": 2,
+		"gia": 9,
+		"school_id": 1,
+		"area_id": null
+	}
+]
