@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
 		name: DataTypes.STRING,
 		code: DataTypes.INTEGER,
 		gia: DataTypes.INTEGER,
-		is_editable: DataTypes.BOOLEAN
+		isEditable: DataTypes.BOOLEAN
 	})
     
 	Area.associate = (models) => {
-		Area.hasMany(models.School, { foreignKey:'area_id' })
-		Area.hasMany(models.User, { foreignKey:'area_id'})
+		Area.hasMany(models.School, { foreignKey:'areaId' })
+		Area.hasMany(models.User, { foreignKey:'areaId'})
 	}
 
 	return Area

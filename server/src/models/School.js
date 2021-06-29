@@ -4,16 +4,16 @@ module.exports = (sequelize, DataTypes) => {
 		name: DataTypes.STRING,
 		code: DataTypes.INTEGER,
 		gia: DataTypes.INTEGER,
-		area_id: DataTypes.UUID,
+		areaId: DataTypes.UUID,
 		people: DataTypes.INTEGER,
-		is_complete: DataTypes.BOOLEAN,
-		legacy_id: DataTypes.UUID
+		isComplete: DataTypes.BOOLEAN,
+		legacyId: DataTypes.UUID
 	})
     
 	School.associate = (models) => {
-		School.belongsTo(models.Area, { foreignKey: 'area_id',	onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
+		School.belongsTo(models.Area, { foreignKey: 'areaId',	onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
 		School.belongsToMany(models.EMC, {through: 'EMConSchool' })
-		School.hasMany(models.User, { foreignKey: 'school_id'})
+		School.hasMany(models.User, { foreignKey: 'schoolId'})
 	}
 	return School
 }

@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 	})
     
 	Publisher.associate = (models) => {
-		Publisher.hasMany(models.EMC, {foreignKey: 'publisher_id'})
+		Publisher.hasMany(models.EMC, {foreignKey: 'publisherId'})
 	}
 
 	return Publisher

@@ -21,9 +21,9 @@ module.exports = (sequelize, DataTypes) => {
 		username: DataTypes.STRING,
 		password: DataTypes.STRING,
 		email: DataTypes.STRING,
-		role_code: DataTypes.INTEGER,
+		roleCode: DataTypes.INTEGER,
 		gia: DataTypes.INTEGER,
-		school_id: {
+		schoolId: {
 			type: DataTypes.INTEGER,
 			references: {
 				model: 'Schools', // Can be both a string representing the table name or a Sequelize model
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
 			onDelete: 'NO ACTION',
 			onUpdate: 'NO ACTION'
 		},
-		area_id: {
+		areaId: {
 			type: DataTypes.UUID,
 			references: {
 				model: 'Areas', // Can be both a string representing the table name or a Sequelize model
@@ -55,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
 	} catch (err) { console.log(err)}
 
 	User.associate = (models) => {
+		User.hasMany(models.EMC, {foreignKey:'createdBy'})
 	}
   
 	return User

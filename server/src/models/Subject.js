@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 	})
     
 	Subject.associate = (models) => {
-		Subject.hasMany(models.EMC, { foreignKey:'subject_id'})
+		Subject.hasMany(models.EMC, { foreignKey:'subjectId'})
 	}
 
 	return Subject
