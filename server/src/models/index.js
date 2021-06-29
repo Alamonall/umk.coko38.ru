@@ -11,7 +11,7 @@ const sequelize = new Sequelize(
 	config.db.password,
 	config.db.options,
 	{ 
-		logging: console.log
+		//logging: console.log
 	}
 )
 

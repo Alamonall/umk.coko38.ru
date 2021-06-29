@@ -1,4 +1,5 @@
-const { sequelize } = require('../models')
+const { sequelize, User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
+const { Op } = require('sequelize')
 
 module.exports = {
 	async index(req, res) {
@@ -6,96 +7,146 @@ module.exports = {
 			res.json({})
 		} catch (err) { console.log(err)}
 	},
-	// получить умк по мо/оо/предмету
-	async getEMCs(req, res) {
-		try{
-			const { subjectCode, areaCode, schoolCode} = req.params
-			// Надо сделать:
-			// Проверку аттрибутов req.body и req.user
-			// получше where
-			const emcs = await sequelize.query(`select emc.title,
-					emc.authors,
-					pub.name,
-					are.code as AreaCode,
-					sch.code as SchoolCode,
-					sub.code as SubjectCode
-				from EMCs as emc
-					inner join Publishers as pub on pub.id = emc.publisherId
-					inner join EMConSchools as eos on eos.EMCId = emc.id
-					inner join Schools as sch on sch.id = eos.SchoolId
-					inner join Areas as are on are.AreaID = sch.areaId
-					inner join Subjects as sub on sub.SubjectGlobalID = emc.id
-				where are.code = ${areaCode} and sch.code = ${schoolCode} and sub.code = ${subjectCode}`, { nest: true, type: sequelize.QueryTypes.SELECT})
-
-			return res.json({emcs: emcs})
-		} catch(err) { console.log(err)}
-	},
-	// Добавление нового умк для ОО из списка имеющихся
-	async addEMC(req, res) {
+	async getEMCs (req, res){
 		try {
-			const { emcId, subjectCode, schoolCode} = req.params
 			
-			//Сделать: Проверка на корректность данных
+			const { areaCode, schoolCode, subjectCode, giaCode } = req.params
 
-			// Берём id по коду 
-			const emc = sequelize.query(`select id from emc where id = ${emcId}`, { nest: true, type: sequelize.QueryTypes.SELECT})
-			const school = sequelize.query(`select id from school where code = ${schoolCode}`, { nest: true, type: sequelize.QueryTypes.SELECT})
-
-			// Добавляем умк emcId к школе schoolCode
-			const newEmc = await sequelize.query(`INSERT INTO EMConSchool
-			 (EMCId, SchoolId, createdAt, updatedAt)
-				VALUES (${emc.id}, ${school.id}, GETDATE(), GETDATE())`, { nest: true, type: sequelize.QueryTypes.SELECT})
-			console.log(newEmc)
-			res.json({})
+			const emcs = await EMConSchool.findAll({
+				attribute:['correctionCoz','studentsCount','swapCoz','usingCoz'],
+				include: [
+					{
+						model: EMC,
+						require: true,
+						where: giaCode ? {gia: giaCode} : {},
+						attributes:['title','authors', 'gia', 'grades','isCustom','createdBy'],
+						include: 	[
+							{
+								model: Publisher,
+								require: true,
+								attributes: [['name', 'publisherName']]
+							},
+							{
+								model: User
+							},
+							{
+								model: Subject,
+								require: true,
+								attributes: [['code', 'subjectCode'],['name', 'subjectName']],
+								where: subjectCode ? { code: subjectCode } : {}
+							}
+						]
+					},
+					{
+						model: School,
+						require: true,
+						attributes: [
+							['id', 'schoolId'],
+							['code','schoolCode'], 
+							['name','schoolName'],
+							['gia','schoolGia'],
+						],
+						where: schoolCode ? { code: schoolCode } : {},
+						include: [
+							{
+								model: Area,
+								require: true,
+								attributes: [
+									['AreaID', 'areaId'],
+									['code','areaCode'], 
+									['name','areaName'],
+									['gia','areaGia'],
+								],
+								where: areaCode ? { code: areaCode } : {}
+							}
+						]
+					}
+				]
+			})
+			
+			return res.json({emcs: emcs})	
+			
 		} catch(err) { console.log(err)}
 	},
-	// Смысл данного действия? отменить сертификацию при условии, что это кастомный умк
-	async declineEMC(req, res) {
-
-	},
-	/* Получение обновления умк для наследников кастомной умк  */
-	async getLastEMCUpdate(req, res) {
+	async setEMC (req, res) {
 		try {
-			const {subjectCode, areaCode, schoolCode, emcId} = req.params
 
-			//получаем обновленную/оригинал умк
-			const newestVersionEMC = sequelize.query(`select emc.title,
-					emc.authors,
-					emc.type,
-					emc.gia,
-					emc.class,
-					emc.publisherId,
-					emc.createdBy,
-					emc.subjectId
-				from EMCs as emc
-				where emc.id = ${emcId}`, { nest: true, type: sequelize.QueryTypes.SELECT})
-		
-			const updatedEmc = {}
+			const { emcId } = req.params
+
+			const { title, authors, subjectCode, publisherId, gia, grades } = req.body
+
+			const subject = await Subject.findOne({ where: { code: subjectCode } })
 			
-			res.json({emc: updatedEmc})
+			await EMC.update({ title: title, authors: authors, subjectId: subject.id, publisherId: publisherId, gia: gia, grades: grades },
+				{ where: { id: emcId } })
+			
+			res.json({message: 'Данные обновлены'})
 
 		} catch(err) { console.log(err)}
 	},
-	async getEMCsBySubject(req, res) {
+	// Добавление нового умк для ОО
+	async createEMC(req, res) {
+		try {
+			const { title, authors, subjectCode, publisherId, gia, grades } = req.body
 
+			const subject = await Subject.findOne({where: {code: subjectCode}})
+			
+			const emc = await EMC.create({ title: title, authors: authors, subjectId: subject.id, publisherId: publisherId,
+				gia: gia, grades: grades, createdBy: req.user.id, isCustom: false })
+			
+			res.json({message: 'УМК создано', emc: emc})
+			
+		} catch(err) { console.log(err)}
 	},
-	async getEMCsBySimilarity(req, res) {
+	// Прикрепление умк определённой школе
+	async attachEMC(req, res){
+		try {
+			const { areaCode, schoolCode, subjectCode, giaCode, emcId } = req.params
 
-	},
-	async addNewEMC(req, res) {
-		const {subjectCode, gia, authors, title, classes, publisherId} = req.body
-		//Проверка на корректность данных
-		const subjectId = sequelize.query(`select SubjectGlobalID as id from Subjects where code = ${subjectCode}`, { nest: true, type: sequelize.QueryTypes.SELECT})
+			const {usingCoz, correctionCoz, swapCoz, studentsCount } = req.body
 
-		const newEmc = await sequelize.query(`INSERT INTO [dbo].[EMC] ([subjectId],[type],[gia],[authors],[title],[class],[publisherId],[createdBy], createdAt, updatedAt)
-			VALUES (${subjectId} , 1, ${gia}, ${authors}, ${title}, ${classes}, ${publisherId}, ${req.user.id}, GETDATE(), GETDATE())`, { nest: true, type: sequelize.QueryTypes.SELECT})
-		console.log(newEmc)
-		res.json({})
-	},
-	async setEMC(req, res) {
+			console.log(emcId)
+			console.log(areaCode)
+			const areas = await Area.findAll({ raw: true, where: areaCode ? {code: areaCode} : {}})
 
-	},
-	async mergeEMCs(req, res) {
+			console.log(areas.length)
 
+			if(areas.length == 0)
+				res.status(404).json({ message: 'Не найдено районов для прикрепления' })
+
+			if(emcId == undefined)
+				res.status(404).json({ message: 'УМК не найдена' })
+
+			const areasIds = areas.map((item) => item.AreaID)
+
+			console.log('areasIds: ', areasIds)
+
+			let schoolWhere = {	areaId: { [Op.in]: areasIds }}
+			if(schoolCode != undefined)
+				schoolWhere.code = schoolCode
+
+			console.log(schoolWhere)
+
+			const schools = await School.findAll({ raw: true, where: schoolWhere })
+
+			const bulk = []
+			
+			for(const school of schools){
+				console.log('school: ', school)
+				bulk.push({
+					usingCoz: usingCoz || '',
+					correctionCoz: correctionCoz || '',
+					swapCoz: swapCoz || '',
+					studentsCount: studentsCount || 0,
+					emcId: emcId,
+					schoolId: school.id,
+				})
+			}
+
+			await EMConSchool.bulkCreate(bulk)
+
+			res.json({message:'УМК добавлены'})
+
+		} catch(err) { console.log(err)}
 	}
 }

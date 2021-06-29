@@ -7,7 +7,10 @@ module.exports = (sequelize, DataTypes) => {
 		studentsCount: DataTypes.INTEGER,
 	})
     
-	EMConSchool.associate = (models) => {}
+	EMConSchool.associate = (models) => {
+		EMConSchool.belongsTo(models.EMC, { foreignKey:'emcId' })
+		EMConSchool.belongsTo(models.School, { foreignKey: 'schoolId' })
+	}
 	
 	return EMConSchool
 }
