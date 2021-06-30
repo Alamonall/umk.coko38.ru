@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
 		correctionCoz: DataTypes.TEXT,
 		swapCoz: DataTypes.TEXT,
 		studentsCount: DataTypes.INTEGER,
+		isApproved: DataTypes.BOOLEAN
 	})
     
 	EMConSchool.associate = (models) => {

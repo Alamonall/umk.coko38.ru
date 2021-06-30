@@ -1,73 +1,26 @@
-const { sequelize, User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
+const { User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
 const { Op } = require('sequelize')
+const { getEMCs, getApproved } = require('../helpers')
 
 module.exports = {
 	async index(req, res) {
 		try {
-			res.json({})
-		} catch (err) { console.log(err)}
+			const approved = await getApproved(req, res)
+					
+			res.json({ approvedEMC: approved })
+
+		} catch (err) { console.error(err)}
 	},
 	async getEMCs (req, res){
 		try {
 			
-			const { areaCode, schoolCode, subjectCode, giaCode } = req.params
-
-			const emcs = await EMConSchool.findAll({
-				attribute:['correctionCoz','studentsCount','swapCoz','usingCoz'],
-				include: [
-					{
-						model: EMC,
-						require: true,
-						where: giaCode ? {gia: giaCode} : {},
-						attributes:['title','authors', 'gia', 'grades','isCustom','createdBy'],
-						include: 	[
-							{
-								model: Publisher,
-								require: true,
-								attributes: [['name', 'publisherName']]
-							},
-							{
-								model: User
-							},
-							{
-								model: Subject,
-								require: true,
-								attributes: [['code', 'subjectCode'],['name', 'subjectName']],
-								where: subjectCode ? { code: subjectCode } : {}
-							}
-						]
-					},
-					{
-						model: School,
-						require: true,
-						attributes: [
-							['id', 'schoolId'],
-							['code','schoolCode'], 
-							['name','schoolName'],
-							['gia','schoolGia'],
-						],
-						where: schoolCode ? { code: schoolCode } : {},
-						include: [
-							{
-								model: Area,
-								require: true,
-								attributes: [
-									['AreaID', 'areaId'],
-									['code','areaCode'], 
-									['name','areaName'],
-									['gia','areaGia'],
-								],
-								where: areaCode ? { code: areaCode } : {}
-							}
-						]
-					}
-				]
-			})
+			const emcs = await getEMCs(req,res)
 			
-			return res.json({emcs: emcs})	
+			return res.json({ emcs: emcs})	
 			
 		} catch(err) { console.log(err)}
 	},
+	// изменения данных умк
 	async setEMC (req, res) {
 		try {
 
@@ -77,10 +30,10 @@ module.exports = {
 
 			const subject = await Subject.findOne({ where: { code: subjectCode } })
 			
-			await EMC.update({ title: title, authors: authors, subjectId: subject.id, publisherId: publisherId, gia: gia, grades: grades },
-				{ where: { id: emcId } })
-			
-			res.json({message: 'Данные обновлены'})
+			const emc = await EMC.update({ title: title, authors: authors, subjectId: subject.id, publisherId: publisherId, gia: gia, grades: grades },
+				{ where: { id: emcId }, returning: true })
+
+			res.json({ message: 'Данные обновлены', emc: emc })
 
 		} catch(err) { console.log(err)}
 	},
@@ -101,15 +54,11 @@ module.exports = {
 	// Прикрепление умк определённой школе
 	async attachEMC(req, res){
 		try {
-			const { areaCode, schoolCode, subjectCode, giaCode, emcId } = req.params
+			const { areaCode, schoolCode, emcId } = req.params
 
-			const {usingCoz, correctionCoz, swapCoz, studentsCount } = req.body
+			const { usingCoz, correctionCoz, swapCoz, studentsCount } = req.body
 
-			console.log(emcId)
-			console.log(areaCode)
 			const areas = await Area.findAll({ raw: true, where: areaCode ? {code: areaCode} : {}})
-
-			console.log(areas.length)
 
 			if(areas.length == 0)
 				res.status(404).json({ message: 'Не найдено районов для прикрепления' })
@@ -119,13 +68,9 @@ module.exports = {
 
 			const areasIds = areas.map((item) => item.AreaID)
 
-			console.log('areasIds: ', areasIds)
-
 			let schoolWhere = {	areaId: { [Op.in]: areasIds }}
 			if(schoolCode != undefined)
 				schoolWhere.code = schoolCode
-
-			console.log(schoolWhere)
 
 			const schools = await School.findAll({ raw: true, where: schoolWhere })
 
@@ -140,12 +85,49 @@ module.exports = {
 					studentsCount: studentsCount || 0,
 					emcId: emcId,
 					schoolId: school.id,
+					isApproved: false
 				})
 			}
 
 			await EMConSchool.bulkCreate(bulk)
 
-			res.json({message:'УМК добавлены'})
+			const emcs = await getEMCs(req,res)
+			const approved = await getApproved(req, res)
+
+			res.json({ message:'УМК добавлены', emcs: emcs, approved: approved })
+
+		} catch(err) { console.log(err)}
+	},
+	async detachEMC(req, res) {
+		try {
+			//Переделать
+			const { areaCode, schoolCode, emcId } = req.params
+
+			const areas = await Area.findAll({ raw: true, where: areaCode ? { code: areaCode } : {}})
+
+			if(areas.length == 0)
+				res.status(404).json({ message: 'Не найдено районов для открепления' })
+
+			if(emcId == undefined)
+				res.status(404).json({ message: 'УМК не найдена' })
+
+			const areasIds = areas.map((item) => item.AreaID)
+
+			let schoolWhere = {	areaId: { [Op.in]: areasIds }}
+
+			if(schoolCode != undefined)
+				schoolWhere.code = schoolCode
+
+			const schools = await School.findAll({ raw: true, where: schoolWhere })
+
+			const schoolIds = schools.map((item) => item.id)
+			
+			await EMConSchool.destroy({ where: { schoolId: { [Op.in]: schoolIds }, emcId: emcId } })
+
+			const emcs = await getEMCs(req, res)
+			const approved = await getApproved(req, res)
+
+			res.json({ message:'УМК откреплены', emcs: emcs, approved: approved })
 
 		} catch(err) { console.log(err)}
 	}

@@ -7,8 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		name: DataTypes.STRING,
 		code: DataTypes.INTEGER,
-		gia: DataTypes.INTEGER,
-		isEditable: DataTypes.BOOLEAN
+		gia: DataTypes.INTEGER
 	})
     
 	Area.associate = (models) => {
