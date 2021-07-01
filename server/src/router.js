@@ -17,9 +17,8 @@ module.exports = (app) => {
 
 	// главная страница админа
 	app.get('/admin',
-		isAuthenticated,
-		roleCheck.isAdmin,
 		adminController.index)
+
 	app.get('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?',
 		isAuthenticated,
 		roleCheck.isAdmin,
@@ -37,11 +36,12 @@ module.exports = (app) => {
 		roleCheck.isAdmin,
 		adminController.createEMC)
 	
+	// Прикрепить умк к определённому месту - зависит от параметров
 	app.post('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.attachEMC)
-	
+	//открепить умк от определённого места - зависит от параметров
 	app.delete('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isAdmin,

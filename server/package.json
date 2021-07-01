@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node ./src/app",
     "nodemon": "nodemon ./src/app",
-    "eslint": "eslint --fix ./"
+    "lint": "eslint --debug src/",
+    "lint:write": "eslint --debug src/ --fix",
+    "prettier": "prettier --write src/**/*.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

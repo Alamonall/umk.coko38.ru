@@ -1,13 +1,33 @@
 const { User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
-const { Op } = require('sequelize')
-const { getEMCs, getApproved } = require('../helpers')
+const { Op, fn, literal, col } = require('sequelize')
+const { getEMCs, getAreasAndSchools } = require('../helpers')
 
 module.exports = {
 	async index(req, res) {
 		try {
-			const approved = await getApproved(req, res)
-					
-			res.json({ approvedEMC: approved })
+			const areasAndSchools = await getAreasAndSchools(req, res)
+			const subjects = await Subject.findAll({
+				attributes: [
+					'name', 'code',
+					[fn('count', col('emcId')), 'srcTotalEMConSchool'],
+					[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']
+				],
+				include: [
+					{
+						model: EMC,
+						attributes: [],
+						include: [
+							{
+								model: EMConSchool,
+								attributes: [],
+							}
+						]
+					}
+				],
+				group: ['Subject.SubjectGlobalID', 'Subject.name', 'Subject.code']			
+			})
+
+			res.json({ areasAndSchools: areasAndSchools, subjects: subjects })
 
 		} catch (err) { console.error(err)}
 	},
@@ -92,9 +112,9 @@ module.exports = {
 			await EMConSchool.bulkCreate(bulk)
 
 			const emcs = await getEMCs(req,res)
-			const approved = await getApproved(req, res)
+			const areasAndSchools = await getAreasAndSchools(req, res)
 
-			res.json({ message:'УМК добавлены', emcs: emcs, approved: approved })
+			res.json({ message:'УМК добавлены', emcs: emcs, areasAndSchools: areasAndSchools })
 
 		} catch(err) { console.log(err)}
 	},
@@ -125,7 +145,7 @@ module.exports = {
 			await EMConSchool.destroy({ where: { schoolId: { [Op.in]: schoolIds }, emcId: emcId } })
 
 			const emcs = await getEMCs(req, res)
-			const approved = await getApproved(req, res)
+			const approved = await getAreasAndSchools(req, res)
 
 			res.json({ message:'УМК откреплены', emcs: emcs, approved: approved })
 

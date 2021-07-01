@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt')
-
 function hashPassword (user, options){
 	const SALT_FACTOR = 8
   
@@ -16,12 +15,20 @@ function hashPassword (user, options){
 	})
 }
 
+async function getUserRole(user, options){
+	try {		
+		const {UserRole} = require('./index')
+		const role = await UserRole.findOne({ where: { id: user.role_id } })
+		user.setDataValue('role_id', role.id)
+	} catch (err) { console.error(err)}
+}
+
 module.exports = (sequelize, DataTypes) => { 
 	const User = sequelize.define('User', {
 		username: DataTypes.STRING,
 		password: DataTypes.STRING,
 		email: DataTypes.STRING,
-		roleCode: DataTypes.INTEGER,
+		role_id: DataTypes.INTEGER,
 		gia: DataTypes.INTEGER,
 		schoolId: {
 			type: DataTypes.INTEGER,
@@ -43,19 +50,22 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	}, {
 		hooks: {
-			beforeCreate: hashPassword,
+			beforeCreate: [hashPassword, getUserRole],
 			beforeUpdate: hashPassword,
 			beforeSave: hashPassword
 		}
 	})
 	try {
-		User.prototype.comparePassword = async (password) => {
+		User.prototype.comparePassword = async function (password) {
+			console.log(password)
+			console.log(this.password)
 			return await bcrypt.compare(password, this.password)
 		}
 	} catch (err) { console.log(err)}
 
 	User.associate = (models) => {
-		User.hasMany(models.EMC, {foreignKey:'createdBy'})
+		User.hasMany(models.EMC, { foreignKey:'createdBy' })
+		User.belongsTo(models.UserRole, { foreignKey:'role_id' })
 	}
   
 	return User

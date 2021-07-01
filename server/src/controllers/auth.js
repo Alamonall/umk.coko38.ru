@@ -1,4 +1,4 @@
-const {	User } = require('../models')
+const {	User, UserRole } = require('../models')
 const jwt = require('jsonwebtoken')
 const config = require('../config/config')
 
@@ -33,6 +33,11 @@ module.exports = (app) = {
 			const {	username,	password } = req.body
 
 			const user = await User.findOne({
+				include: [
+					{ 
+						model: UserRole
+					}
+				],
 				where: {
 					username: username
 				}

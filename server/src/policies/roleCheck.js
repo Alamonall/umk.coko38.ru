@@ -1,12 +1,18 @@
-
+const { UserRole } = require('../models')
 module.exports = {
-	isAdmin(req, res, next){
-		if(req.user.roleCode == 1) next()
+	async isAdmin(req, res, next){
+		return; //заглушка
+		const userRole = await UserRole.findOne({ attributes: ['code'], where: { id: req.user.role_id } })
+		if(userRole.code == 1) next()
 	},
-	isPMO(req, res, next){
-		if(req.user.roleCode == 2) next()
+	async isPMO(req, res, next){
+		next() //заглушка
+		const userRole = await UserRole.findOne({ attributes: ['code'], where: { id: req.user.role_id } })
+		if(userRole.code  == 2) next()
 	},
-	isPOO(req, res, next){
-		if(req.user.roleCode == 3) next()
+	async isPOO(req, res, next){
+		next() //заглушка
+		const userRole = await UserRole.findOne({ attributes: ['code'], where: { id: req.user.role_id } })
+		if(userRole.code  == 3) next()
 	}
 }

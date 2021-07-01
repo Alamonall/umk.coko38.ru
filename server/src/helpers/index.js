@@ -2,7 +2,7 @@ const { User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('..
 const { Op, literal, fn, col } = require('sequelize')
 
 module.exports = {
-	async getEMCs(req, res) {
+	async getEMCs( req, res) {
 		const { areaCode, schoolCode, subjectCode, giaCode } = req.params
 
 		return await EMConSchool.findAll({
@@ -61,7 +61,8 @@ module.exports = {
 			]
 		})
 	},
-	async getApproved(req,res){
+	async getAreasAndSchools( req, res){
+		const {areaCode, schoolCode, giaCode, subjectCode} = req.params
 		return await Area.findAll({
 			attributes:[
 				'name',
@@ -70,10 +71,10 @@ module.exports = {
 				[literal(`count(case when isApproved = 1 then emcId else null end)`), 'areApproved']
 			],
 			// TODO: УБРАТЬ ЗАГЛУШКУ
-			where: { code: areaCode } || req.user.roleCode == 1 ? 
+			where: areaCode ? { code: areaCode } : {} || req.user.UserRole.code == 1 ? 
 				(areaCode ? { code: areaCode } : {})
 				: 
-				(req.user.roleCode == 2 ? { AreaID: req.user.areaId } : {})
+				(req.user.UserRole.code == 2 ? { AreaID: req.user.areaId } : {})
 			,
 			include: [
 				{
@@ -84,25 +85,22 @@ module.exports = {
 						[fn('count', col('emcId')), 'srcTotalEMConSchool'],
 						[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']],
 					// TODO: УБРАТЬ ЗАГЛУШКУ
-					where: { code: schoolCode } || req.user.roleCode == 1 ? 
+					where: schoolCode ? { code: schoolCode } : {} || req.user.UserRole.code == 1 ? 
 						(areaCode ? { code: areaCode } : {})
 						: 
-						(req.user.roleCode == 3 ? { id: req.user.schoolId } : {}),
+						(req.user.UserRole.code == 3 ? { id: req.user.schoolId } : {}),
 					include: [
 						{
 							model: EMConSchool,
 							attributes: [],
-							require: true,
 							include: [
 								{
 									model: EMC,
 									attributes: [],
-									require: true,
 									include: [
 										{
 											model: Subject,
 											attributes: ['name','code'],
-											require: true
 										}
 									]
 								}
