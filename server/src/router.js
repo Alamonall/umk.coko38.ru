@@ -17,9 +17,11 @@ module.exports = (app) => {
 
 	// главная страница админа
 	app.get('/admin',
+		isAuthenticated,
+		roleCheck.isAdmin,
 		adminController.index)
 
-	app.get('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?',
+	app.get('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.getEMCs)
@@ -37,12 +39,12 @@ module.exports = (app) => {
 		adminController.createEMC)
 	
 	// Прикрепить умк к определённому месту - зависит от параметров
-	app.post('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.attachEMC)
 	//открепить умк от определённого места - зависит от параметров
-	app.delete('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.detachEMC)
@@ -52,22 +54,22 @@ module.exports = (app) => {
 		roleCheck.isPMO,
 		pmoController.index)
 
-	app.get('/pmo(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?',	
+	app.get('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?',	
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.getEMCs)
 
-	app.post('/pmo(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.attachEMC)
 	
-	app.delete('/pmo(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.detachEMC)
 	
-	app.put('/pmo(/school/:schoolCode)?(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/approve',
+	app.put('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/approve',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.setApproval)
@@ -78,22 +80,22 @@ module.exports = (app) => {
 		roleCheck.isPOO,
 		pooController.index)
 
-	app.get('/poo(/subjects/:subjectCode)?(/gia/:giaCode)?',
+	app.get('/poo(/subject/:subjectCode)?(/gia/:giaCode)?',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.getEMCs)
 
-	app.post('/poo(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.attachEMC)
 
-	app.post('/poo(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.attachEMC)
 	
-	app.delete('/poo(/subjects/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.detachEMC)

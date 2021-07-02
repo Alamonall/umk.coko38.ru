@@ -22,7 +22,7 @@ export default new Vuex.Store({
 		},
 		setUser(state, user) {
 			state.user = user
-			if (user.roleCode === 1) {
+			if (user.UserRole.code === 1) {
 				state.isAdmin = true
 			} else {
 				state.isAdmin = false

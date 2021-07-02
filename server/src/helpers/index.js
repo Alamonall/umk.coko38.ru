@@ -1,9 +1,10 @@
+require('dotenv/config')
 const { User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
 const { Op, literal, fn, col } = require('sequelize')
 
 module.exports = {
 	async getEMCs( req, res) {
-		const { areaCode, schoolCode, subjectCode, giaCode } = req.params
+		const { areaCode, schoolCode, subjectCode } = req.params
 
 		return await EMConSchool.findAll({
 			attribute:['correctionCoz','studentsCount','swapCoz','usingCoz', 'isApproved'],
@@ -11,7 +12,7 @@ module.exports = {
 				{
 					model: EMC,
 					require: true,
-					where: giaCode ? {gia: giaCode} : {},
+					where: req.user || process.env.NODE_ENV !== 'development' ? { gia: req.user.gia} : {},
 					attributes:['title','authors', 'gia', 'grades','isCustom','createdBy'],
 					include: 	[
 						{
@@ -51,10 +52,12 @@ module.exports = {
 								['gia','areaGia'],
 							],
 							// TODO: УБРАТЬ ЗАГЛУШКУ
-							where: { code: areaCode } || req.user.roleCode == 1 ? 
-								(areaCode ? { code: areaCode } : {})
-								: 
-								(req.user.roleCode == 2 ? { AreaID: req.user.areaId } : {})
+							where: req.user || process.env.NODE_ENV !== 'development' ?
+								req.user.roleCode == 1 ? 
+									(areaCode ? { code: areaCode } : {})
+									: 
+									(req.user.roleCode == 2 ? { AreaID: req.user.areaId } : {})
+								: areaCode ? { code: areaCode } : {}
 						}
 					]
 				}
@@ -63,6 +66,26 @@ module.exports = {
 	},
 	async getAreasAndSchools( req, res){
 		const {areaCode, schoolCode, giaCode, subjectCode} = req.params
+		let areaWhere, schoolWhere
+		
+		switch(process.env.NODE_ENV === 'production' ? req.user.UserRole.code : 0){
+			case 1: 
+				areaWhere = { code: areaCode } || {}
+				schoolWhere = { code: schoolCode, gia: giaCode } || { gia: giaCode }
+				break;
+			case 2: 
+				areaWhere = { id: req.user.areaId }
+				schoolWhere = { code: schoolCode, gia: req.user.gia } || { gia: req.user.gia }
+				break;
+			case 3: 
+				schoolWhere = { id: req.user.schoolId, gia: req.user.gia } || { gia: req.user.gia }
+				break;
+			default:
+				areaWhere = { code: areaCode } || {}
+				schoolWhere = { code: schoolCode, gia: giaCode } || { gia: giaCode }
+				break;
+		}
+
 		return await Area.findAll({
 			attributes:[
 				'name',
@@ -71,10 +94,7 @@ module.exports = {
 				[literal(`count(case when isApproved = 1 then emcId else null end)`), 'areApproved']
 			],
 			// TODO: УБРАТЬ ЗАГЛУШКУ
-			where: areaCode ? { code: areaCode } : {} || req.user.UserRole.code == 1 ? 
-				(areaCode ? { code: areaCode } : {})
-				: 
-				(req.user.UserRole.code == 2 ? { AreaID: req.user.areaId } : {})
+			where: areaCode ? { code: areaCode } : {} || areaWhere
 			,
 			include: [
 				{
@@ -85,10 +105,7 @@ module.exports = {
 						[fn('count', col('emcId')), 'srcTotalEMConSchool'],
 						[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']],
 					// TODO: УБРАТЬ ЗАГЛУШКУ
-					where: schoolCode ? { code: schoolCode } : {} || req.user.UserRole.code == 1 ? 
-						(areaCode ? { code: areaCode } : {})
-						: 
-						(req.user.UserRole.code == 3 ? { id: req.user.schoolId } : {}),
+					where: schoolCode ? { code: schoolCode } : {} || schoolWhere,
 					include: [
 						{
 							model: EMConSchool,
@@ -100,7 +117,9 @@ module.exports = {
 									include: [
 										{
 											model: Subject,
-											attributes: ['name','code'],
+											attributes: ['name','code',
+											[fn('count', col('emcId')), 'subTotalEMConSchool'],
+											[literal(`count(case when isApproved = 1 then emcId else null end)`), 'subApproved']],
 										}
 									]
 								}
@@ -113,7 +132,10 @@ module.exports = {
 			 'Schools.code', 'Schools.id', 'Schools.gia',
 			 '[Schools->EMConSchools->EMC->Subject].SubjectGlobalID',
 			 '[Schools->EMConSchools->EMC->Subject].[name]',
-			 '[Schools->EMConSchools->EMC->Subject].[code]']
+			 '[Schools->EMConSchools->EMC->Subject].[code]'
+			],
+			order: [
+				[School, 'code', 'ASC']]
 		})
 	}
 
