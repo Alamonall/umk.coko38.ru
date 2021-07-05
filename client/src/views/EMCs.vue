@@ -1,75 +1,46 @@
 <template>
 	<v-row dense>
 		<v-col cols="12">
-		<EMCOnSchoolSelector
-			:emcs=emcs
-			@onAttachEMCTo='attachEMCTo'
-			/>
-		</v-col>
-		<v-col cols="12">
-			<EMCOnSchoolCard
-				v-for='emcOnSchool in emcsOnSchool'
-				:key='emcOnSchool.id'
-				:emcOnSchool='emcOnSchool'
-				@onDetachEMCFrom='detachEMCFrom'
+			<v-skeleton-loader
+				class="mx-auto"
+				type="EMCCard"
+			></v-skeleton-loader>
+			<EMCCard
+				v-for='emc in emcs'
+				:key='emc.id'
+				:emc='emc'
 				@onSwapCreatingStatusEMC='swapCreatingStatusEMC'
-				@onSwapApprovingStatusEMCOnSchool='swapApprovingStatusEMCOnSchool'
 				/>
 		</v-col>
 	</v-row>
 </template>
-
 <script>
-import { mapState } from 'vuex'
 import AdminService from '../services/adminService'
-import EMCOnSchoolCard from '../components/EMCOnSchoolCard.vue' 
-import EMCOnSchoolSelector from '../components/EMCOnSchoolSelector.vue' 
+import EMCCard from '../components/EMCCard.vue' 
 
 export default {
 	components: {
-		EMCOnSchoolCard,
-		EMCOnSchoolSelector
+		EMCCard
 	},
 	data: () => ({
-		emcsOnSchool: [],
 		emcs: [],
 		error: null,
-  }),
-	computed: {
-		 ...mapState([
-    	'store'
-  	])
-  },
+	}),
 	created() {
-		this.$store.dispatch('setSidebar', false) // Включаем sidebar для EMCsOnSchool и выключаем для конструктора
-		this.getEMCsOnSchool()
-		this.getEMCs()
-	},
-	watch: {
-		$route() {
-			this.getEMCsOnSchool()
-			this.getEMCs()
-		}
+		this.getEMCsForConstructor()
+		this.$store.dispatch('setSidebar', true) // Выключаем sidebar для EMCsOnSchool и включаем для конструктора
 	},
 	methods: {
-		async getEMCsOnSchool() {
-			// Получение УМК школы 
+		async getEMCsForConstructor() {
 			try {
-				const response = await AdminService.getEMCsOnSchool(this.$route.params)
-				this.emcsOnSchool = response.data.emcsOnSchool
-			} catch (err){ this.error = err }
-		},
-		async getEMCs() {
-			try {
-				// Получение умк для селектора добавления				
-				const response = await AdminService.getEMCs(this.$route.params)
+				const response = await AdminService.getEMCs()
 				this.emcs = response.data.emcs
 			} catch (err){ this.error = err }
 		},
-		async attachEMCTo(emcModel) {
+		async attachEMCTo(emcModel, areaCode, schoolCode) {
 			try {
 				// Отправляем серверу запрос на добавление Умк для данной школы (через параметры)
-				const response = await AdminService.attachTo(this.$route.params, emcModel.entry.id)
+				const response = await AdminService.attachTo({areaCode, schoolCode}, emcModel.entry.id)
 				console.log('attach: ', response.data.emcsOnSchool)
 				// удаляем из списка умк умк, которую мы только что добавили к школе, чтобы не было возможности её добавить повторно
 				this.emcs.splice( this.emcs.indexOf(emcModel.entry), 1)
@@ -79,10 +50,10 @@ export default {
 				// обновлять sidebar
 			} catch (err){ this.error = err }
 		},
-		async detachEMCFrom(emcOnSchool) {
+		async detachEMCFrom(emcOnSchool, areaCode, schoolCode) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				await AdminService.detachFrom(this.$route.params, emcOnSchool.emcId)
+				await AdminService.detachFrom({areaCode, schoolCode}, emcOnSchool.emcId)
 
 				// добавляем удалённую умк в список возможных на добавлением
 				// [0] - потому что vue автоматом добавляет свойства по наблюдению, а нам нужен только сам объект
@@ -108,17 +79,9 @@ export default {
 				this.error = error
 			}
 		},
-		async swapApprovingStatusEMCOnSchool(emcOnSchool){
-			try {
-				emcOnSchool.isApproved = !emcOnSchool.isApproved
-				
-				const response = await AdminService.setEMCOnSchool(emcOnSchool)
-				this.$set(this.emcsOnSchool, this.emcsOnSchool.indexOf(emcOnSchool), response.data.emc[0] )
-			} catch (error) {
-				this.error = error
-			}
-		}
-	},
+	}
 }
 </script>
-<style scoped></style>
+<style>
+	
+</style>

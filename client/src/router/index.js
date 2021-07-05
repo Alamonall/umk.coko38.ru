@@ -3,8 +3,10 @@ import Router from 'vue-router'
 import Signup from '../components/Signup.vue'
 import Signin from '../components/Signin.vue'
 import Admin from '../views/Admin.vue'
-import EMConSchool from '../views/EMCOnSchool.vue'
-import EMConSchoolEdit from '../views/EMCOnSchoolEdit.vue'
+import EMConSchool from '../views/EMCOnSchool.vue' 
+import EMCEdit from '../views/EMCEdit.vue' 
+import EMCCreate from '../views/EMCCreate.vue'  
+import EMCs from '../views/EMCs.vue' 
 
 Vue.use(Router)
 
@@ -26,24 +28,24 @@ export default new Router({
 			component: Admin,
 		},
 		{
-			name: 'admin-view-emcs',
-			path: '/admin/area/:areaCode/school/:schoolCode/subject/:subjectCode',
+			name: 'admin-emcs-on-school',
+			path: '/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
 			component: EMConSchool,
+		},
+		{
+			name: 'admin-emcs',
+			path: '/admin(/subjects/:subjectCode)?/emcs',
+			component: EMCs,
 		},
 		{
 			name: 'admin-emc-edit',
-			path: '/admin/emc/edit',
-			component: EMConSchoolEdit,
+			path: '/admin/emcs/:emcId/edit',
+			component: EMCEdit,
 		},
 		{
-			name: 'admin-emc-make-official',
-			path: '/admin/emc/:emcId/make-official',
-			component: EMConSchool,
-		},
-		{
-			name: 'admin-emc-make-custom',
-			path: '/admin/emc/:emcId/make-custom',
-			component: EMConSchool,
+			name: 'admin-emc-create',
+			path: '/admin/emcs/create',
+			component: EMCCreate,
 		},
 	],
 })

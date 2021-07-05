@@ -1,7 +1,7 @@
 <template>
   <v-app>
 		<PageHeader/>		
-		<TheSidebar>
+		<TheSidebar v-if='!this.$store.state.isSidebarActive'>
 			<v-list-group 
 				v-for="area in areas"
 				:key="area.AreaID"
@@ -21,7 +21,7 @@
 					>
 					<template v-slot:activator>
 						<v-list-item-content>
-							<v-list-item-title blue>{{school.code}} {{school.name}} ({{ school.srcApproved}}/{{ school.srcTotalEMConSchool}})</v-list-item-title>
+							<v-list-item-title blue>{{school.code}} {{school.name}} )</v-list-item-title>
 						</v-list-item-content>
 					</template>
 
@@ -42,11 +42,31 @@
 										subjectCode: subject.code
 									}
 								}"
-								> {{subject.name}}</v-btn>
+								> {{subject.name}} </v-btn>
 						</v-list-item-content>
 					</v-list-item>          
 				</v-list-group>
 			</v-list-group>
+		</TheSidebar>
+		<TheSidebar v-if='this.$store.state.isSidebarActive'>
+			<v-list-item
+				v-for='subject in subjects'
+				:key='subject.SubjectGlobalID'
+				:value="false"
+				link
+				>
+				<v-list-item-content>
+					<v-btn
+						plain
+						:to="{ 
+							name: 'admin-emcs', 
+							params: {
+								subjectCode: subject.code
+							}
+						}"
+						> {{subject.name}} </v-btn>
+				</v-list-item-content>
+			</v-list-item> 
 		</TheSidebar>
     <v-main>
 			<!-- Provides the application the proper gutter -->
@@ -60,7 +80,7 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex'
+import { mapState } from 'vuex'
 import AdminService from './services/adminService'
 import PageHeader from './components/TheHeader.vue'
 import TheSidebar from './components/TheSidebar.vue'
@@ -73,28 +93,29 @@ export default {
 	},
   data: () => ({
 		areas: [],
-		subjects: [],
 		err: null
   }),
 	created() {
-		this.fetchData()
+		this.getMainData()
+	},	
+	computed: {
+		subjects(){
+			return this.$store.state.subjects
+		},
+		...mapState([
+    	'store'
+  	])
 	},
 	watch: {
-		$route(to, from) {
-      // обрабатываем изменение параметров маршрута...
-			console.log(from)
-			console.log(to)
-			
-			this.fetchData()
-    }
 	},
 	methods: {
-		async fetchData () {
+		async getMainData () {
 			try {
 				const response = await AdminService.getAdminData()
 				console.log(response.data)
 				this.areas = response.data.areasAndSchools
-				this.subjects = response.data.subjects
+				this.$store.dispatch('setSubjects', response.data.subjects)
+				this.$store.dispatch('setPublishers', response.data.publishers)
 			} catch (err) {
 				console.error(err)
 				this.err = err

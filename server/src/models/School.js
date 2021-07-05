@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     
 	School.associate = (models) => {
 		School.belongsTo(models.Area, { foreignKey: 'areaId',	onDelete: 'NO ACTION', onUpdate: 'NO ACTION'})
-		School.hasMany(models.EMConSchool, { foreignKey: 'schoolId'  })
+		School.hasMany(models.EMCOnSchool, { foreignKey: 'schoolId'  })
 		School.hasMany(models.User, { foreignKey: 'schoolId'})
 	}
 	return School

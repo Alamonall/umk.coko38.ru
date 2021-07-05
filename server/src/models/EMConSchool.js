@@ -1,6 +1,6 @@
 'use strict'
 module.exports = (sequelize, DataTypes) => {
-	const EMConSchool = sequelize.define('EMConSchool',{
+	const EMCOnSchool = sequelize.define('EMCOnSchool',{
 		usingCoz: DataTypes.TEXT,
 		correctionCoz: DataTypes.TEXT,
 		swapCoz: DataTypes.TEXT,
@@ -8,10 +8,10 @@ module.exports = (sequelize, DataTypes) => {
 		isApproved: DataTypes.BOOLEAN
 	})
     
-	EMConSchool.associate = (models) => {
-		EMConSchool.belongsTo(models.EMC, { foreignKey:'emcId' })
-		EMConSchool.belongsTo(models.School, { foreignKey: 'schoolId' })
+	EMCOnSchool.associate = (models) => {
+		EMCOnSchool.belongsTo(models.EMC, { foreignKey:'emcId' })
+		EMCOnSchool.belongsTo(models.School, { foreignKey: 'schoolId' })
 	}
 	
-	return EMConSchool
+	return EMCOnSchool
 }

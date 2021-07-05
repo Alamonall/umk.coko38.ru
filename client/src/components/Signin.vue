@@ -41,8 +41,7 @@ export default {
 
         this.$store.dispatch('setToken', response.data.token)
         this.$store.dispatch('setUser', response.data.user)
-        console.log('response.data.user.role: ', response.data.user.UserRole.name)
-        this.$router.push(`/${response.data.user.UserRole.name}`)
+        this.$router.push(`/${ response.data.user.UserRole.name }`)
       } catch (error) {
         this.error = error.response.data.error
       }

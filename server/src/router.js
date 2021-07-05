@@ -21,30 +21,44 @@ module.exports = (app) => {
 		roleCheck.isAdmin,
 		adminController.index)
 
-	app.get('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?',
+	// Получение списка прикреплённых к школам умк
+	app.get('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?',
+		isAuthenticated,
+		roleCheck.isAdmin,
+		adminController.getEMCsOnSchoolByAdmin)
+
+	// получение всех умк
+	app.get('/admin(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.getEMCs)
 
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/admin/emc/:emcId',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.setEMC)
-	
 	// Добавление нового умк 
-	app.post('/admin/new/emc',
+	app.post('/admin/emcs/new',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.createEMC)
 	
+	// сохранения изменений сделанных админом для конкретного умк
+	app.put('/admin/emcs/:emcId',
+		isAuthenticated,
+		roleCheck.isAdmin,
+		adminController.setEMC)
+	
+	// сохранения изменений сделанных админом для конкретного умк
+	app.put('/admin/emcOnSchool/:emcOnSchoolId',
+		isAuthenticated,
+		roleCheck.isAdmin,
+		adminController.setEMCOnSchool)
+		
 	// Прикрепить умк к определённому месту - зависит от параметров
-	app.post('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.attachEMC)
+
 	//открепить умк от определённого места - зависит от параметров
-	app.delete('/admin(/area/:areaCode)?(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.detachEMC)
@@ -54,48 +68,47 @@ module.exports = (app) => {
 		roleCheck.isPMO,
 		pmoController.index)
 
-	app.get('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?',	
+	app.get('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?',	
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.getEMCs)
 
-	app.post('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.attachEMC)
 	
-	app.delete('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.detachEMC)
 	
-	app.put('/pmo(/school/:schoolCode)?(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/approve',
+	app.put('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/approve',
 		isAuthenticated,
 		roleCheck.isPMO,
 		pmoController.setApproval)
-
 
 	app.get('/poo', 
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.index)
 
-	app.get('/poo(/subject/:subjectCode)?(/gia/:giaCode)?',
+	app.get('/poo(/subjects/:subjectCode)?',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.getEMCs)
 
-	app.post('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/poo(/subjects/:subjectCode)?/emcs/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.attachEMC)
 
-	app.post('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/attach',
+	app.post('/poo(/subjects/:subjectCode)?/emcs/:emcId/attach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.attachEMC)
 	
-	app.delete('/poo(/subject/:subjectCode)?(/gia/:giaCode)?/emc/:emcId/detach',
+	app.delete('/poo(/subjects/:subjectCode)?/emcs/:emcId/detach',
 		isAuthenticated,
 		roleCheck.isPOO,
 		pooController.detachEMC)

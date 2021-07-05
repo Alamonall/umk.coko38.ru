@@ -1,19 +1,20 @@
 require('dotenv/config')
-const { User, EMC, EMConSchool, Publisher, School, Subject, Area } = require('../models')
+const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
 const { Op, literal, fn, col } = require('sequelize')
 
 module.exports = {
-	async getEMCs( req, res) {
+	async getEMCsOnSchool( req, ids = []) {
 		const { areaCode, schoolCode, subjectCode } = req.params
 
-		return await EMConSchool.findAll({
+		return await EMCOnSchool.findAll({
 			attribute:['correctionCoz','studentsCount','swapCoz','usingCoz', 'isApproved'],
+			where: ids.length > 0 ? { id:{ [Op.in]: ids } } : {},
 			include: [
 				{
 					model: EMC,
 					require: true,
 					where: req.user || process.env.NODE_ENV !== 'development' ? { gia: req.user.gia} : {},
-					attributes:['title','authors', 'gia', 'grades','isCustom','createdBy'],
+					attributes:['id', 'title','authors', 'gia', 'grades','isCustom','createdBy'],
 					include: 	[
 						{
 							model: Publisher,
@@ -90,7 +91,7 @@ module.exports = {
 			attributes:[
 				'name',
 				'code',
-				[fn('count', col('emcId')), 'areTotalEMConSchool'],
+				[fn('count', col('emcId')), 'areTotalEMCOnSchool'],
 				[literal(`count(case when isApproved = 1 then emcId else null end)`), 'areApproved']
 			],
 			// TODO: УБРАТЬ ЗАГЛУШКУ
@@ -102,13 +103,13 @@ module.exports = {
 					require: true,
 					attributes: [
 						'name', 'code', 'gia',
-						[fn('count', col('emcId')), 'srcTotalEMConSchool'],
+						[fn('count', col('emcId')), 'srcTotalEMCOnSchool'],
 						[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']],
 					// TODO: УБРАТЬ ЗАГЛУШКУ
 					where: schoolCode ? { code: schoolCode } : {} || schoolWhere,
 					include: [
 						{
-							model: EMConSchool,
+							model: EMCOnSchool,
 							attributes: [],
 							include: [
 								{
@@ -118,7 +119,7 @@ module.exports = {
 										{
 											model: Subject,
 											attributes: ['name','code',
-											[fn('count', col('emcId')), 'subTotalEMConSchool'],
+											[fn('count', col('emcId')), 'subTotalEMCOnSchool'],
 											[literal(`count(case when isApproved = 1 then emcId else null end)`), 'subApproved']],
 										}
 									]
@@ -130,9 +131,9 @@ module.exports = {
 			],
 			group: ['Area.AreaID', 'Area.name', 'Area.code','Schools.name',
 			 'Schools.code', 'Schools.id', 'Schools.gia',
-			 '[Schools->EMConSchools->EMC->Subject].SubjectGlobalID',
-			 '[Schools->EMConSchools->EMC->Subject].[name]',
-			 '[Schools->EMConSchools->EMC->Subject].[code]'
+			 '[Schools->EMCOnSchools->EMC->Subject].SubjectGlobalID',
+			 '[Schools->EMCOnSchools->EMC->Subject].[name]',
+			 '[Schools->EMCOnSchools->EMC->Subject].[code]'
 			],
 			order: [
 				[School, 'code', 'ASC']]

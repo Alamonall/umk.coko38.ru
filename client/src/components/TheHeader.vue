@@ -9,9 +9,11 @@
         transition="scale-transition"
         width="40"
       />
-
-      <v-btn plain :to="{ name: '/' }"> Функциональная грамотность </v-btn>
     </div>
+
+		<v-btn plain :to="{ name: '/' }"> Система учёта УМК </v-btn>
+		<v-btn plain :to="{ name: 'admin-emcs-on-school' }"> УМК </v-btn>
+		<v-btn plain :to="{ name: 'admin-emcs' }"> Конструктор </v-btn>
 
     <v-spacer></v-spacer>
     <v-btn v-if="!this.$store.state.isSignin" plain :to="{ name: '/' }"> Войти </v-btn>

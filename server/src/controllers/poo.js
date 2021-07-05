@@ -1,4 +1,4 @@
-const { EMConSchool, School } = require('../models')
+const { EMCOnSchool, School } = require('../models')
 const { Op } = require('sequelize')
 const { getEMCs, getApproved } = require('../helpers')
 
@@ -55,7 +55,7 @@ module.exports = {
 				})
 			}
 
-			await EMConSchool.bulkCreate(bulk)
+			await EMCOnSchool.bulkCreate(bulk)
 
 			const emcs = await getEMCs(req,res)
 			const approved = await getApproved(req, res)
@@ -81,7 +81,7 @@ module.exports = {
 
 			const schoolIds = schools.map((item) => item.id)
 			
-			await EMConSchool.destroy({ where: { schoolId: { [Op.in]: schoolIds }, emcId: emcId } })
+			await EMCOnSchool.destroy({ where: { schoolId: { [Op.in]: schoolIds }, emcId: emcId } })
 			
 			const approved = await getApproved(req, res)
 			const emcs = await getEMCs(req, res)
