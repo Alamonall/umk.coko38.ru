@@ -3,10 +3,11 @@ import Router from 'vue-router'
 import Signup from '../components/Signup.vue'
 import Signin from '../components/Signin.vue'
 import Admin from '../views/Admin.vue'
-import EMConSchool from '../views/EMCOnSchool.vue' 
+import EMCOnSchool from '../views/EMCOnSchool.vue' 
 import EMCEdit from '../views/EMCEdit.vue' 
 import EMCCreate from '../views/EMCCreate.vue'  
 import EMCs from '../views/EMCs.vue' 
+import PageNotFound from '../components/PageNotFound.vue' 
 
 Vue.use(Router)
 
@@ -28,24 +29,38 @@ export default new Router({
 			component: Admin,
 		},
 		{
+			name: 'admin-emcs-on-school-index',
+			path: '/admin/emcs-on-school',
+			component: EMCOnSchool,
+		},
+		{
 			name: 'admin-emcs-on-school',
-			path: '/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
-			component: EMConSchool,
+			path: '/admin/areas/:areaCode/schools/:schoolCode/subjects/:subjectCode/emcs-on-school',
+			component: EMCOnSchool,
 		},
 		{
 			name: 'admin-emcs',
-			path: '/admin(/subjects/:subjectCode)?/emcs',
+			path: '/admin/emcs',
 			component: EMCs,
 		},
 		{
-			name: 'admin-emc-edit',
-			path: '/admin/emcs/:emcId/edit',
-			component: EMCEdit,
+			name: 'admin-subject-emcs',
+			path: '/admin/subjects/:subjectCode/emcs',
+			component: EMCs,
 		},
 		{
 			name: 'admin-emc-create',
 			path: '/admin/emcs/create',
 			component: EMCCreate,
 		},
+		{
+			name: 'admin-emc-edit',
+			path: '/admin/emcs/:emcId/edit',
+			component: EMCEdit,
+		},
+		{ 
+			path: '*', 
+			component: PageNotFound 
+		}
 	],
 })

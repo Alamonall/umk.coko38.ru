@@ -2,6 +2,7 @@
 	<v-container
     class="px-0"
     fluid
+		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
   	>
 		<v-card>
 			<v-card-title class="text-h4">
@@ -9,19 +10,22 @@
 			</v-card-title>
 			<v-card-text class="text-h5">
 				<v-text-field
+					v-model='emc.title'
 					label='Название'
 					placeholder='Введите название умк'
 				></v-text-field>
 				<v-text-field
+					v-model='emc.authors'
 					label='Авторы'
 					placeholder='Введите автора умк'
 				></v-text-field>
 				<v-text-field
+					v-model='emc.grades'
 					label='Класс'
 					placeholder='Введите классы умк'
 				></v-text-field>
 				<v-select
-					v-model=emc.level
+					v-model='emc.Level'
 					:items=levels
 					item-text='name'
 					no-data-text='Нет данных'
@@ -30,6 +34,7 @@
 					return-object
 				></v-select>
 				<v-select
+					v-model='emc.Publisher'
 					:items=publishers
 					item-text='name'
 					no-data-text='Нет данных'
@@ -38,10 +43,20 @@
 					solo
 					return-object
 				></v-select>
+				<v-select
+					v-model='emc.Subject'
+					:items=subjects
+					item-text='name'
+					no-data-text='Нет данных'
+					label="Предмет"
+					placeholder='Выберите предмет умк'
+					solo
+					return-object
+				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4"
-					@click="$emit('createEmc', emc)"
+					@click='createEMC'
 				>
 					Создать УМК
 				</v-btn>
@@ -55,12 +70,24 @@
 	</v-container>
 </template>
 <script>
+import { mapState } from 'vuex' 
+import AdminService from '../services/adminService'
+
 export default {
 	data : () => ({
 		error: null,
-		levels: [
-			{ code: 1, name: 'Базовый уровень' }, { code: 2, name: 'Углубленный уровень' }, { code: 3, name: 'Специальный уровень' }
-		]
+		message: null,
+		emc: {
+			title: null,
+			grades: null,
+			gia: null,
+			subjectId: null,
+			Subject: null,
+			publisherId: null,
+			isCustom: null,
+			Level: null,
+			levelId: null
+		},
 	}),
 	created() {
 		this.$store.dispatch('setSidebar', true) // Выключаем sidebar для EMCsOnSchool и включаем для конструктора
@@ -68,6 +95,32 @@ export default {
 	computed: {
 		publishers(){
 			return this.$store.state.publishers
+		},
+		subjects(){
+			return this.$store.state.subjects
+		},
+		levels(){
+			return this.$store.state.levels
+		},
+    ...mapState([
+      'isUserLoggedIn',
+			'isSidebarActive',
+			'user'
+    ])
+	},
+	methods: {
+		async createEMC(){
+			try {
+				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
+				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
+				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
+
+				const response = await AdminService.createEMC(this.emc)
+				this.message = response.data.message
+				this.$router.push({ name:'admin-emcs' })
+			} catch (error) {
+				this.error = error
+			}
 		}
 	}
 }

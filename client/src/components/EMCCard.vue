@@ -2,6 +2,7 @@
   <v-container
     class="px-0"
     fluid
+		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
   >
 		<v-card	>
 			<v-card-title  class='text-h4'> {{ emc.title }} </v-card-title>
@@ -32,21 +33,39 @@
 					v-if='emc.createBy'
 					text
 					color="teal accent-4"
-					@click="$emit('onSwapCreatingStatusEMC', emc)"
 					>
 					<div v-if='emc.isCustom'>Сделать официальным</div>
 					<div v-else>Сделать снова пользовательским </div>						
+				</v-btn>
+				<v-spacer></v-spacer>
+				<v-btn 
+					text
+					color="red darken-1"
+					@click="$emit('onDeleteEMC', emc)"
+					>
+					Удалить
 				</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
 </template>
 <script>
+import { mapState } from 'vuex'
 
 export default {
 	props: ['emc'],
   data: () => ({
-	})
+		error: null,
+		message: null,
+	}),
+	computed: {
+		...mapState([
+    	'store',
+      'isUserLoggedIn',
+			'isAdmin',
+			'user'
+    ])
+	}
 }
 </script>
 

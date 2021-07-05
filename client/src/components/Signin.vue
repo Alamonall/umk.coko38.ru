@@ -25,12 +25,11 @@
 import auth from '../services/auth'
 
 export default {
-  data() {
-    return {
+  data: () => ({
       username: 'Введите логин',
       password: 'Пароль',
-    }
-  },
+			error: null
+	}),
   methods: {
     async signin() {
       try {
@@ -39,11 +38,14 @@ export default {
           password: this.password,
         })
 
+				console.log(response)
         this.$store.dispatch('setToken', response.data.token)
         this.$store.dispatch('setUser', response.data.user)
+				
         this.$router.push(`/${ response.data.user.UserRole.name }`)
       } catch (error) {
-        this.error = error.response.data.error
+				console.log(error)
+        this.error = error
       }
     },
   },

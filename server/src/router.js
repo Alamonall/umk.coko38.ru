@@ -22,7 +22,7 @@ module.exports = (app) => {
 		adminController.index)
 
 	// Получение списка прикреплённых к школам умк
-	app.get('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?',
+	app.get('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.getEMCsOnSchoolByAdmin)
@@ -34,7 +34,7 @@ module.exports = (app) => {
 		adminController.getEMCs)
 
 	// Добавление нового умк 
-	app.post('/admin/emcs/new',
+	app.post('/admin/emcs/create',
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.createEMC)
@@ -44,6 +44,12 @@ module.exports = (app) => {
 		isAuthenticated,
 		roleCheck.isAdmin,
 		adminController.setEMC)
+	
+		// сохранения изменений сделанных админом для конкретного умк
+	app.delete('/admin/emcs/:emcId/delete',
+		isAuthenticated,
+		roleCheck.isAdmin,
+		adminController.deleteEMC)
 	
 	// сохранения изменений сделанных админом для конкретного умк
 	app.put('/admin/emcOnSchool/:emcOnSchoolId',

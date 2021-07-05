@@ -1,7 +1,9 @@
 <template>
   <v-app>
 		<PageHeader/>		
-		<TheSidebar v-if='!this.$store.state.isSidebarActive'>
+		<TheSidebar 
+			v-if='!this.$store.state.isSidebarActive 
+				&& this.$store.state.isSignin'>
 			<v-list-group 
 				v-for="area in areas"
 				:key="area.AreaID"
@@ -21,7 +23,7 @@
 					>
 					<template v-slot:activator>
 						<v-list-item-content>
-							<v-list-item-title blue>{{school.code}} {{school.name}} )</v-list-item-title>
+							<v-list-item-title blue>{{school.code}} {{school.name}} </v-list-item-title>
 						</v-list-item-content>
 					</template>
 
@@ -33,22 +35,56 @@
 						>
 						<v-list-item-content>
 							<v-btn
+								v-if='this.$store.state.user.UserRole.code == 1'
 								plain
 								:to="{ 
-									name: 'admin-view-emcs', 
+									name: 'admin-emcs-on-school', 
 									params: {
 										areaCode: area.code,
 										schoolCode: school.code,
 										subjectCode: subject.code
 									}
 								}"
-								> {{subject.name}} </v-btn>
+								>
+								{{subject.name}} 
+							</v-btn>
+							<v-btn
+								v-if='this.$store.state.user.UserRole.code == 2'
+								plain
+								:to="{ 
+									name: 'pmo-emcs-on-school', 
+									params: {
+										areaCode: area.code,
+										schoolCode: school.code,
+										subjectCode: subject.code
+									}
+								}"
+								>
+								{{subject.name}} 
+							</v-btn>
+							<v-btn
+								v-if='this.$store.state.user.UserRole.code == 3'
+								plain
+								:to="{ 
+									name: 'poo-emcs-on-school', 
+									params: {
+										areaCode: area.code,
+										schoolCode: school.code,
+										subjectCode: subject.code
+									}
+								}"
+								>
+								{{subject.name}} 
+							</v-btn>
 						</v-list-item-content>
 					</v-list-item>          
 				</v-list-group>
 			</v-list-group>
 		</TheSidebar>
-		<TheSidebar v-if='this.$store.state.isSidebarActive'>
+
+		<TheSidebar 
+			v-if='this.$store.state.isSidebarActive 
+				&& this.$store.state.isSignin '>
 			<v-list-item
 				v-for='subject in subjects'
 				:key='subject.SubjectGlobalID'
@@ -57,17 +93,45 @@
 				>
 				<v-list-item-content>
 					<v-btn
+						v-if='this.$store.state.user.UserRole.code == 1'
 						plain
 						:to="{ 
-							name: 'admin-emcs', 
+							name: 'admin-subject-emcs', 
 							params: {
 								subjectCode: subject.code
 							}
 						}"
-						> {{subject.name}} </v-btn>
+						> 
+						{{subject.name}} 
+					</v-btn>
+					<v-btn
+						v-if='this.$store.state.user.UserRole.code == 2'
+						plain
+						:to="{ 
+							name: 'pmo-subject-emcs', 
+							params: {
+								subjectCode: subject.code
+							}
+						}"
+						> 
+						{{subject.name}} 
+					</v-btn>
+					<v-btn
+						v-if='this.$store.state.user.UserRole.code == 3'
+						plain
+						:to="{ 
+							name: 'poo-subject-emcs', 
+							params: {
+								subjectCode: subject.code
+							}
+						}"
+						> 
+						{{subject.name}} 
+					</v-btn>
 				</v-list-item-content>
 			</v-list-item> 
 		</TheSidebar>
+		
     <v-main>
 			<!-- Provides the application the proper gutter -->
 			<v-container fluid>
@@ -80,8 +144,6 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import AdminService from './services/adminService'
 import PageHeader from './components/TheHeader.vue'
 import TheSidebar from './components/TheSidebar.vue'
 
@@ -92,35 +154,15 @@ export default {
 		TheSidebar
 	},
   data: () => ({
-		areas: [],
 		err: null
   }),
-	created() {
-		this.getMainData()
-	},	
 	computed: {
 		subjects(){
 			return this.$store.state.subjects
 		},
-		...mapState([
-    	'store'
-  	])
+		areas() {
+			return this.$store.state.areas
+		}
 	},
-	watch: {
-	},
-	methods: {
-		async getMainData () {
-			try {
-				const response = await AdminService.getAdminData()
-				console.log(response.data)
-				this.areas = response.data.areasAndSchools
-				this.$store.dispatch('setSubjects', response.data.subjects)
-				this.$store.dispatch('setPublishers', response.data.publishers)
-			} catch (err) {
-				console.error(err)
-				this.err = err
-			}
-		},
-	}
 }
 </script>

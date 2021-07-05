@@ -1,11 +1,16 @@
 <template>
-	<v-row dense>
+	<v-row dense v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' >
 		<v-col cols="12">
 		<EMCOnSchoolSelector
 			:emcs=emcs
 			@onAttachEMCTo='attachEMCTo'
 			/>
 		</v-col>
+		<v-card v-if='emcsOnSchool.length === 0'
+			class="mx-auto text-center"
+		>
+		УМК у данного ОО отсутствует
+		</v-card>
 		<v-col cols="12">
 			<EMCOnSchoolCard
 				v-for='emcOnSchool in emcsOnSchool'
@@ -28,7 +33,7 @@ import EMCOnSchoolSelector from '../components/EMCOnSchoolSelector.vue'
 export default {
 	components: {
 		EMCOnSchoolCard,
-		EMCOnSchoolSelector
+		EMCOnSchoolSelector,
 	},
 	data: () => ({
 		emcsOnSchool: [],
@@ -37,8 +42,11 @@ export default {
   }),
 	computed: {
 		 ...mapState([
-    	'store'
-  	])
+    	'store',
+      'isUserLoggedIn',
+			'isSidebarActive',
+			'user'
+    ]),
   },
 	created() {
 		this.$store.dispatch('setSidebar', false) // Включаем sidebar для EMCsOnSchool и выключаем для конструктора
@@ -70,13 +78,15 @@ export default {
 			try {
 				// Отправляем серверу запрос на добавление Умк для данной школы (через параметры)
 				const response = await AdminService.attachTo(this.$route.params, emcModel.entry.id)
-				console.log('attach: ', response.data.emcsOnSchool)
+				this.message = response.data.message
+
 				// удаляем из списка умк умк, которую мы только что добавили к школе, чтобы не было возможности её добавить повторно
 				this.emcs.splice( this.emcs.indexOf(emcModel.entry), 1)
+				
 				// добавляем в список умк у школы умк, которую мы только что добавили и получили в ответе от сервера
-				this.emcsOnSchool.splice(0, 0, response.data.emcsOnSchool[0])
-
-				// обновлять sidebar
+				if(response.data.emcsOnSchool.length > 0)
+					this.emcsOnSchool.splice(0, 0, response.data.emcsOnSchool[0])
+				
 			} catch (err){ this.error = err }
 		},
 		async detachEMCFrom(emcOnSchool) {

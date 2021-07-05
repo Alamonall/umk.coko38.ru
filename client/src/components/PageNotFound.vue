@@ -1,6 +1,6 @@
 <template lang="">
-	<div>
-		
+	<div class='text-center align-center'>
+		Страница не найдена
 	</div>
 </template>
 <script>

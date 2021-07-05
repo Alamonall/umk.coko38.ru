@@ -1,4 +1,4 @@
-const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
+const { Level, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
 const { Op, fn, literal, col } = require('sequelize')
 const { getEMCsOnSchool, getAreasAndSchools } = require('../helpers')
 
@@ -10,7 +10,7 @@ module.exports = {
 			const publishers = await Publisher.findAll()
 			const subjects = await Subject.findAll({
 				attributes: [
-					'name', 'code',
+					['SubjectGlobalID','id'],'name', 'code',
 					[fn('count', col('emcId')), 'srcTotalEMCOnSchool'],
 					[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']
 				],
@@ -28,28 +28,34 @@ module.exports = {
 				],
 				group: ['Subject.SubjectGlobalID', 'Subject.name', 'Subject.code']			
 			})
+			const levels = await Level.findAll()
 
-			res.json({ areasAndSchools: areasAndSchools, subjects: subjects, publishers: publishers })
+			res.json({ areasAndSchools: areasAndSchools, subjects: subjects, publishers: publishers, levels: levels })
 
 		} catch (err) { console.error(err)}
 	},
 	async getEMCs(req, res){
 		try {
 			// Получаем УМК по параметру id либо все
-			console.log('Получаем УМК по параметру id либо все: ', req.params)
 			const emcs = await EMC.findAll({
 				attributes: ['id', 'gia', 'authors', 'grades', 'isCustom','publisherId', 'subjectId', 'title', 'createdBy'],
-				where: req.params.emcId ? { id: req.params.emcId } : {},
+				where: req.params.emcId ? { id: req.params.emcId, gia: req.user.gia } : { gia: req.user.gia},
 				include: [
 					{ 
 						model: Publisher,
 						require: true,
-						attributes: ['name']
+						attributes: ['id', 'name']
 					},
 					{
 						model: Subject,
 						require: true,
+						attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
 						where: req.params.subjectCode ? { code: req.params.subjectCode } : {}
+					},
+					{
+						model: Level,
+						attributes: ['id', 'code', 'name'],
+						require: true,
 					},
 					{
 						model: EMCOnSchool,
@@ -70,7 +76,7 @@ module.exports = {
 	},
 	async getEMCsOnSchoolByAdmin (req, res){
 		try {
-			console.log('getEMCsOnSchoolByAdmin')
+			
 			const emcsOnSchool = await getEMCsOnSchool(req)
 			
 			return res.json({ emcsOnSchool: emcsOnSchool })	
@@ -80,11 +86,20 @@ module.exports = {
 	// изменения данных умк
 	async setEMC (req, res) {
 		try {
+			console.log('update emc ')
 			const emc = await EMC.update(req.body, { where: { id: req.params.emcId }, returning: true })
-			console.log(emc)
 			res.json({ message: 'Данные обновлены', emc: emc })
 
 		} catch(err) { console.log(err)}
+	},
+	async deleteEMC( req, res){
+		try {
+			const emc = await EMC.destroy({ where: { id: req.params.emcId }, returning: true })
+			console.log('deleted emc ', emc)
+			res.json({ message: 'УМК удалена', emc: emc })
+		} catch (error) {
+			console.error(error)
+		}
 	},
 	// изменения данных умк у школы
 	async setEMCOnSchool (req, res) {
@@ -98,14 +113,15 @@ module.exports = {
 	// Добавление нового умк для ОО
 	async createEMC(req, res) {
 		try {
-			const { title, authors, subjectCode, publisherId, gia, grades } = req.body
+			const { title, authors, publisherId, gia, grades, subjectId, levelId } = req.body
 
-			const subject = await Subject.findOne({where: {code: subjectCode}})
+			console.log(title, authors, publisherId, grades, subjectId, gia)
+			const emc = await EMC.create({ title: title, authors: authors, subjectId: subjectId, publisherId: publisherId, levelId: levelId,
+				gia: req.user.gia, grades: grades, createdBy: null, isCustom: false })
 			
-			const emc = await EMC.create({ title: title, authors: authors, subjectId: subject.id, publisherId: publisherId,
-				gia: gia, grades: grades, createdBy: req.user.id, isCustom: false })
-			
-			res.json({message: 'УМК создано', emc: emc})
+			console.log(emc)
+
+			res.json({ message: 'УМК создано', emc: emc })
 			
 		} catch(err) { console.log(err)}
 	},
@@ -116,7 +132,7 @@ module.exports = {
 
 			const { usingCoz, correctionCoz, swapCoz, studentsCount } = req.body
 
-			const areas = await Area.findAll({ raw: true, where: areaCode ? {code: areaCode} : {}})
+			const areas = await Area.findAll({ raw: true, where: areaCode ? { code: areaCode } : {} })
 
 			if(areas.length == 0)
 				res.status(404).json({ message: 'Не найдено районов для прикрепления' })
@@ -150,7 +166,8 @@ module.exports = {
 
 			const emcsOnSchool = await getEMCsOnSchool (req, inserted.map(inserted => inserted.id))
 
-			console.log(emcsOnSchool)
+			console.log('attached eos: ', emcsOnSchool.length)
+			
 			res.json({ message: 'УМК добавлены', emcsOnSchool: emcsOnSchool })
 
 		} catch(err) { console.log(err)}

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
 		authors: DataTypes.TEXT,
 		title: DataTypes.STRING,
 		grades: DataTypes.STRING,
-		level: DataTypes.INTEGER,
+		levelId: DataTypes.INTEGER,
 		publisherId: DataTypes.INTEGER,
 		createdBy: DataTypes.INTEGER
 	})
@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
 		EMC.belongsTo(models.User, { foreignKey: 'createdBy' })
 		EMC.belongsTo(models.Subject, { foreignKey: 'subjectId' })
 		EMC.hasMany(models.EMCOnSchool, { foreignKey: 'emcId' })
+		EMC.belongsTo(models.Level, { foreignKey:'levelId' })
 	}
 
 	return EMC

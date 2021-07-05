@@ -2,6 +2,7 @@
 	<v-container
     class="px-0"
     fluid
+		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
   	>		
 		<v-card v-if='emc==null'>
 			<v-card-title class="text-h4 text-center">
@@ -15,7 +16,7 @@
 			<v-card-text class="text-h5">
 				<v-text-field
 					label='Название'
-					:value=emc.title
+					v-model=emc.title
 				></v-text-field>
 				<v-text-field
 					label='Авторы'
@@ -23,21 +24,23 @@
 				></v-text-field>
 				<v-text-field
 					label='Класс'
-					:value=emc.grades
+					v-model=emc.grades
 				></v-text-field>
 				<v-select
 					v-model=emc.Subject
 					:items=subjects
 					item-text='name'
 					no-data-text='Нет данных'
-					label='Уровень'
+					label='Предмет'
+					return-object
 				></v-select>
 				<v-select
-					v-model=emc.level
+					v-model=emc.Level
 					:items=levels
 					item-text='name'
 					no-data-text='Нет данных'
 					label='Уровень'
+					return-object
 				></v-select>	
 				<v-select
 					v-model=emc.Publisher
@@ -45,6 +48,7 @@
 					item-text='name'
 					label="Издательство"
 					no-data-text='Нет данных'
+					return-object
 				></v-select>		
 				<v-checkbox
 					v-if=emc.isCustom
@@ -55,7 +59,7 @@
 			<v-card-actions>
 				<v-btn 
 					text color="teal accent-4"
-					@click="$emit('onSetEMC', emc)"
+					@click='saveEMC'
 					>					
 					Сохранить изменения
 				</v-btn>
@@ -70,16 +74,25 @@
 	</v-container>
 </template>
 <script>
+import { mapState } from 'vuex' 
 import AdminService from '../services/adminService' 
 
 export default {
 	data: () => ({
 		loading: false,
 		error: null,
-		emc: null,
-		levels: [
-			{ code: 1, name: 'Базовый уровень' }, { code: 2, name: 'Углубленный уровень' }, { code: 3, name: 'Специальный уровень' }
-		]
+		message: null,
+		emc: {
+			title: null,
+			grades: null,
+			gia: null,
+			Subject: null,
+			publisherId: null,
+			Publisher: null,
+			isCustom: null,
+			levelId: null,
+			Level: null,
+		},
 	}),
 	created() {
 		this.$store.dispatch('setSidebar', true) // Выключаем sidebar для EMCsOnSchool и включаем для конструктора
@@ -90,7 +103,15 @@ export default {
 		},
 		subjects(){
 			return this.$store.state.subjects
-		}
+		},
+		levels(){
+			return this.$store.state.levels
+		},
+    ...mapState([
+      'isUserLoggedIn',
+			'isSidebarActive',
+			'user'
+    ])
 	},
 	async mounted() {
 		try {
@@ -100,6 +121,22 @@ export default {
 				this.error = err
 			}
 	},
+	methods: {
+		async saveEMC(){
+			try {
+				console.log('saveEM3C: ',  this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
+				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
+				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
+				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
+				
+				const response = await AdminService.setEMC(this.emc)
+				this.message = response.data.message
+				this.$router.push({ name:'admin-emcs' })
+			} catch (error) {
+				this.error = error
+			}
+		}
+	}
 }
 </script>
 <style scope>

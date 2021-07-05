@@ -1,5 +1,5 @@
 require('dotenv/config')
-const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
+const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area, Level } = require('../models')
 const { Op, literal, fn, col } = require('sequelize')
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
 				{
 					model: EMC,
 					require: true,
-					where: req.user || process.env.NODE_ENV !== 'development' ? { gia: req.user.gia} : {},
+					where: req.user ? { gia: req.user.gia } : {},
 					attributes:['id', 'title','authors', 'gia', 'grades','isCustom','createdBy'],
 					include: 	[
 						{
@@ -29,6 +29,11 @@ module.exports = {
 							require: true,
 							attributes: [['code', 'subjectCode'],['name', 'subjectName']],
 							where: subjectCode ? { code: subjectCode } : {}
+						},
+						{
+							model: Level,
+							require: true,
+							attributes: ['name']
 						}
 					]
 				},
@@ -53,11 +58,11 @@ module.exports = {
 								['gia','areaGia'],
 							],
 							// TODO: УБРАТЬ ЗАГЛУШКУ
-							where: req.user || process.env.NODE_ENV !== 'development' ?
-								req.user.roleCode == 1 ? 
+							where: req.user ?
+								req.user.UserRole.code == 1 ? 
 									(areaCode ? { code: areaCode } : {})
 									: 
-									(req.user.roleCode == 2 ? { AreaID: req.user.areaId } : {})
+									(req.user.UserRole.code == 2 ? { AreaID: req.user.areaId } : {})
 								: areaCode ? { code: areaCode } : {}
 						}
 					]
@@ -69,7 +74,7 @@ module.exports = {
 		const {areaCode, schoolCode, giaCode, subjectCode} = req.params
 		let areaWhere, schoolWhere
 		
-		switch(process.env.NODE_ENV === 'production' ? req.user.UserRole.code : 0){
+		switch(req.user.UserRole.code){
 			case 1: 
 				areaWhere = { code: areaCode } || {}
 				schoolWhere = { code: schoolCode, gia: giaCode } || { gia: giaCode }

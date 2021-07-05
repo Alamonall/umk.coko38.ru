@@ -12,7 +12,9 @@ export default new Vuex.Store({
 		isAdmin: false,
 		isSidebarActive: false, // актив ли sidebar в данном модуле приложения
 		publishers: [], // Издатели для умк. Так как они не будут меняться часто, можно хранить их в store
-		subjects: []
+		subjects: [],
+		areas:[],
+		levels: []
 	},
 	mutations: {
 		setToken(state, token) {
@@ -39,6 +41,12 @@ export default new Vuex.Store({
 		},
 		setSubjects(state, subjects) {
 			state.subjects = subjects
+		},
+		setAreas(state, areas) {
+			state.areas = areas
+		},
+		setLevels(state, levels) {
+			state.levels = levels
 		}
 	},
 	actions: {
@@ -56,6 +64,12 @@ export default new Vuex.Store({
 		},
 		setSubjects({ commit }, subjects){
 			commit('setSubjects', subjects)
+		},
+		setAreas({ commit }, areas){
+			commit('setAreas', areas)
+		},
+		setLevels({ commit }, levels){
+			commit('setLevels', levels)
 		}
 	},
 })

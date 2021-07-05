@@ -2,6 +2,7 @@
   <v-container
     class="px-0"
     fluid
+		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
   >
 		<v-card	>
 			<v-card-title  class='text-h4'> 
@@ -94,12 +95,21 @@
 	</v-container>
 </template>
 <script>
+import { mapState } from 'vuex' 
 
 export default {
 	props: ['emcOnSchool'],
   data: () => ({
 		isDetailing: false
-	})
+	}),
+	computed: {
+		...mapState([
+    	'store',
+      'isUserLoggedIn',
+			'isAdmin',
+			'user'
+    ])
+	}
 }
 </script>
 
