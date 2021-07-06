@@ -66,7 +66,7 @@ export default {
 	props: ['emcs'],
 	data: () => ({
 		model: null,
-		descriptionLimit: 100,
+		descriptionLimit: 200,
 		error: null
 	}),
 	watch: {

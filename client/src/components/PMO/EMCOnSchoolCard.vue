@@ -37,7 +37,9 @@
 				<p> <strong> Издательство: </strong>  {{ emcOnSchool.EMC.Publisher.publisherName }} </p>
 				<p> <strong>  Авторы: </strong>  {{ emcOnSchool.EMC.authors }} </p>
 				<p> Класс: {{ emcOnSchool.EMC.grades }} </p>
-				<p> Кол-во учеников: {{ emcOnSchool.studentsCount }} </p>
+				<!--p> Кол-во учеников: {{ emcOnSchool.studentsCount }} </p-->
+				<p> ГИА-{{ emcOnSchool.EMC.gia }} </p>
+				<p> Уровень: {{ emcOnSchool.EMC.Level ? emcOnSchool.EMC.Level.name : 'Нет данных'}} </p>
 			</v-card-text>
 			<v-card-actions>	
 				<v-btn 

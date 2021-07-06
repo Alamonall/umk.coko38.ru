@@ -93,6 +93,7 @@ export default {
 			try {
 				const response = await PooService.deleteEMC(emc)
 				this.message = response.data.message
+				this.$store.dispatch('removeFromEMCsToAttach', emc)
 				
 				this.emcs.splice(this.emcs.indexOf(emc),1)
 			} catch (err) {

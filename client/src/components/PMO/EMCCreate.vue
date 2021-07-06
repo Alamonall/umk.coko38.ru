@@ -111,6 +111,7 @@ export default {
 
 			const response = await PmoService.createEMC(this.emc)
 				this.message = response.data.message
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.$router.push({ name:'pmo-emcs' })
 			} catch (error) {
 				this.error = error

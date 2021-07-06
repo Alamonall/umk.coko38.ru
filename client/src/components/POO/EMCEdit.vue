@@ -3,7 +3,7 @@
     class="px-0"
     fluid
 		v-if='isSignin && user.UserRole.code == 3
-		&& emc.createBy == user.id && emc.isCustom 
+		&& emc.createdBy == user.id && emc.isCustom 
 		/* Дополнительно проверяем: не убрал ли возможность ред-ть умк (isCustom) 
 		и создатель данного умк совпадает ли с данным пользователем*/'
   	>		
@@ -52,12 +52,7 @@
 					label="Издательство"
 					no-data-text='Нет данных'
 					return-object
-				></v-select>		
-				<v-checkbox
-					v-if=emc.isCustom
-					v-model='emc.isCustom'
-					label="Пользовательский"
-				></v-checkbox>
+				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn 
@@ -126,6 +121,8 @@ export default {
 				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
 				
 				const response = await PooService.setEMC(this.emc)
+				/** Обновляем список умк в хранилище */
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.message = response.data.message
 				this.$router.push({ name:'poo-emcs' })
 			} catch (error) {

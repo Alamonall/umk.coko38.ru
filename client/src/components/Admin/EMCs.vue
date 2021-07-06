@@ -35,6 +35,16 @@
 					<p> <strong> Издательство: </strong>  {{ emc.Publisher.name }} </p>
 					<p> <strong> Авторы: </strong>  {{ emc.authors }} </p>
 					<p> <strong> Класс: </strong> {{ emc.grades }} </p>
+					<p> <strong> Уровень: </strong> {{ emc.Level ? emc.Level.name : 'Нет данных' }} </p>
+					<v-chip v-if='emc.gia == 9'
+							color='indigo lighten-2'
+							text-color='white'
+							pill> ГИА-{{ emc.gia }} </v-chip>
+							<v-chip v-if='emc.gia == 11'
+							color='light-blue accent-3'
+							text-color='white'
+							pill> ГИА-{{ emc.gia }} </v-chip>
+					
 				</v-card-text>
 				<v-card-actions>
 					<v-btn 
@@ -117,6 +127,7 @@ export default {
 				const response = await AdminService.deleteEMC(emc)
 				this.message = response.data.message
 				
+				this.$store.dispatch('removeFromEMCsToAttach', emc)
 				this.emcs.splice(this.emcs.indexOf(emc),1)
 			} catch (err) {
 				this.error = err

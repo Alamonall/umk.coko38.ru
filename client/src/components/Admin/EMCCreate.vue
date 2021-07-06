@@ -112,6 +112,7 @@ export default {
 
 				const response = await AdminService.createEMC(this.emc)
 				this.message = response.data.message
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.$router.push({ name:'admin-emcs' })
 			} catch (error) {
 				this.error = error

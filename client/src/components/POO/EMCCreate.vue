@@ -2,7 +2,7 @@
 	<v-container
     class="px-0"
     fluid
-		v-if='isSignin && user.UserRole.code == 1' 
+		v-if='isSignin && user.UserRole.code == 3' 
   	>
 		<v-card>
 			<v-card-title class="text-h4">
@@ -108,9 +108,11 @@ export default {
 				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
 				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
 				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
-
+				
 				const response = await PooService.createEMC(this.emc)
 				this.message = response.data.message
+				/** Обновляем список умк в хранилище */
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.$router.push({ name:'poo-emcs' })
 			} catch (error) {
 				this.error = error

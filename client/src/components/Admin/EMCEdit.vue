@@ -51,7 +51,6 @@
 					return-object
 				></v-select>		
 				<v-checkbox
-					v-if=emc.isCustom
 					v-model='emc.isCustom'
 					label="Пользовательский"
 				></v-checkbox>
@@ -125,6 +124,7 @@ export default {
 				
 				const response = await AdminService.setEMC(this.emc)
 				this.message = response.data.message
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.$router.push({ name:'admin-emcs' })
 			} catch (error) {
 				this.error = error

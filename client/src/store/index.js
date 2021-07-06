@@ -49,6 +49,22 @@ export default new Vuex.Store({
 		},
 		setEMCsToAttach(state, emcsToAttach){
 			state.emcsToAttach = emcsToAttach
+		},
+		updateEMCsToAttach(state, emc){
+			const existsAtIndex = state.emcsToAttach.indexOf(emc)
+			if(existsAtIndex === -1){
+				state.emcsToAttach.push(emc)
+			} else {
+				state.emcsToAttach.splice(existsAtIndex, 0, emc)
+			}
+			state.emcsToAttach = [...state.emcsToAttach]
+		},
+		removeFromEMCsToAttach(state, emc){
+			const existsAtIndex = state.emcsToAttach.indexOf(emc)
+			if(existsAtIndex !== -1){
+				state.emcsToAttach.splice(existsAtIndex, 1, emc)
+			} 
+			state.emcsToAttach = [...state.emcsToAttach]
 		}
 	},
 	actions: {
@@ -78,6 +94,12 @@ export default new Vuex.Store({
 		},
 		setEMCsToAttach({ commit }, emcsToAttach){
 			commit('setEMCsToAttach', emcsToAttach)
-		}
+		},
+		updateEMCsToAttach({ commit }, emc){
+			commit('updateEMCsToAttach', emc)
+		},
+		removeFromEMCsToAttach({ commit }, emc){
+			commit('removeFromEMCsToAttach', emc)
+		},
 	},
 })

@@ -2,6 +2,7 @@
 	<v-row dense v-if='isSignin && user.UserRole.code == 1'>
 		<v-col cols="12">
 			<EMCOnSchoolSelector
+			v-if='$route.params.subjectCode'
 			:emcs=emcs
 			@onAttachEMCTo='attachEMCTo'
 			/>
@@ -77,7 +78,7 @@ export default {
 
 				// удаляем из списка умк умк, которую мы только что добавили к школе, чтобы не было возможности её добавить повторно
 				this.emcs.splice( this.emcs.indexOf(emcModel.entry), 1)
-				
+				this.$store.dispatch('removeFromEMCsToAttach', emcModel.entry)
 				// добавляем в список умк у школы умк, которую мы только что добавили и получили в ответе от сервера
 				if(response.data.emcsOnSchool.length > 0)
 					this.emcsOnSchool.splice(0, 0, response.data.emcsOnSchool[0])

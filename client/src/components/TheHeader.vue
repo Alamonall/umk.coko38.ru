@@ -74,7 +74,7 @@
 			plain 
 			:to="{ path: `/${ user.UserRole.name }` }" 
 			> 
-			{{user.UserRole.code	}} {{ user.username }}
+			{{ user.username }}
 		</v-btn>
 		<v-btn v-if="isSignin" plain @click='signout' > Выход </v-btn>
 		<v-btn v-if="!isSignin" plain :to="{ name: '/' }"> Войти </v-btn>

@@ -33,7 +33,7 @@ module.exports = {
 						{
 							model: Level,
 							require: true,
-							attributes: ['name']
+							attributes: ['name', 'code']
 						}
 					]
 				},

@@ -3,7 +3,7 @@
     class="px-0"
     fluid
 		v-if='isSignin && user.UserRole.code == 2 
-		&& emc.createBy == user.id && emc.isCustom 
+		&& (emc.createdBy == user.id) && emc.isCustom 
 		/* Дополнительно проверяем: не убрал ли возможность ред-ть умк (isCustom) 
 		и создатель данного умк совпадает ли с данным пользователем*/' 
   	>		
@@ -14,7 +14,7 @@
 		</v-card>
 		<v-card v-if='emc!=null'>
 			<v-card-title class="text-h4">
-				Редактирование УМК
+				Редактирование УМК 
 			</v-card-title>
 			<v-card-text class="text-h5">
 				<v-text-field
@@ -52,12 +52,7 @@
 					label="Издательство"
 					no-data-text='Нет данных'
 					return-object
-				></v-select>		
-				<v-checkbox
-					v-if=emc.isCustom
-					v-model='emc.isCustom'
-					label="Пользовательский"
-				></v-checkbox>
+				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn 
@@ -127,6 +122,7 @@ export default {
 				
 				const response = await PmoService.setEMC(this.emc)
 				this.message = response.data.message
+				this.$store.dispatch('updateEMCsToAttach', this.emc)
 				this.$router.push({ name:'pmo-emcs' })
 			} catch (error) {
 				this.error = error
