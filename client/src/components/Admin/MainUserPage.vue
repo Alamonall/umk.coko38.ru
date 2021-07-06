@@ -1,42 +1,39 @@
 <template>
-  <v-row v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' >
+  <v-row v-if='isSignin && user.UserRole.code == 1'>
 		<v-col>
-			Admin	{{this.$store.state.user.UserRole}}
+			Admin	
 		</v-col>
 	</v-row>
 </template>
 
 <script>
 import { mapState } from 'vuex' 
-import AdminService from '../services/adminService'
+import AdminService from '../../services/adminService'
 
 export default {
-	components: {
-		
-	},
-  data: () => ({
-	
-	}),
 	created() {
-		this.getMainData()
+		this.getUserData()
+		// Отключаем sidebar для страницы пользователя
+		this.$store.dispatch('setSubjectsSidebar', false)
+		this.$store.dispatch('setAreasSidebar', false)
 	},
 	computed: {
     ...mapState([
-			'store',
-      'isUserLoggedIn',
-			'isSidebarActive',
-			'user'
-    ])
+      'isSignin',
+			'user',
+    ]),	
   },
 	methods: {
-		async getMainData () {
+		async getUserData () {
 			try {
-				const response = await AdminService.getAdminData()
+				const response = await AdminService.getUserData()
 				
 				this.$store.dispatch('setAreas', response.data.areasAndSchools)
 				this.$store.dispatch('setSubjects', response.data.subjects)
 				this.$store.dispatch('setPublishers', response.data.publishers)
 				this.$store.dispatch('setLevels', response.data.levels)
+				this.$store.dispatch('setEMCsToAttach', response.data.emcsToAttach)
+				
 			} catch (err) {
 				this.err = err
 			}

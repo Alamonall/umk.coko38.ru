@@ -2,7 +2,10 @@
 	<v-container
     class="px-0"
     fluid
-		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
+		v-if='isSignin && user.UserRole.code == 2 
+		&& emc.createBy == user.id && emc.isCustom 
+		/* Дополнительно проверяем: не убрал ли возможность ред-ть умк (isCustom) 
+		и создатель данного умк совпадает ли с данным пользователем*/' 
   	>		
 		<v-card v-if='emc==null'>
 			<v-card-title class="text-h4 text-center">
@@ -65,7 +68,7 @@
 				</v-btn>
 				<v-spacer></v-spacer>
 				<v-btn text color="red accent-2"
-					:to="{ name: 'admin-emcs' }"
+					:to="{ name: 'pmo-emcs' }"
 					>
 					Отменить редактирование
 				</v-btn>
@@ -75,7 +78,7 @@
 </template>
 <script>
 import { mapState } from 'vuex' 
-import AdminService from '../services/adminService' 
+import PmoService from '../../services/pmoService' 
 
 export default {
 	data: () => ({
@@ -94,28 +97,22 @@ export default {
 			Level: null,
 		},
 	}),
-	created() {
-		this.$store.dispatch('setSidebar', true) // Выключаем sidebar для EMCsOnSchool и включаем для конструктора
+	created() {		
+		this.$store.dispatch('setAreasSidebar', false)
+		this.$store.dispatch('setSubjectsSidebar', false)
 	},
 	computed: {
-		publishers(){
-			return this.$store.state.publishers
-		},
-		subjects(){
-			return this.$store.state.subjects
-		},
-		levels(){
-			return this.$store.state.levels
-		},
     ...mapState([
-      'isUserLoggedIn',
-			'isSidebarActive',
+      'isSignin',
+			'publishers',
+			'subjects',
+			'levels',
 			'user'
     ])
 	},
 	async mounted() {
 		try {
-				const [ emc ] = (await AdminService.getEMCs(this.$route.params)).data.emcs
+				const [ emc ] = (await PmoService.getEMCs(this.$route.params)).data.emcs
 				this.emc = emc
 			} catch (err) {
 				this.error = err
@@ -124,14 +121,13 @@ export default {
 	methods: {
 		async saveEMC(){
 			try {
-				console.log('saveEM3C: ',  this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
 				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
 				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
 				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
 				
-				const response = await AdminService.setEMC(this.emc)
+				const response = await PmoService.setEMC(this.emc)
 				this.message = response.data.message
-				this.$router.push({ name:'admin-emcs' })
+				this.$router.push({ name:'pmo-emcs' })
 			} catch (error) {
 				this.error = error
 			}

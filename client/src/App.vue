@@ -2,8 +2,7 @@
   <v-app>
 		<PageHeader/>		
 		<TheSidebar 
-			v-if='!this.$store.state.isSidebarActive 
-				&& this.$store.state.isSignin'>
+			v-if='isAreasSidebar && isSignin'>
 			<v-list-group 
 				v-for="area in areas"
 				:key="area.AreaID"
@@ -35,7 +34,7 @@
 						>
 						<v-list-item-content>
 							<v-btn
-								v-if='this.$store.state.user.UserRole.code == 1'
+								v-if='user.UserRole.code == 1'
 								plain
 								:to="{ 
 									name: 'admin-emcs-on-school', 
@@ -49,7 +48,7 @@
 								{{subject.name}} 
 							</v-btn>
 							<v-btn
-								v-if='this.$store.state.user.UserRole.code == 2'
+								v-if='user.UserRole.code == 2'
 								plain
 								:to="{ 
 									name: 'pmo-emcs-on-school', 
@@ -63,7 +62,7 @@
 								{{subject.name}} 
 							</v-btn>
 							<v-btn
-								v-if='this.$store.state.user.UserRole.code == 3'
+								v-if='user.UserRole.code == 3'
 								plain
 								:to="{ 
 									name: 'poo-emcs-on-school', 
@@ -83,8 +82,7 @@
 		</TheSidebar>
 
 		<TheSidebar 
-			v-if='this.$store.state.isSidebarActive 
-				&& this.$store.state.isSignin '>
+			v-if='isSubjectsSidebar && isSignin'>
 			<v-list-item
 				v-for='subject in subjects'
 				:key='subject.SubjectGlobalID'
@@ -93,7 +91,7 @@
 				>
 				<v-list-item-content>
 					<v-btn
-						v-if='this.$store.state.user.UserRole.code == 1'
+						v-if='user.UserRole.code == 1'
 						plain
 						:to="{ 
 							name: 'admin-subject-emcs', 
@@ -105,7 +103,7 @@
 						{{subject.name}} 
 					</v-btn>
 					<v-btn
-						v-if='this.$store.state.user.UserRole.code == 2'
+						v-if='user.UserRole.code == 2'
 						plain
 						:to="{ 
 							name: 'pmo-subject-emcs', 
@@ -117,7 +115,7 @@
 						{{subject.name}} 
 					</v-btn>
 					<v-btn
-						v-if='this.$store.state.user.UserRole.code == 3'
+						v-if='user.UserRole.code == 3'
 						plain
 						:to="{ 
 							name: 'poo-subject-emcs', 
@@ -144,6 +142,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex' 
 import PageHeader from './components/TheHeader.vue'
 import TheSidebar from './components/TheSidebar.vue'
 
@@ -154,15 +153,17 @@ export default {
 		TheSidebar
 	},
   data: () => ({
-		err: null
+		err: null,
   }),
 	computed: {
-		subjects(){
-			return this.$store.state.subjects
-		},
-		areas() {
-			return this.$store.state.areas
-		}
-	},
+		...mapState([
+      'isSignin',
+			'user',
+			'isSubjectsSidebar',
+			'isAreasSidebar',
+			'subjects',
+			'areas'
+    ]),		
+	}
 }
 </script>

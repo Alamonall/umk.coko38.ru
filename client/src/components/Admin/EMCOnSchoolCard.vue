@@ -2,7 +2,6 @@
   <v-container
     class="px-0"
     fluid
-		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
   >
 		<v-card	>
 			<v-card-title  class='text-h4'> 
@@ -70,15 +69,6 @@
 					>
 						Открепить УМК
 				</v-btn>
-				<v-btn 
-					v-if='emcOnSchool.EMC.createBy'
-					text
-					color="teal accent-4"
-					@click="$emit('onSwapCreatingStatusEMC', emcOnSchool)"
-					>
-					<div v-if='emcOnSchool.EMC.isCustom'>Сделать официальным (ещё не работает)</div>
-					<div v-else>Сделать снова пользовательским </div>						
-				</v-btn>
 			</v-card-actions>
 		</v-card>
 		<v-expand-transition>
@@ -95,21 +85,12 @@
 	</v-container>
 </template>
 <script>
-import { mapState } from 'vuex' 
 
 export default {
 	props: ['emcOnSchool'],
   data: () => ({
 		isDetailing: false
 	}),
-	computed: {
-		...mapState([
-    	'store',
-      'isUserLoggedIn',
-			'isAdmin',
-			'user'
-    ])
-	}
 }
 </script>
 

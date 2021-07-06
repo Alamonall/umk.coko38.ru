@@ -6,7 +6,6 @@ module.exports = (sequelize, DataTypes) => {
 		gia: DataTypes.INTEGER,
 		areaId: DataTypes.UUID,
 		people: DataTypes.INTEGER,
-		isComplete: DataTypes.BOOLEAN,
 		legacyId: DataTypes.UUID
 	})
     

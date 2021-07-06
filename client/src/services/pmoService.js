@@ -1,44 +1,44 @@
 import api from './api'
 
-
-
 export default {
 	getUserData() {
-		return api().get('/admin')
+		return api().get('/pmo')
 	},
 	getEMCsOnSchool(params = null) {
-		return api().get(`/admin
+		return api().get(`/pmo
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs-on-school`)
 	},
 	getEMCs(params = null) {
-		return api().get(`/admin
+		return api().get(`/pmo
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs
 			${params?.emcId ? `/${params.emcId}` : ''}`)
 	},
 	setEMC(EMC) {
-		return api().put(`/admin/emcs/${EMC.id}`, EMC)
+		console.log(EMC)
+		return api().put(`/pmo/emcs/${EMC.id}`, EMC)
 	},
 	deleteEMC(emc = null) {
-		return api().delete(`/admin/emcs/${emc.id}/delete`)
+		return api().delete(`/pmo/emcs/${emc.id}/delete`)
 	},
 	setEMCOnSchool(EMCOnSchool) {
-		return api().put(`/admin/emcOnSchool/${EMCOnSchool.id}`, EMCOnSchool)
+		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, EMCOnSchool)
 	},
 	createEMC(EMC = null) {
-		return api().post('/admin/emcs/create', EMC)
+		return api().post('/pmo/emcs/create', EMC)
 	},
 	attachTo(params = null, emcId) {
-		return api().post(`/admin
+		console.log('attachTo: ', params)
+		return api().post(`/pmo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			/emcs/${emcId}/attach`)
 	},
 	detachFrom(params = null, emcId) {
-		return api().delete(`/admin
+		return api().delete(`/pmo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			/emcs/${emcId}/detach`)

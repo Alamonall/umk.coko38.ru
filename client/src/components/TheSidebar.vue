@@ -16,7 +16,7 @@
 			</v-list-item-content>
 		</v-list-item>
 		<v-divider></v-divider>
-		<slot></slot>      
+		<slot> Нет данных </slot>      
 	</v-navigation-drawer>
 </template>
 

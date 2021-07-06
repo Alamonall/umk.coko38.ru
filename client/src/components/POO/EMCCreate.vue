@@ -2,7 +2,7 @@
 	<v-container
     class="px-0"
     fluid
-		v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' 
+		v-if='isSignin && user.UserRole.code == 1' 
   	>
 		<v-card>
 			<v-card-title class="text-h4">
@@ -61,7 +61,7 @@
 					Создать УМК
 				</v-btn>
 				<v-btn text color="red accent-2"
-					:to="{ name: 'admin-emcs' }"
+					:to="{ name: 'poo-emcs' }"
 					>
 					Назад
 				</v-btn>
@@ -71,7 +71,7 @@
 </template>
 <script>
 import { mapState } from 'vuex' 
-import AdminService from '../services/adminService'
+import PooService from '../../services/pooService'
 
 export default {
 	data : () => ({
@@ -89,22 +89,16 @@ export default {
 			levelId: null
 		},
 	}),
-	created() {
-		this.$store.dispatch('setSidebar', true) // Выключаем sidebar для EMCsOnSchool и включаем для конструктора
+	created() {		
+		this.$store.dispatch('setAreasSidebar', false)
+		this.$store.dispatch('setSubjectsSidebar', false)
 	},
 	computed: {
-		publishers(){
-			return this.$store.state.publishers
-		},
-		subjects(){
-			return this.$store.state.subjects
-		},
-		levels(){
-			return this.$store.state.levels
-		},
     ...mapState([
-      'isUserLoggedIn',
-			'isSidebarActive',
+      'isSignin',
+			'publishers',
+			'subjects',
+			'levels',
 			'user'
     ])
 	},
@@ -115,9 +109,9 @@ export default {
 				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
 				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
 
-				const response = await AdminService.createEMC(this.emc)
+				const response = await PooService.createEMC(this.emc)
 				this.message = response.data.message
-				this.$router.push({ name:'admin-emcs' })
+				this.$router.push({ name:'poo-emcs' })
 			} catch (error) {
 				this.error = error
 			}

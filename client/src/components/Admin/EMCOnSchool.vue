@@ -1,7 +1,7 @@
 <template>
-	<v-row dense v-if='this.$store.state.isSignin && this.$store.state.user.UserRole.code == 1' >
+	<v-row dense v-if='isSignin && user.UserRole.code == 1'>
 		<v-col cols="12">
-		<EMCOnSchoolSelector
+			<EMCOnSchoolSelector
 			:emcs=emcs
 			@onAttachEMCTo='attachEMCTo'
 			/>
@@ -17,7 +17,6 @@
 				:key='emcOnSchool.id'
 				:emcOnSchool='emcOnSchool'
 				@onDetachEMCFrom='detachEMCFrom'
-				@onSwapCreatingStatusEMC='swapCreatingStatusEMC'
 				@onSwapApprovingStatusEMCOnSchool='swapApprovingStatusEMCOnSchool'
 				/>
 		</v-col>
@@ -26,9 +25,9 @@
 
 <script>
 import { mapState } from 'vuex'
-import AdminService from '../services/adminService'
-import EMCOnSchoolCard from '../components/EMCOnSchoolCard.vue' 
-import EMCOnSchoolSelector from '../components/EMCOnSchoolSelector.vue' 
+import AdminService from '../../services/adminService'
+import EMCOnSchoolCard from './EMCOnSchoolCard.vue' 
+import EMCOnSchoolSelector from '../EMCOnSchoolSelector.vue' 
 
 export default {
 	components: {
@@ -43,35 +42,31 @@ export default {
 	computed: {
 		 ...mapState([
     	'store',
-      'isUserLoggedIn',
-			'isSidebarActive',
+      'isSignin',
 			'user'
     ]),
   },
 	created() {
-		this.$store.dispatch('setSidebar', false) // Включаем sidebar для EMCsOnSchool и выключаем для конструктора
+		this.$store.dispatch('setAreasSidebar', true) // Включаем sidebar для EMCsOnSchool
+		this.$store.dispatch('setSubjectsSidebar', false) // На всякий случай ставим sidebar EMCs на false
 		this.getEMCsOnSchool()
-		this.getEMCs()
+		this.filterEMCBySubject()
 	},
 	watch: {
 		$route() {
 			this.getEMCsOnSchool()
-			this.getEMCs()
+			this.filterEMCBySubject()
 		}
 	},
 	methods: {
+		async filterEMCBySubject(){
+			this.emcs = this.$store.state.emcsToAttach.filter((emc)=> emc.Subject.code === this.$route.params.subjectCode)
+		},
 		async getEMCsOnSchool() {
 			// Получение УМК школы 
 			try {
 				const response = await AdminService.getEMCsOnSchool(this.$route.params)
 				this.emcsOnSchool = response.data.emcsOnSchool
-			} catch (err){ this.error = err }
-		},
-		async getEMCs() {
-			try {
-				// Получение умк для селектора добавления				
-				const response = await AdminService.getEMCs(this.$route.params)
-				this.emcs = response.data.emcs
 			} catch (err){ this.error = err }
 		},
 		async attachEMCTo(emcModel) {
@@ -104,19 +99,6 @@ export default {
 
 				// обновлять sidebar
 			} catch (err){ this.error = err}
-		},
-		async swapCreatingStatusEMC(emcOnSchool){
-			try {
-				// Делаем умк официальной - что позволит добавлять её другим ПМО и ПОО
-				
-				emcOnSchool.EMC.isCustom = !emcOnSchool.EMC.isCustom
-
-				const response = await AdminService.setEMC(emcOnSchool.EMC)
-
-				this.$set(this.emcs, this.emcs.indexOf(emcOnSchool.EMC), response.data.emc[0] )
-			} catch (error) {
-				this.error = error
-			}
 		},
 		async swapApprovingStatusEMCOnSchool(emcOnSchool){
 			try {
