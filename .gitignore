@@ -74,3 +74,5 @@ typings/
 
 # FuseBox cache
 .fusebox/
+client/web.config
+server/web.config
