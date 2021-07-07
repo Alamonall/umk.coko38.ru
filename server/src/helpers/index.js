@@ -92,9 +92,7 @@ module.exports = {
 		return await Area.findAll({
 			attributes:[
 				'name',
-				'code',
-				[fn('count', col('emcId')), 'areTotalEMCOnSchool'],
-				[literal(`count(case when isApproved = 1 then emcId else null end)`), 'areApproved']
+				'code'
 			],
 			where: areaWhere
 			,
@@ -103,9 +101,7 @@ module.exports = {
 					model: School,
 					require: true,
 					attributes: [
-						'name', 'code', 'gia',
-						[fn('count', col('emcId')), 'srcTotalEMCOnSchool'],
-						[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']],
+						'name', 'code', 'gia'],
 					where: schoolWhere,
 					include: [
 						{
@@ -118,9 +114,7 @@ module.exports = {
 									include: [
 										{
 											model: Subject,
-											attributes: ['name','code',
-											[fn('count', col('emcId')), 'subTotalEMCOnSchool'],
-											[literal(`count(case when isApproved = 1 then emcId else null end)`), 'subApproved']],
+											attributes: ['name','code'],
 										}
 									]
 								}
@@ -128,12 +122,6 @@ module.exports = {
 						}
 					]
 				}
-			],
-			group: ['Area.AreaID', 'Area.name', 'Area.code','Schools.name',
-			 'Schools.code', 'Schools.id', 'Schools.gia',
-			 '[Schools->EMCOnSchools->EMC->Subject].SubjectGlobalID',
-			 '[Schools->EMCOnSchools->EMC->Subject].[name]',
-			 '[Schools->EMCOnSchools->EMC->Subject].[code]'
 			],
 			order: [
 				[School, 'code', 'ASC']]
@@ -199,7 +187,6 @@ module.exports = {
 			 */
 			const emcsWhere = { gia: req.user.gia, isCustom: false }
 			
-			console.log('getting officalEMCs')
 			// Получаем УМК по параметру id либо все
 			const officalEMCs = await EMC.findAll({
 				attributes: ['id', 'gia', 'authors', 'grades', 'isCustom','publisherId', 'subjectId', 'title', 'createdBy'],
@@ -224,8 +211,6 @@ module.exports = {
 				]
 			})
 
-			console.log('officalEMCs: ', officalEMCs.length)
-			console.log('getting customEMCs')
 			let customEMCs = []
 			if(req.user.UserRole === (2 || 3)){
 				customEMCs = await EMC.findAll({
@@ -251,8 +236,7 @@ module.exports = {
 					]
 				})
 			}
-			console.log('customEMCs: ', customEMCs)
-			console.log('totalEMC: ',[...officalEMCs, ...customEMCs].length )
+			
 			return [...officalEMCs, ...customEMCs]
 		} catch (error) {
 			console.error(error)

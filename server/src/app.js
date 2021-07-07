@@ -3,22 +3,20 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const path = require('path')
-const cors = require('cors')
 const { sequelize } = require('./models')
 const config = require('./config/config')
-
+const history = require('connect-history-api-fallback')
 var app = express()
 
 app.use(logger('dev'))
 app.use(express.json())
-app.use(cors())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public/dist')))
+app.use(history())
 
 require('./helpers/passport')
 require('./router')(app)
-
 
 sequelize.sync({ force: false })
 	.then (() => {
