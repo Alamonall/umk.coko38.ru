@@ -2,7 +2,6 @@
 	<v-row dense v-if='isSignin && user.UserRole.code == 2' >
 		<v-col cols="12">
 		<EMCOnSchoolSelector
-			:emcs=emcs
 			@onAttachEMCTo='attachEMCTo'
 			/>
 		</v-col>
@@ -27,7 +26,7 @@
 import { mapState } from 'vuex'
 import PmoService from '../../services/pmoService'
 import EMCOnSchoolCard from './EMCOnSchoolCard.vue' 
-import EMCOnSchoolSelector from '../EMCOnSchoolSelector.vue' 
+import EMCOnSchoolSelector from './EMCOnSchoolSelector.vue' 
 
 export default {
 	components: {
@@ -36,34 +35,25 @@ export default {
 	},
 	data: () => ({
 		emcsOnSchool: [],
-		emcs: [],
 		error: null,
-  }),
+	}),
 	computed: {
 		 ...mapState([
-      'isSignin',
+			'isSignin',
 			'user',
-    ]),
-  },
+		]),
+	},
 	created() {
 		this.$store.dispatch('setAreasSidebar', true) // Включаем sidebar для EMCsOnSchool
 		this.$store.dispatch('setSubjectsSidebar', false) // На всякий случай ставим sidebar EMCs на false
 		this.getEMCsOnSchool()
-		this.filterEMCBySubject()
 	},
 	watch: {
 		$route() {
 			this.getEMCsOnSchool()
-			this.filterEMCBySubject()
 		}
 	},
 	methods: {
-		async filterEMCBySubject(){
-			const filteredEMCs = this.$store.state.emcsToAttach.filter((emc)=> emc.Subject.code === this.$route.params.subjectCode)
-			console.log('filtered: ', filteredEMCs)
-			this.emcs = filteredEMCs
-			console.log('filtered: this.emcs ', this.emcs)
-		},
 		async getEMCsOnSchool() {
 			// Получение УМК школы 
 			try {
@@ -78,7 +68,8 @@ export default {
 				this.message = response.data.message
 
 				// удаляем из списка умк умк, которую мы только что добавили к школе, чтобы не было возможности её добавить повторно
-				this.emcs.splice( this.emcs.indexOf(emcModel.entry), 1)
+				this.$store.dispatch('removeFromEMCs', emcModel.entry)
+
 				
 				// добавляем в список умк у школы умк, которую мы только что добавили и получили в ответе от сервера
 				if(response.data.emcsOnSchool.length > 0)
@@ -93,7 +84,7 @@ export default {
 
 				// добавляем удалённую умк в список возможных на добавлением
 				// [0] - потому что vue автоматом добавляет свойства по наблюдению, а нам нужен только сам объект
-				//  - средства наблюдения есть уже у архива emcs			
+				//	- средства наблюдения есть уже у архива emcs			
 				this.$set(this.emcs, this.emcs.length, emcOnSchool.EMC)
 
 				// удаляем удалённую умк из списка умк у школы

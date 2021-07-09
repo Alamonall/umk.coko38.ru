@@ -1,9 +1,9 @@
 <template>
 	<v-container
-    class="px-0"
-    fluid
+		class="px-0"
+		fluid
 		v-if='isSignin && user.UserRole.code == 1' 
-  	>
+		>
 		<v-card>
 			<v-card-title class="text-h4">
 				Создание УМК
@@ -70,7 +70,7 @@
 	</v-container>
 </template>
 <script>
-import { mapState } from 'vuex' 
+import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
 
 export default {
@@ -80,13 +80,14 @@ export default {
 		emc: {
 			title: null,
 			grades: null,
-			gia: null,
+			authors: null,
+			levelId:null,
+			Level: null,
 			subjectId: null,
 			Subject: null,
 			publisherId: null,
-			isCustom: null,
-			Level: null,
-			levelId: null
+			Publisher: null,
+			isCustom: false,
 		},
 	}),
 	created() {
@@ -94,26 +95,17 @@ export default {
 		this.$store.dispatch('setSubjectsSidebar', false)
 	},
 	computed: {
-    ...mapState([
-    	'store',
-      'isSignin',
-			'user',
-			'publishers',
-			'subjects',
-			'levels'
-    ]),	
+		...mapFields(['isSignin', 'user', 'publishers', 'subjects', 'levels']),
 	},
 	methods: {
 		async createEMC(){
 			try {
-				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
-				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
-				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
-
-				const response = await AdminService.createEMC(this.emc)
-				this.message = response.data.message
-				this.$store.dispatch('updateEMCsToAttach', this.emc)
-				this.$router.push({ name:'admin-emcs' })
+				console.log('creating emc ', this.emc)
+				// так как из-за vuex нам сначала надо обновить данные в хранилище
+				this.$store.dispatch('createEMC', this.emc)
+				await AdminService.createEMC(this.emc)
+								
+				this.$router.push({ name: 'admin-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
 			} catch (error) {
 				this.error = error
 			}

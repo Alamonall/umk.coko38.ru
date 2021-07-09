@@ -1,98 +1,70 @@
 <template>
-  <v-container
-    class="px-0"
-    fluid
-  >
-		<v-card	>
-			<v-card-title  class='text-h4'> 
-				УМК: {{ emcOnSchool.EMC.title }} 
-			</v-card-title>
-			<v-card-text class='text-h5'>
+	<v-container class="px-0" fluid>
+		<v-card>
+			<v-card-title class="text-h4"> УМК: {{ emcOnSchool.EMC.title }} </v-card-title>
+			<v-card-text class="text-h5">
 				<div>
-					<v-chip
-						v-show='emcOnSchool.isApproved'
-						color="green"
-						text-color="white"
-						pill
-						> 
+					<v-chip v-show="emcOnSchool.isApproved" color="green" text-color="white" pill>
 						Подтверждено
 					</v-chip>
-					<v-chip
-						v-show='!emcOnSchool.isApproved'
-						color="yellow"
-						text-color="black"
-						pill
-						> 
+					<v-chip v-show="!emcOnSchool.isApproved" color="yellow" text-color="black" pill>
 						Не подтверждено
 					</v-chip>
-					<v-chip
-						v-show='emcOnSchool.EMC.isCustom'
-						color="red"
-						text-color="white"
-						pill
-						>
+					<v-chip v-show="emcOnSchool.EMC.isCustom" color="red" text-color="white" pill>
 						Созданный вами
 					</v-chip>
 				</div>
-				<p> <strong> Издательство: </strong>  {{ emcOnSchool.EMC.Publisher.publisherName }} </p>
-				<p> <strong>  Авторы: </strong>  {{ emcOnSchool.EMC.authors }} </p>
-				<p> Класс: {{ emcOnSchool.EMC.grades }} </p>
+				<p><strong> Издательство: </strong> {{ emcOnSchool.EMC.Publisher.publisherName }}</p>
+				<p><strong> Авторы: </strong> {{ emcOnSchool.EMC.authors }}</p>
+				<p>Класс: {{ emcOnSchool.EMC.grades }}</p>
 				<!--p> Кол-во учеников: {{ emcOnSchool.studentsCount }} </p-->
-				<p> ГИА-{{ emcOnSchool.EMC.gia }} </p>
-				<p> Уровень: {{ emcOnSchool.EMC.Level ? emcOnSchool.EMC.Level.name : 'Нет данных'}} </p>
+				<p>ГИА-{{ emcOnSchool.EMC.gia }}</p>
+				<p>Уровень: {{ emcOnSchool.EMC.Level ? emcOnSchool.EMC.Level.name : 'Нет данных' }}</p>
 			</v-card-text>
-			<v-card-actions>	
-				<v-btn 
+			<v-card-actions>
+				<v-btn text color="teal accent-4" @click="isDetailing = !isDetailing"> Комментарии </v-btn>
+				<v-btn
 					text
 					color="teal accent-4"
-					@click="isDetailing = !isDetailing"
-					>
-					Комментарии
-				</v-btn>
-				<v-btn 
-					text
-					color="teal accent-4"
-					:to="{ name: 'poo-emc-edit', params: { emcId: emcOnSchool.emcId }}"
-					>
+					:to="{ name: 'poo-emc-edit', params: { emcId: emcOnSchool.emcId } }"
+				>
 					Редактировать
 				</v-btn>
-				<v-btn 
-					text
-					color="teal accent-4"
-					@click="$emit('onDetachEMCFrom', emcOnSchool)"
-					>
-						Открепить УМК
+				<v-btn text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+					Открепить УМК
 				</v-btn>
 			</v-card-actions>
 		</v-card>
 		<v-expand-transition>
-			<v-card
-				v-show='isDetailing'
-				>
+			<v-card v-show="isDetailing">
 				<v-card-text class="pb-0">
 					<p><strong>Причина исползования:</strong> {{ emcOnSchool.usingCoz }}</p>
-					<p><strong>Причина изменений:</strong>  {{ emcOnSchool.correctionCoz }} </p>
-					<p><strong>Причина смены: </strong> {{ emcOnSchool.swapCoz }} </p>
+					<p><strong>Причина изменений:</strong> {{ emcOnSchool.correctionCoz }}</p>
+					<p><strong>Причина смены:</strong> {{ emcOnSchool.swapCoz }}</p>
 				</v-card-text>
 			</v-card>
 		</v-expand-transition>
 	</v-container>
 </template>
 <script>
-
 export default {
-	props: ['emcOnSchool'],
-  data: () => ({
-		isDetailing: false
-	})
+	props: {
+		emcOnSchool: {
+			type: Object,
+			required: true,
+		},
+	},
+	data: () => ({
+		isDetailing: false,
+	}),
 }
 </script>
 
 <style scoped>
 .v-card--reveal {
-  bottom: 0;
-  opacity: 1 !important;
-  position: absolute;
-  width: 100%;
+	bottom: 0;
+	opacity: 1 !important;
+	position: absolute;
+	width: 100%;
 }
 </style>

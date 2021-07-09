@@ -141,17 +141,14 @@ module.exports = {
 			
 		} catch(err) { console.error(err) }
 	},
-	
 	// изменения данных умк
 	async setEMC (req, res) {
 		try {
 			/** Обновляем УМК с данными при условии, что данный пользователь 
 				* его создатель и админ не сделал его официальным умк 
 				*/
-			const emc = await EMC.update(req.body,
-				{ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true },
-					returning: true })
-			
+			const emc = await EMC.update(req.body, { where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }, returning: true })
+			console.log('updated emc ', emc, '; id: ', req.params.emcId, '; createdBy: ', req.user.id)
 			res.json({ message: 'Данные обновлены', emc: emc })
 
 		} catch(err) { console.error(err) }
@@ -161,10 +158,9 @@ module.exports = {
 			/** Удаляем умк при условии, что админ не сделал его официальным и 
 			 * данный пользователь является создателем
 			 */
-			const emc = await EMC.destroy(
+			await EMC.destroy(
 				{ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }, returning: true })
-			
-			res.json({ message: 'УМК удалена', emc: emc })
+			res.json({ message: 'УМК удалена' })
 		} catch (error) {
 			console.error(error)
 		}
@@ -194,11 +190,12 @@ module.exports = {
 	// Добавление нового умк для ОО
 	async createEMC(req, res) {
 		try {
-			const { title, authors, publisherId, gia, grades, subjectId, levelId } = req.body
+			const { title, authors, publisherId, grades, subjectId, levelId } = req.body
 
 			const emc = await EMC.create({ title: title, authors: authors, subjectId: subjectId, publisherId: publisherId, levelId: levelId,
 				gia: req.user.gia, grades: grades, createdBy: req.user.id, isCustom: true })
 
+			console.log('created ', emc)
 			res.json({ message: 'УМК создано', emc: emc })
 			
 		} catch(err) { console.error(err) }

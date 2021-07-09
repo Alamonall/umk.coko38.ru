@@ -1,3 +1,5 @@
+const path = require('path')
+
 const authController = require('./controllers/auth')
 const authContPolicy = require('./policies/auth')
 const adminController = require('./controllers/admin')
@@ -182,5 +184,7 @@ module.exports = (app) => {
 		pooController.detachEMC)
 
 	//#endregion
-	 
+	 app.get('*', (req, res) => {
+		 res.sendFile(path.join(__dirname,'/public/index.html'))
+	 })
 }

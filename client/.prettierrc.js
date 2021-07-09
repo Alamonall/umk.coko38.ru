@@ -8,5 +8,7 @@ module.exports = {
   tabWidth: 2,
   semi: false,
 	eslint: true,
-	tabSize: 2
+	tabSize: 2,
+	singleQuote: true,
+	endOfLine: 'auto'
 }

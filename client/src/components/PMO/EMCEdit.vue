@@ -1,17 +1,14 @@
 <template>
-	<v-container
-    class="px-0"
-    fluid
-		v-if='isSignin && user.UserRole.code == 2 
-		&& (emc.createdBy == user.id) && emc.isCustom 
-		/* Дополнительно проверяем: не убрал ли возможность ред-ть умк (isCustom) 
-		и создатель данного умк совпадает ли с данным пользователем*/' 
-  	>		
+	<v-container 
+		v-if='isSignin && user.UserRole.code == 2 && emc.createdBy == user.id && emc.isCustom'
+		class="px-0"
+		fluid 
+		>		
 		<v-card v-if='emc==null'>
 			<v-card-title class="text-h4 text-center">
 				Идёт загрузка данных...
 			</v-card-title>
-		</v-card>
+		</v-card>	
 		<v-card v-if='emc!=null'>
 			<v-card-title class="text-h4">
 				Редактирование УМК 
@@ -23,7 +20,7 @@
 				></v-text-field>
 				<v-text-field
 					label='Авторы'
-					:value=emc.authors
+					v-model=emc.authors
 				></v-text-field>
 				<v-text-field
 					label='Класс'
@@ -46,7 +43,7 @@
 					return-object
 				></v-select>	
 				<v-select
-					v-model=emc.Publisher
+					v-model="emc.Publisher"
 					:items=publishers
 					item-text='name'
 					label="Издательство"
@@ -57,7 +54,7 @@
 			<v-card-actions>
 				<v-btn 
 					text color="teal accent-4"
-					@click='saveEMC'
+					@click="saveEMC(emc)"
 					>					
 					Сохранить изменения
 				</v-btn>
@@ -72,58 +69,34 @@
 	</v-container>
 </template>
 <script>
-import { mapState } from 'vuex' 
-import PmoService from '../../services/pmoService' 
+import { mapState, mapActions } from 'vuex' 
+import { mapMultiRowFields } from 'vuex-map-fields'
+import PmoService from '../../services/pmoService'
 
 export default {
 	data: () => ({
 		loading: false,
 		error: null,
 		message: null,
-		emc: {
-			title: null,
-			grades: null,
-			gia: null,
-			Subject: null,
-			publisherId: null,
-			Publisher: null,
-			isCustom: null,
-			levelId: null,
-			Level: null,
-		},
 	}),
+	computed: {
+		...mapMultiRowFields(['emcs']),
+		...mapState(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
+		emc() {
+			return this.emcs.find((emc) => emc.id === this.$route.params.emcId && emc.createdBy === this.user.id && emc.isCustom)
+		},
+	},
 	created() {		
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
 	},
-	computed: {
-    ...mapState([
-      'isSignin',
-			'publishers',
-			'subjects',
-			'levels',
-			'user'
-    ])
-	},
-	async mounted() {
-		try {
-				const [ emc ] = (await PmoService.getEMCs(this.$route.params)).data.emcs
-				this.emc = emc
-			} catch (err) {
-				this.error = err
-			}
-	},
 	methods: {
-		async saveEMC(){
+		...mapActions(['updateEMC']),
+		async saveEMC(emc){
 			try {
-				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
-				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
-				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
-				
-				const response = await PmoService.setEMC(this.emc)
-				this.message = response.data.message
-				this.$store.dispatch('updateEMCsToAttach', this.emc)
-				this.$router.push({ name:'pmo-emcs' })
+				await PmoService.setEMC(emc)
+				this.updateEMC(emc)
+				this.$router.push({ name: 'pmo-subject-emcs', params: { subjectCode: emc.Subject.code } })
 			} catch (error) {
 				this.error = error
 			}

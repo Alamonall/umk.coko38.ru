@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { getField, updateField } from 'vuex-map-fields'
+// eslint-disable-next-line
+// import api from '../services/api'
 
 Vue.use(Vuex)
 
@@ -13,11 +16,13 @@ export default new Vuex.Store({
 		isAreasSidebar: false, // активность sidebar со списком Мо и Оо
 		publishers: [], // Издатели для умк. Так как они не будут меняться часто, можно хранить их в store
 		subjects: [],
-		areas:[],
+		areas: [],
 		levels: [],
-		emcsToAttach: [],
+		emcs: [],
+		emcsOnSchool: [], 
 	},
 	mutations: {
+		updateField,
 		setToken(state, token) {
 			state.token = token
 			if (token) {
@@ -47,24 +52,50 @@ export default new Vuex.Store({
 		setLevels(state, levels) {
 			state.levels = levels
 		},
-		setEMCsToAttach(state, emcsToAttach){
-			state.emcsToAttach = emcsToAttach
+		setEMCs(state, emcs) {
+			state.emcs = emcs
+			state.emcs = [...state.emcs]
 		},
-		updateEMCsToAttach(state, emc){
-			const existsAtIndex = state.emcsToAttach.indexOf(emc)
-			if(existsAtIndex === -1){
-				state.emcsToAttach.push(emc)
-			} else {
-				state.emcsToAttach.splice(existsAtIndex, 0, emc)
+		updateEMC(state, emc) {
+			const index =  state.emcs.findIndex(x => x.id === emc.id)
+			if (index !== -1) {
+				console.log('before mutate: ', state.emcs[index])
+				state.emcs.splice(index, 0, emc)
+				console.log('after mutate: ', state.emcs[index])
 			}
-			state.emcsToAttach = [...state.emcsToAttach]
+			state.emcs = [...state.emcs]
 		},
-		removeFromEMCsToAttach(state, emc){
-			const existsAtIndex = state.emcsToAttach.indexOf(emc)
-			if(existsAtIndex !== -1){
-				state.emcsToAttach.splice(existsAtIndex, 1, emc)
-			} 
-			state.emcsToAttach = [...state.emcsToAttach]
+		createEMC(state, emc) {
+			emc.publisherId = emc.Publisher.id
+			emc.levelId = emc.Level.id
+			emc.subjectId = emc.Subject.id
+			console.log('mutating emc ', emc)
+			state.emcs.push(emc)
+			state.emcs = [...state.emcs]
+		},
+		deleteEMC(state, emc) {
+			const index =  state.emcs.findIndex(x => x.id === emc.id)
+			if (index !== -1) {
+				state.emcs.splice(index, 1)
+			}
+			state.emcs = [...state.emcs]
+		},
+		updateEMCOnSchoolApproval(state, emcOnSchool) {
+			const index =  state.emcsOnSchool.findIndex(x => x.id === emcOnSchool.id)
+			console.log('index emcOnSchoolToChange in store: ', state.emcsOnSchool.findIndex(x => x.id === emcOnSchool.id))
+			console.log('emcOnSchool ', emcOnSchool)
+			if (index !== -1) {
+				state.emcsOnSchool[index].isApproved = !state.emcsOnSchool[index].isApproved
+			}
+			console.log('state.emcsOnSchool: ', state.emcsOnSchool)
+			state.emcsOnSchool = [...state.emcsOnSchool]
+		},
+		swapCreatingStatus(state, emc){
+			const index =  state.emcs.findIndex(x => x.id === emc.id)
+			if (index !== -1 && !state.emcs[index].createdBy === null) {
+				state.emcs[index].isCustom = !state.emcs[index].isCustom
+			}
+			state.emcs = [...state.emcs]
 		}
 	},
 	actions: {
@@ -80,26 +111,43 @@ export default new Vuex.Store({
 		setAreasSidebar({ commit }, activity) {
 			commit('setAreasSidebar', activity)
 		},
-		setPublishers({ commit }, publishers){
+		setPublishers({ commit }, publishers) {
 			commit('setPublishers', publishers)
 		},
-		setSubjects({ commit }, subjects){
+		setSubjects({ commit }, subjects) {
 			commit('setSubjects', subjects)
 		},
-		setAreas({ commit }, areas){
+		setAreas({ commit }, areas) {
 			commit('setAreas', areas)
 		},
-		setLevels({ commit }, levels){
+		setLevels({ commit }, levels) {
 			commit('setLevels', levels)
 		},
-		setEMCsToAttach({ commit }, emcsToAttach){
-			commit('setEMCsToAttach', emcsToAttach)
+		setEMCs({ commit }, emcs) {
+			commit('setEMCs', emcs)
 		},
-		updateEMCsToAttach({ commit }, emc){
-			commit('updateEMCsToAttach', emc)
+		updateEMCOnSchoolApproval({ commit }, emcOnSchool) {
+			commit('updateEMCOnSchoolApproval', emcOnSchool)
 		},
-		removeFromEMCsToAttach({ commit }, emc){
-			commit('removeFromEMCsToAttach', emc)
+		updateEMCOnSchool({ commit }, emcOnSchool){
+			commit('updateEMCOnSchool', emcOnSchool)
 		},
+		updateEMC({ commit }, emc) {
+			console.log('commiting updateEMC')
+			commit('updateEMC', emc)
+		},
+		createEMC({ commit }, emc) {
+			console.log('commiting createEMC ', emc)
+			commit('createEMC', emc)
+		},
+		deleteEMC({ commit }, emc) {
+			commit('deleteEMC', emc)
+		},
+		swapCreatingStatusEMC({ commit }, emc) {
+			commit('swapCreatingStatus', emc)
+		}
+	},
+	getters: {
+		getField,
 	},
 })

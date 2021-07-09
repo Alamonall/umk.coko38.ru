@@ -1,13 +1,5 @@
-<template lang="">
-	<div class='text-center align-center'>
-		Страница не найдена
-	</div>
-</template>
+<template lang=""><div class="text-center align-center">Страница не найдена</div></template>
 <script>
-export default {
-	
-}
+export default {}
 </script>
-<style lang="">
-	
-</style>
+<style lang=""></style>

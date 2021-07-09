@@ -1,5 +1,5 @@
 <template>
-	<v-row dense v-if='isSignin && user.UserRole.code == 3' >
+	<v-row v-if='isSignin && user.UserRole.code == 3' dense>
 		<v-col cols="12">
 			<v-btn text
 				color="teal accent-4"
@@ -9,7 +9,8 @@
 			</v-btn>
 		</v-col>
 		<v-col cols="12">
-			<v-card v-if='emcs.length === 0'
+			<v-card 
+				v-if='emcsFilter.length === 0'
 				class="mx-auto text-center"
 			>
 			Учебников по этому предмету созданных вами нету
@@ -17,10 +18,10 @@
 		</v-col>
 		<v-col cols="12">
 			<v-card	
-				v-for='emc in emcs'
+				v-for='emc in emcsFilter'
 				:key='emc.id'
 				>
-				<v-card-title  class='text-h4'> {{ emc.title }} </v-card-title>
+				<v-card-title	class='text-h4'> {{ emc.title }} </v-card-title>
 				<v-card-text class='text-h5'>
 					<div>
 						<v-chip
@@ -32,8 +33,8 @@
 							Пользовательский
 						</v-chip>
 					</div>
-					<p> <strong> Издательство: </strong>  {{ emc.Publisher.name }} </p>
-					<p> <strong> Авторы: </strong>  {{ emc.authors }} </p>
+					<p> <strong> Издательство: </strong>	{{ emc.Publisher.name }} </p>
+					<p> <strong> Авторы: </strong>	{{ emc.authors }} </p>
 					<p> <strong> Класс: </strong> {{ emc.grades }} </p>
 				</v-card-text>
 				<v-card-actions>
@@ -58,47 +59,41 @@
 	</v-row>
 </template>
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import PooService from '../../services/pooService'
 
 export default {
 	data: () => ({
-		emcs: [],
 		error: null,
-	}),
-	created() {
-		this.$store.dispatch('setSubjectsSidebar', true) // Включаем sidebar для EMCs
-		this.$store.dispatch('setAreasSidebar', false) // На всякий случай ставим sidebar EMCsOnSchool на false
-		this.getEMCsForConstructor()
-	},
+	}),	
 	computed: {
 		 ...mapState([
-    	'isSignin',
+			'isSignin',
 			'user'
-    ])
-  },
+		]),
+		...mapActions([
+			'deleteEMC'
+		]),
+		emcsFilter(){
+			return this.$store.state.emcs.filter(emc => emc.isCustom && (emc.createdBy === this.$store.state.user.id))
+		}
+	},
 	watch: {
 		$route() {
 			this.getEMCsForConstructor()
 		}
 	},
+	created() {
+		this.$store.dispatch('setSubjectsSidebar', true) // Включаем sidebar для EMCs
+		this.$store.dispatch('setAreasSidebar', false) // На всякий случай ставим sidebar EMCsOnSchool на false
+		this.getEMCsForConstructor()
+	},
 	methods: {
 		async getEMCsForConstructor() {
 			try {
 				const response = await PooService.getEMCs(this.$route.params)
-				this.emcs = response.data.emcs.filter(emc => emc.isCustom && (emc.createdBy === this.$store.state.user.id))
+				this.$store.dispatch('setEMCs', response.data.emcs)
 			} catch (err){ this.error = err }
-		},
-		async deleteEMC(emc){
-			try {
-				const response = await PooService.deleteEMC(emc)
-				this.message = response.data.message
-				this.$store.dispatch('removeFromEMCsToAttach', emc)
-				
-				this.emcs.splice(this.emcs.indexOf(emc),1)
-			} catch (err) {
-				this.error = err				
-			}
 		}
 	}
 }

@@ -1,12 +1,13 @@
 <template>
 	<v-container
-    class="px-0"
-    fluid		
+		class="px-0"
+		fluid		
 		v-if='isSignin && user.UserRole.code == 1'
 		>		
 		<v-card v-if='emc==null'>
 			<v-card-title class="text-h4 text-center">
-				Идёт загрузка данных...
+				Подождите...Данные либо грузятся, либо произошла ошибка. <br>
+				Попробуйте перезайти и попробовать снова				
 			</v-card-title>
 		</v-card>
 		<v-card v-if='emc!=null'>
@@ -73,63 +74,45 @@
 	</v-container>
 </template>
 <script>
-import { mapState } from 'vuex' 
-import AdminService from '../../services/adminService' 
+import { mapFields } from 'vuex-map-fields'
+import AdminService from '../../services/adminService'
 
 export default {
 	data: () => ({
 		loading: false,
 		error: null,
 		message: null,
-		emc: {
-			title: null,
-			grades: null,
-			gia: null,
-			Subject: null,
-			publisherId: null,
-			Publisher: null,
-			isCustom: true,
-			levelId: null,
-			Level: null,
-		},
+		emc: null,
 	}),
+	computed: {
+		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
+	},
 	created() {
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
-	},
-	computed: {
-    ...mapState([
-      'publishers',
-			'levels',
-			'user',
-			'subjects',
-			'isSignin'
-    ])
-	},
-	async mounted() {
-		try {
-				const [ emc ] = (await AdminService.getEMCs(this.$route.params)).data.emcs
-				this.emc = emc
-			} catch (err) {
-				this.error = err
-			}
+		this.getEMCsForEdit()
 	},
 	methods: {
+		async getEMCsForEdit() {
+			try {
+				const response = await AdminService.getEMCs(this.$route.params)
+				if(response.status === 200) {
+					const [localEMC] = response.data.emcs
+					console.log('response: ', localEMC)
+					this.emc = localEMC
+				} else {
+					this.$router.push({ name: 'admin-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+				}
+			} catch (error) { this.error = error }
+		},
 		async saveEMC(){
 			try {
-				
-				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
-				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
-				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
-				
-				const response = await AdminService.setEMC(this.emc)
-				this.message = response.data.message
-				this.$store.dispatch('updateEMCsToAttach', this.emc)
-				this.$router.push({ name:'admin-emcs' })
-			} catch (error) {
-				this.error = error
-			}
-		}
+				console.log('this.emc: ', this.emc)
+				await AdminService.setEMC(this.emc)
+				this.$store.dispatch('updateEMC', this.emc)
+				this.$router.push({ name: 'admin-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+			} catch (error) { this.error = error }
+		},
 	}
 }
 </script>

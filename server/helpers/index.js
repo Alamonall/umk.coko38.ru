@@ -3,12 +3,11 @@ const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area, Level } = requ
 const { Op, literal, fn, col } = require('sequelize')
 
 module.exports = {
-	async getEMCsOnSchool( req, ids = []) {
+	async getEMCsOnSchool( req) {
 		const { areaCode, schoolCode, subjectCode } = req.params
 
 		return await EMCOnSchool.findAll({
 			attribute:['correctionCoz','studentsCount','swapCoz','usingCoz', 'isApproved'],
-			where: ids.length > 0 ? { id:{ [Op.in]: ids } } : {},
 			include: [
 				{
 					model: EMC,
@@ -28,7 +27,7 @@ module.exports = {
 							model: Subject,
 							require: true,
 							attributes: [['code', 'subjectCode'], ['name', 'subjectName']],
-							where: subjectCode ? { code: subjectCode } : {}
+							where: subjectCode ? { code: subjectCode } : { code: null }
 						},
 						{
 							model: Level,
@@ -46,7 +45,7 @@ module.exports = {
 						['name','schoolName'],
 						['gia','schoolGia'],
 					],
-					where: schoolCode ? { code: schoolCode, gia: req.user.gia } : { gia: req.user.gia },
+					where: schoolCode ? { code: schoolCode, gia: req.user.gia } : { code: null, gia: req.user.gia },
 					include: [
 						{
 							model: Area,
@@ -129,25 +128,26 @@ module.exports = {
 	},
 	async getEMCs(req){
 
-		const emcsWhere = {gia: req.user.gia}
+		// const emcsWhere = { gia: req.user.gia }
 
 		/**
-		 * Неадмины здесь получает только УМК, которые создали только они и
-		 * при условии, что админ не сделал его официальным (isCustom == false)
+		 * Выдача УМК с фильтром по gia
 		 */
-
+		/*
 		if(req.user.UserRole.code == (2 || 3)){
 			emcsWhere.isCustom = true
 			emcsWhere.createdBy = { [Op.not]: null }
 		}
+		*/
 
+		/* 
 		if(req.params.emcId)
 			emcsWhere.id = req.params.emcId
-		
+		*/
 		// Получаем УМК по параметру id либо все
 		return await EMC.findAll({
 			attributes: ['id', 'gia', 'authors', 'grades', 'isCustom','publisherId', 'subjectId', 'title', 'createdBy'],
-			where: emcsWhere,
+			where: req.params.emcId ? { id: req.params.emcId, gia: req.user.gia } : { gia: req.user.gia },
 			include: [
 				{ 
 					model: Publisher,
@@ -208,6 +208,11 @@ module.exports = {
 						attributes: ['id', 'code', 'name'],
 						require: true,
 					},
+					{
+						model: EMCOnSchool,
+						attributes: ['id'],
+						where: { id: { [Op.is]: null } }
+					}
 				]
 			})
 

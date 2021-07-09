@@ -1,11 +1,5 @@
 <template>
-	<v-navigation-drawer app
-		width='20%'
-		left=true
-		permanent
-		absolute
-		clipped		
-		>
+	<v-navigation-drawer app width="20%" left="true" permanent absolute clipped>
 		<v-list-item>
 			<v-list-item-content>
 				<v-list-item-icon>
@@ -16,13 +10,12 @@
 			</v-list-item-content>
 		</v-list-item>
 		<v-divider></v-divider>
-		<slot> Нет данных </slot>      
+		<slot> Нет данных </slot>
 	</v-navigation-drawer>
 </template>
 
 <script>
-export default {
-}
+export default {}
 </script>
 
 <style scoped></style>

@@ -1,10 +1,10 @@
 <template>
-  <v-container
-    class="px-0"
-    fluid
-  >
+	<v-container
+		class="px-0"
+		fluid
+	>
 		<v-card	>
-			<v-card-title  class='text-h4'> 
+			<v-card-title	class='text-h4'> 
 				УМК: {{ emcOnSchool.EMC.title }} 
 			</v-card-title>
 			<v-card-text class='text-h5'>
@@ -34,8 +34,8 @@
 						Пользовательский
 					</v-chip>
 				</div>
-				<p> <strong> Издательство: </strong>  {{ emcOnSchool.EMC.Publisher.publisherName }} </p>
-				<p> <strong>  Авторы: </strong>  {{ emcOnSchool.EMC.authors }} </p>
+				<p> <strong> Издательство: </strong>	{{ emcOnSchool.EMC.Publisher.publisherName }} </p>
+				<p> <strong>	Авторы: </strong>	{{ emcOnSchool.EMC.authors }} </p>
 				<p> Класс: {{ emcOnSchool.EMC.grades }} </p>
 				<!--p> Кол-во учеников: {{ emcOnSchool.studentsCount }} </p-->
 				<p> ГИА-{{ emcOnSchool.EMC.gia }} </p>
@@ -79,7 +79,7 @@
 				>
 				<v-card-text class="pb-0">
 					<p><strong>Причина исползования:</strong> {{ emcOnSchool.usingCoz }}</p>
-					<p><strong>Причина изменений:</strong>  {{ emcOnSchool.correctionCoz }} </p>
+					<p><strong>Причина изменений:</strong>	{{ emcOnSchool.correctionCoz }} </p>
 					<p><strong>Причина смены: </strong> {{ emcOnSchool.swapCoz }} </p>
 				</v-card-text>
 			</v-card>
@@ -90,7 +90,7 @@
 
 export default {
 	props: ['emcOnSchool'],
-  data: () => ({
+	data: () => ({
 		isDetailing: false
 	})
 }
@@ -98,9 +98,9 @@ export default {
 
 <style scoped>
 .v-card--reveal {
-  bottom: 0;
-  opacity: 1 !important;
-  position: absolute;
-  width: 100%;
+	bottom: 0;
+	opacity: 1 !important;
+	position: absolute;
+	width: 100%;
 }
 </style>

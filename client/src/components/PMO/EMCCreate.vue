@@ -1,9 +1,9 @@
 <template>
 	<v-container
-    class="px-0"
-    fluid
+		class="px-0"
+		fluid
 		v-if='isSignin && user.UserRole.code == 2' 
-  	>
+		>
 		<v-card>
 			<v-card-title class="text-h4">
 				Создание УМК
@@ -56,7 +56,7 @@
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4"
-					@click='createEMC'
+					@click="createEMC"
 				>
 					Создать УМК
 				</v-btn>
@@ -71,7 +71,6 @@
 </template>
 <script>
 import { mapState } from 'vuex' 
-import PmoService from '../../services/pmoService'
 
 export default {
 	data : () => ({
@@ -94,25 +93,28 @@ export default {
 		this.$store.dispatch('setSubjectsSidebar', false)
 	},
 	computed: {
-    ...mapState([
-      'isSignin',
-			'publishers',
-			'subjects',
-			'levels',
-			'user'
-    ])
+		...mapState([ 'isSignin', 'publishers', 'subjects', 'levels', 'user']),
 	},
 	methods: {
 		async createEMC(){
 			try {
-				this.$set( this.emc, 'publisherId', this.$store.state.publishers.find(x => x.id === this.emc.Publisher.id).id)
-				this.$set( this.emc, 'subjectId', this.$store.state.subjects.find(x => x.code === this.emc.Subject.code).id)
-				this.$set( this.emc, 'levelId', this.$store.state.levels.find(x => x.id === this.emc.Level.id).id)
-
-			const response = await PmoService.createEMC(this.emc)
-				this.message = response.data.message
-				this.$store.dispatch('updateEMCsToAttach', this.emc)
-				this.$router.push({ name:'pmo-emcs' })
+				this.$set(
+					this.emc,
+					'publisherId',
+					this.$store.state.publishers.find((x) => x.id === this.emc.Publisher.id).id,
+				)
+				this.$set(
+					this.emc,
+					'subjectId',
+					this.$store.state.subjects.find((x) => x.code === this.emc.Subject.code).id,
+				)
+				this.$set(
+					this.emc,
+					'levelId',
+					this.$store.state.levels.find((x) => x.id === this.emc.Level.id).id,
+				)
+				this.$store.dispatch('createEMC', this.emc)
+				this.$router.push({ name: 'pmo-emcs' })
 			} catch (error) {
 				this.error = error
 			}

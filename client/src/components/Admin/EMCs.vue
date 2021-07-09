@@ -20,7 +20,7 @@
 				v-for='emc in emcs'
 				:key='emc.id'
 				>
-				<v-card-title  class='text-h4'> {{ emc.title }} </v-card-title>
+				<v-card-title	class='text-h4'> {{ emc.title }} </v-card-title>
 				<v-card-text class='text-h5'>
 					<div>
 						<v-chip
@@ -32,70 +32,61 @@
 							Пользовательский
 						</v-chip>
 					</div>
-					<p> <strong> Издательство: </strong>  {{ emc.Publisher.name }} </p>
-					<p> <strong> Авторы: </strong>  {{ emc.authors }} </p>
+					<p> <strong> Издательство: </strong>	{{ emc.Publisher.name }} </p>
+					<p> <strong> Авторы: </strong>	{{ emc.authors }} </p>
 					<p> <strong> Класс: </strong> {{ emc.grades }} </p>
 					<p> <strong> Уровень: </strong> {{ emc.Level ? emc.Level.name : 'Нет данных' }} </p>
 					<v-chip v-if='emc.gia == 9'
-							color='indigo lighten-2'
-							text-color='white'
-							pill> ГИА-{{ emc.gia }} </v-chip>
-							<v-chip v-if='emc.gia == 11'
-							color='light-blue accent-3'
-							text-color='white'
-							pill> ГИА-{{ emc.gia }} </v-chip>
-					
+						color='indigo lighten-2'
+						text-color='white'
+						pill
+					> 
+						ГИА-{{ emc.gia }}
+					</v-chip>
+					<v-chip v-if='emc.gia == 11'
+						color='light-blue accent-3'
+						text-color='white'
+						pill
+					>
+					 ГИА-{{ emc.gia }}
+					</v-chip>
+					<v-chip v-if='emc.gia == 11'
+						color='light-blue accent-3'
+						text-color='white'
+						pill
+					>
+						{{ emc.Subject.name }}
+					</v-chip>
 				</v-card-text>
 				<v-card-actions>
-					<v-btn 
-						text
-						color="teal accent-4"
-						:to="{ name: 'admin-emc-edit', params: { emcId: emc.id } }"
-						>
-						Редактировать
-					</v-btn>
-					<v-btn 
-						v-if='emc.createBy'
-						text
-						color="teal accent-4"
-						@click="swapCreatingStatusEMC('emc')"
-						>
+					<v-btn text color="teal accent-4" :to="{ name: 'admin-emc-edit', params: { emcId: emc.id } }"> Редактировать </v-btn>
+					<v-btn v-if='emc.createBy' text color="teal accent-4" @click="swapCreatingStatusEMC('emc')">
 						<div v-if='emc.isCustom'>Сделать официальным (не работает вроде)</div>
 						<div v-else>Сделать снова пользовательским (не работает вроде) </div>						
 					</v-btn>
 					<v-spacer></v-spacer>
-					<v-btn 
-						text
-						color="red darken-1"
-						@click="deleteEMC(emc)"
-						>
-						Удалить
-					</v-btn>
+					<v-btn text color="red darken-1" @click="deleteEMC(emc)"> Удалить </v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-col>
 	</v-row>
 </template>
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
 
 export default {
 	data: () => ({
-		emcs: [],
 		error: null,
 	}),
+	computed: {
+		...mapFields(['isSignin', 'user', 'emcs']),
+	},
 	created() {
 		this.$store.dispatch('setSubjectsSidebar', true) // Включаем sidebar для EMCs
 		this.$store.dispatch('setAreasSidebar', false) // На всякий случай ставим sidebar EMCsOnSchool на false
 		this.getEMCsForConstructor()
 	},
-	computed: {
-		 ...mapState([
-      'isSignin',
-			'user',
-    ]),	
-  },
 	watch: {
 		$route() {
 			this.getEMCsForConstructor()
@@ -105,32 +96,27 @@ export default {
 		async getEMCsForConstructor() {
 			try {
 				const response = await AdminService.getEMCs(this.$route.params)
-				this.emcs = response.data.emcs
+				this.$store.commit('setEMCs', response.data.emcs)
 			} catch (err){ this.error = err }
 		},
 		async swapCreatingStatusEMC(emc){
 			try {
 				// Делаем умк официальной - что позволит добавлять её другим ПМО и ПОО
-				
-				emc.isCustom = !emc.isCustom
-
-				const response = await AdminService.setEMC(emc)
-
-				this.$set(this.emcs, this.emcs.indexOf(emc), response.data.emc[0] )
+				if(emc.createdBy != null){
+					this.$store.dispatch('swapCreatingStatusEMC', emc)
+				}
 			} catch (error) {
 				this.error = error
 			}
 		},
 		async deleteEMC(emc){
 			try {
-				console.log(emc)
+				console.log('deleteEMC: ', emc)
 				const response = await AdminService.deleteEMC(emc)
-				this.message = response.data.message
-				
-				this.$store.dispatch('removeFromEMCsToAttach', emc)
-				this.emcs.splice(this.emcs.indexOf(emc),1)
-			} catch (err) {
-				this.error = err
+				if(response.status === 200)
+					this.$store.dispatch('deleteEMC', emc)
+			} catch (error) {
+				this.error = error
 			}
 		}
 	}

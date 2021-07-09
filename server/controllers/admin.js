@@ -33,14 +33,14 @@ module.exports = {
 			const levels = await Level.findAll()
 
 			// Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
-			const emcsToAttach = await getEMCToAttach(req)
+			const emcs = await getEMCs(req)
 			
 			res.json({ 
 				areasAndSchools: areasAndSchools,
 				subjects: subjects,
 				publishers: publishers,
 				levels: levels,
-				emcsToAttach: emcsToAttach 
+				emcs: emcs
 			})
 
 		} catch (err) { console.error(err)}
@@ -77,7 +77,9 @@ module.exports = {
 	},
 	async deleteEMC( req, res){
 		try {
+			console.log('deleting emc ', req.params.emcId )
 			const emc = await EMC.destroy({ where: { id: req.params.emcId }, returning: true })
+			console.log('deleted emc ', emc)
 			res.json({ message: 'УМК удалена', emc: emc })
 		} catch (error) {
 			console.error(error)
@@ -86,8 +88,9 @@ module.exports = {
 	// изменения данных умк у школы
 	async setEMCOnSchool (req, res) {
 		try {
+			console.log('set emc on school: ', req.body)
 			const emcOnSchool = await EMCOnSchool.update(req.body, { where: { id: req.params.emcOnSchoolId }, returning: true })
-
+			console.log('updated emcsOnSchool: ', emcOnSchool)
 			res.json({ message: 'Данные обновлены', emcOnSchool: emcOnSchool })
 
 		} catch(err) { console.log(err)}
@@ -146,9 +149,9 @@ module.exports = {
 				})
 			}
 
-			const inserted = await EMCOnSchool.bulkCreate(bulk, { returning: true })
+			await EMCOnSchool.bulkCreate(bulk, { returning: true })
 
-			const emcsOnSchool = await getEMCsOnSchool (req, inserted.map(inserted => inserted.id))
+			const emcsOnSchool = await getEMCsOnSchool (req)
 
 			res.json({ message: 'УМК добавлены', emcsOnSchool: emcsOnSchool })
 
@@ -182,7 +185,9 @@ module.exports = {
 				]
 			})
 
-			res.json({ message:'УМК откреплены' })
+			const emcsOnSchool = await getEMCsOnSchool (req)
+
+			res.json({ message:'УМК откреплены', emcsOnSchool: emcsOnSchool })
 
 		} catch(err) { console.log(err)}
 	},
