@@ -26,7 +26,7 @@ export default {
 	},
 	setEMCOnSchool(EMCOnSchool) {
 		console.log('EMCOnSchool:', { ...EMCOnSchool })
-		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, {...EMCOnSchool})
+		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, { ...EMCOnSchool })
 	},
 	createEMC(EMC = null) {
 		return api().post('/pmo/emcs/create', EMC)
