@@ -25,7 +25,7 @@ export default {
 				this.$store.dispatch('setSubjects', response.data.subjects)
 				this.$store.dispatch('setPublishers', response.data.publishers)
 				this.$store.dispatch('setLevels', response.data.levels)
-				this.$store.dispatch('setEMCs', response.data.emcsToAttach)
+				this.$store.dispatch('setEMCs', response.data.emcs)
 			} catch (err) {
 				this.err = err
 			}

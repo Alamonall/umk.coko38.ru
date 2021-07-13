@@ -3,7 +3,10 @@
 		class="px-0"
 		fluid
 	>
-		<v-card	>
+		<v-card			
+			v-for="emcOnSchool in emcsOnSchool"
+			:key="emcOnSchool.id"
+			>
 			<v-card-title	class='text-h4'> 
 				УМК: {{ emcOnSchool.EMC.title }} 
 			</v-card-title>
@@ -26,12 +29,12 @@
 						Не подтверждено
 					</v-chip>
 					<v-chip
-						v-show='emcOnSchool.EMC.isCustom'
+						v-show='emcOnSchool.EMC.isCustom && emcOnSchool.EMC.createdBy === user.id'
 						color="red"
 						text-color="white"
 						pill
 						>
-						Пользовательский
+						Создано вами
 					</v-chip>
 				</div>
 				<p> <strong> Издательство: </strong>	{{ emcOnSchool.EMC.Publisher.publisherName }} </p>
@@ -49,15 +52,15 @@
 					>
 					Комментарии
 				</v-btn>
-				<v-btn 
+				<v-btn
 					text
 					color="teal accent-4"
 					@click="$emit('onSwapApprovingStatusEMCOnSchool', emcOnSchool)"
-					>
-						<div v-if='!emcOnSchool.isApproved'>Подтвердить</div>
-						<div v-else>Снять потдверждение</div>
+				>
+					{{emcOnSchool.isApproved ? 'Отменить утверждение' : 'Утвердить'}}
 				</v-btn>
-				<v-btn 
+				<v-btn
+					v-if="emcOnSchool.EMC.isCustom && emcOnSchool.EMC.createdBy === user.id"
 					text
 					color="teal accent-4"
 					:to="{ name: 'pmo-emc-edit', params: { emcId: emcOnSchool.emcId }}"
@@ -68,31 +71,34 @@
 					text
 					color="teal accent-4"
 					@click="$emit('onDetachEMCFrom', emcOnSchool)"
-					>
-						Открепить УМК
+				>
+					Открепить УМК
 				</v-btn>
 			</v-card-actions>
+			<v-expand-transition>
+				<v-card
+					v-show='isDetailing'
+					>
+					<v-card-text class="pb-0">
+						<p><strong>Причина исползования:</strong> {{ emcOnSchool.usingCoz }}</p>
+						<p><strong>Причина изменений:</strong>	{{ emcOnSchool.correctionCoz }} </p>
+						<p><strong>Причина смены: </strong> {{ emcOnSchool.swapCoz }} </p>
+					</v-card-text>
+				</v-card>
+			</v-expand-transition>
 		</v-card>
-		<v-expand-transition>
-			<v-card
-				v-show='isDetailing'
-				>
-				<v-card-text class="pb-0">
-					<p><strong>Причина исползования:</strong> {{ emcOnSchool.usingCoz }}</p>
-					<p><strong>Причина изменений:</strong>	{{ emcOnSchool.correctionCoz }} </p>
-					<p><strong>Причина смены: </strong> {{ emcOnSchool.swapCoz }} </p>
-				</v-card-text>
-			</v-card>
-		</v-expand-transition>
 	</v-container>
 </template>
 <script>
+import { mapFields } from 'vuex-map-fields'
 
 export default {
-	props: ['emcOnSchool'],
 	data: () => ({
 		isDetailing: false
-	})
+	}),
+	computed: {
+		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs']),
+	},
 }
 </script>
 

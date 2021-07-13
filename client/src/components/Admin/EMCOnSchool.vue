@@ -1,5 +1,5 @@
 <template>
-	<v-row dense v-if='isSignin && user.UserRole.code == 1'>
+	<v-row v-if='isSignin && user.UserRole.code == 1' dense>
 		<v-col cols="12">
 				<EMCOnSchoolSelector
 					v-if="$route.params.subjectCode"
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex'
 import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
 import EMCOnSchoolCard from './EMCOnSchoolCard.vue' 
@@ -32,7 +31,6 @@ export default {
 		EMCOnSchoolSelector,
 	},
 	data: () => ({
-		// emcsOnSchool: [],
 		error: null,
 	}),
 	computed: {
@@ -77,7 +75,7 @@ export default {
 				console.log('eos detachEMCFrom')
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
 				const response = await AdminService.detachFrom(this.$route.params, emcOnSchool.emcId)
-
+			
 				this.emcsOnSchool = [...response.data.emcsOnSchool]
 				this.getEMCs()
 			} catch (err){ this.error = err}

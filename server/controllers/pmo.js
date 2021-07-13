@@ -33,26 +33,17 @@ module.exports = {
 			const levels = await Level.findAll()
 
 			// Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
-			const emcsToAttach = await getEMCToAttach(req)
-			console.log('emcsToAttach: ', emcsToAttach)
+			const emcs = await getEMCs(req)
+			
 			res.json({ 
 				areasAndSchools: areasAndSchools,
 				subjects: subjects,
 				publishers: publishers,
 				levels: levels,
-				emcsToAttach: emcsToAttach 
+				emcs: emcs
 			})
 
 		} catch (err) { console.error(err) }
-	},
-	async getEMCsOnSchoolByPMO(req, res) {
-		try {
-			const emcsOnSchool = await getEMCsOnSchool(req)
-
-			res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool})
-		} catch (error) {
-			console.error(error)
-		}
 	},
 	async getEMCsByPMO(req, res){
 		try {
@@ -62,6 +53,15 @@ module.exports = {
 			return res.json({ message: 'Данные получены', emcs: emcs })	
 			
 		} catch(err) { console.error(err) }
+	},
+	async getEMCsOnSchoolByPMO(req, res) {
+		try {
+			const emcsOnSchool = await getEMCsOnSchool(req)
+
+			res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool})
+		} catch (error) {
+			console.error(error)
+		}
 	},
 	// Прикрепление умк определённой школе
 	async attachEMC(req, res){
@@ -109,9 +109,12 @@ module.exports = {
 			const { schoolCode, emcId } = req.params
 
 			if(emcId == undefined)
-				res.status(404).json({ message: 'УМК не найдена' })
+				return res.status(404).json({ message: 'УМК не найдена' })
 
-			let schoolWhere = {	areaId: req.user.areasId }
+			if(req.user.areaId === undefined || req.user.gia === undefined)
+				return res.status(403).json({ message: 'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.' })
+			
+			let schoolWhere = {	areaId: req.user.areaId }
 
 			if(schoolCode != undefined)
 				schoolWhere.code = schoolCode
@@ -120,11 +123,17 @@ module.exports = {
 
 			const schools = await School.findAll({ raw: true, where: schoolWhere })
 
-			const schoolIds = schools.map((item) => item.id)
+			await EMCOnSchool.destroy({ 
+				where: { 
+					schoolId: { [Op.in]: schools.map((item) => item.id) }, 
+					emcId: emcId 
+				} 
+			})
 			
-			await EMCOnSchool.destroy({ where: { schoolId: { [Op.in]: schoolIds }, emcId: emcId } })
-			
-			res.json({ message:'УМК откреплены' })
+			const emcsOnSchool = await getEMCsOnSchool (req)
+
+			res.json({ message:'УМК откреплены', emcsOnSchool: emcsOnSchool })
+
 
 		} catch(err) { console.error(err) }
 	},

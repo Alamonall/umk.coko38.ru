@@ -49,7 +49,7 @@ module.exports = {
 		try {
 			const emcs = await getEMCs(req)
 
-			return res.json({ emcs: emcs })	
+			return res.json({ message: 'Данные получены', emcs: emcs })	
 			
 		} catch(err) { console.error(err) }
 	},

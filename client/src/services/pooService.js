@@ -34,12 +34,14 @@ export default {
 		return api().post(`/poo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
+			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs/${emcId}/attach`)
 	},
 	detachFrom(params = null, emcId) {
 		return api().delete(`/poo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
+			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs/${emcId}/detach`)
 	},
 }

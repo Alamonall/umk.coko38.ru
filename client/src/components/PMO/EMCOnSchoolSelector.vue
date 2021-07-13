@@ -69,7 +69,6 @@ export default {
 		model: null,
 		descriptionLimit: 200,
 		error: null,
-		emcsTitles: [],
 	}),
 	watch: {
 		$route(){
@@ -88,31 +87,10 @@ export default {
 				}
 			})
 		},
-	},
-	created() {
-		this.getEMCs()
-	},
-	methods: {
-		async getEMCs() {
-			try {
-				console.log('get emcs')
-
-				const response = await PmoService.getEMCs(this.$route.params)
-
-				console.log('new emcs ', response.data.emcs)
-				// this.$store.commit('setEMCs', response.data.emcs)
-				this.emcs = [...response.data.emcs]
-
-				this.getEMCsTitles()
-			} catch (err) { this.error = err}
-		},
-		getEMCsTitles() {
-			console.log('this.emcs: ', this.emcs)
-			console.log('this.emcsOnSchool: ', this.emcsOnSchool)
-
-			const emcT = this.emcs.reduce( (filtered, entry ) => {
-				if(entry.Subject.code === this.$route.params.subjectCode 
-					&& this.emcsOnSchool.filter( eos => eos.emcId === entry.id).length === 0) {
+		emcsTitles() {
+			return this.emcs.reduce( (filtered, entry ) => {
+				if(!!entry && entry.Subject.code === this.$route.params.subjectCode 
+					&&  this.emcsOnSchool.filter( eos => eos.emcId === entry.id && eos.School.schoolCode === this.$route.params.schoolCode).length === 0) {
 					const unpreparedDescription = entry.title.concat('. ') + entry.authors.concat('. ') + entry.Publisher.name
 					const Description = unpreparedDescription.length > this.descriptionLimit
 						? unpreparedDescription.slice(0, this.descriptionLimit).concat('...')
@@ -132,19 +110,28 @@ export default {
 				}
 				return filtered
 			}, [])
-
-			console.log('emcsTitles: ', emcT)
-
-			this.emcsTitles = [...emcT]
 		},
+	},
+	created() {
+		this.getEMCs()
+	},
+	methods: {
+		async getEMCs() {
+			try {
+				const response = await PmoService.getEMCs(this.$route.params)
+
+				this.emcs = [...response.data.emcs]
+
+			} catch (err) { this.error = err}
+		},
+		
 		async attachEMC(){
 			try {
 				const response = await PmoService.attachTo(this.$route.params, this.model.entry.id)
 
 				console.log('get response: ', response.data.emcsOnSchool)
 
-				this.emcsOnSchool = response.data.emcsOnSchool
-				// this.$emit('onAttachEMCTo', this.model)
+				this.emcsOnSchool = [...response.data.emcsOnSchool]
 				this.model = null
 				this.getEMCs()
 			} catch (err){ this.error = err }

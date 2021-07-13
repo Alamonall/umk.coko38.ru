@@ -1,12 +1,13 @@
 <template>
 	<v-container 
-		v-if='isSignin && user.UserRole.code == 2 && emc.createdBy == user.id && emc.isCustom'
+		v-if='isSignin && user.UserRole.code == 2'
 		class="px-0"
 		fluid 
 		>		
 		<v-card v-if='emc==null'>
 			<v-card-title class="text-h4 text-center">
-				Идёт загрузка данных...
+				Подождите...Данные либо грузятся, либо произошла ошибка. <br>
+				Попробуйте перезайти и попробовать снова		
 			</v-card-title>
 		</v-card>	
 		<v-card v-if='emc!=null'>
@@ -15,46 +16,46 @@
 			</v-card-title>
 			<v-card-text class="text-h5">
 				<v-text-field
-					label='Название'
-					v-model=emc.title
+					label="Название"
+					v-model="emc.title"
 				></v-text-field>
 				<v-text-field
-					label='Авторы'
-					v-model=emc.authors
+					label="Авторы"
+					v-model="emc.authors"
 				></v-text-field>
 				<v-text-field
-					label='Класс'
-					v-model=emc.grades
+					label="Класс"
+					v-model="emc.grades"
 				></v-text-field>
 				<v-select
-					v-model=emc.Subject
-					:items=subjects
-					item-text='name'
-					no-data-text='Нет данных'
-					label='Предмет'
+					v-model="emc.Subject"
+					:items="subjects"
+					item-text="name"
+					no-data-text="Нет данных"
+					label="Предмет"
 					return-object
 				></v-select>
 				<v-select
-					v-model=emc.Level
-					:items=levels
-					item-text='name'
-					no-data-text='Нет данных'
-					label='Уровень'
+					v-model="emc.Level"
+					:items="levels"
+					item-text="name"
+					no-data-text="Нет данных"
+					label="Уровень"
 					return-object
 				></v-select>	
 				<v-select
 					v-model="emc.Publisher"
-					:items=publishers
-					item-text='name'
+					:items="publishers"
+					item-text="name"
 					label="Издательство"
-					no-data-text='Нет данных'
+					no-data-text="Нет данных"
 					return-object
 				></v-select>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn 
 					text color="teal accent-4"
-					@click="saveEMC(emc)"
+					@click="saveEMC"
 					>					
 					Сохранить изменения
 				</v-btn>
@@ -69,8 +70,7 @@
 	</v-container>
 </template>
 <script>
-import { mapState, mapActions } from 'vuex' 
-import { mapMultiRowFields } from 'vuex-map-fields'
+import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 
 export default {
@@ -78,29 +78,37 @@ export default {
 		loading: false,
 		error: null,
 		message: null,
+		emc: null,
 	}),
 	computed: {
-		...mapMultiRowFields(['emcs']),
-		...mapState(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
-		emc() {
-			return this.emcs.find((emc) => emc.id === this.$route.params.emcId && emc.createdBy === this.user.id && emc.isCustom)
-		},
+		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
 	},
 	created() {		
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
+		this.getEMCsForEdit()
 	},
 	methods: {
-		...mapActions(['updateEMC']),
-		async saveEMC(emc){
+		async getEMCsForEdit() {
 			try {
-				await PmoService.setEMC(emc)
-				this.updateEMC(emc)
-				this.$router.push({ name: 'pmo-subject-emcs', params: { subjectCode: emc.Subject.code } })
-			} catch (error) {
-				this.error = error
-			}
-		}
+				const response = await PmoService.getEMCs(this.$route.params)
+				if(response.status === 200) {
+					const [localEMC] = response.data.emcs
+					console.log('response: ', localEMC)
+					this.emc = localEMC
+				} else {
+					this.$router.push({ name: 'pmo-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+				}
+			} catch (error) { this.error = error }
+		},
+		async saveEMC(){
+			try {
+				console.log('this.emc: ', this.emc)
+				await PmoService.setEMC(this.emc)
+				this.$store.dispatch('updateEMC', this.emc)
+				this.$router.push({ name: 'pmo-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+			} catch (error) { this.error = error }
+		},
 	}
 }
 </script>

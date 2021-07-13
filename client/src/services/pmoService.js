@@ -25,7 +25,8 @@ export default {
 		return api().delete(`/pmo/emcs/${emc.id}/delete`)
 	},
 	setEMCOnSchool(EMCOnSchool) {
-		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, EMCOnSchool)
+		console.log('EMCOnSchool:', { ...EMCOnSchool })
+		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, {...EMCOnSchool})
 	},
 	createEMC(EMC = null) {
 		return api().post('/pmo/emcs/create', EMC)
@@ -35,12 +36,14 @@ export default {
 		return api().post(`/pmo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
+			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs/${emcId}/attach`)
 	},
 	detachFrom(params = null, emcId) {
 		return api().delete(`/pmo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
+			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
 			/emcs/${emcId}/detach`)
 	},
 }

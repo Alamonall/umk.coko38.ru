@@ -1,15 +1,15 @@
 <template>
 	<v-container
-		v-if="
-			isSignin && user.UserRole.code == 3 && emc.createdBy == user.id && emc.isCustom
-			/* Дополнительно проверяем: не убрал ли возможность ред-ть умк (isCustom) и создатель данного умк совпадает ли с данным пользователем*/
-		"
+		v-if="isSignin && user.UserRole.code == 3"
 		class="px-0"
 		fluid
 	>
-		<v-card v-if="emc == null">
-			<v-card-title class="text-h4 text-center"> Идёт загрузка данных... </v-card-title>
-		</v-card>
+		<v-card v-if='emc==null'>
+			<v-card-title class="text-h4 text-center">
+				Подождите...Данные либо грузятся, либо произошла ошибка. <br>
+				Попробуйте перезайти и попробовать снова		
+			</v-card-title>
+		</v-card>	
 		<v-card v-if="emc != null">
 			<v-card-title class="text-h4"> Редактирование УМК </v-card-title>
 			<v-card-text class="text-h5">
@@ -52,62 +52,44 @@
 	</v-container>
 </template>
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
+import PooService from '../../services/pooService'
 
 export default {
 	data: () => ({
 		loading: false,
 		error: null,
 		message: null,
-		emc: {
-			title: null,
-			grades: null,
-			gia: null,
-			Subject: null,
-			publisherId: null,
-			Publisher: null,
-			isCustom: null,
-			levelId: null,
-			Level: null,
-		},
+		emc: null,
 	}),
 	computed: {
-		...mapState(['publishers', 'levels', 'user', 'subjects', 'isSignin', 'emcs']),
+		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
 	},
-	created() {
+	created() {		
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
-	},
-	async mounted() {
-		try {
-			this.emc = this.$store.state.emcs.filter((emc) => emc.id === this.$route.params.emcId)
-		} catch (err) {
-			this.error = err
-		}
+		this.getEMCsForEdit()
 	},
 	methods: {
-		async saveEMC() {
+		async getEMCsForEdit() {
 			try {
-				this.$set(
-					this.emc,
-					'publisherId',
-					this.$store.state.publishers.find((x) => x.id === this.emc.Publisher.id).id,
-				)
-				this.$set(
-					this.emc,
-					'subjectId',
-					this.$store.state.subjects.find((x) => x.code === this.emc.Subject.code).id,
-				)
-				this.$set(
-					this.emc,
-					'levelId',
-					this.$store.state.levels.find((x) => x.id === this.emc.Level.id).id,
-				)
+				const response = await PooService.getEMCs(this.$route.params)
+				if(response.status === 200) {
+					const [localEMC] = response.data.emcs
+					console.log('response: ', localEMC)
+					this.emc = localEMC
+				} else {
+					this.$router.push({ name: 'poo-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+				}
+			} catch (error) { this.error = error }
+		},
+		async saveEMC(){
+			try {
+				console.log('this.emc: ', this.emc)
+				await PooService.setEMC(this.emc)
 				this.$store.dispatch('updateEMC', this.emc)
-				this.$router.push({ name: 'poo-emcs' })
-			} catch (error) {
-				this.error = error
-			}
+				this.$router.push({ name: 'poo-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+			} catch (error) { this.error = error }
 		},
 	},
 }

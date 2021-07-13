@@ -5,8 +5,9 @@
 	>
 		<v-card			
 			v-for="emcOnSchool in emcsOnSchool"
-			:key="emcOnSchool.id">
-		<v-card-title	class='text-h4'> 
+			:key="emcOnSchool.id"
+			>
+			<v-card-title	class='text-h4'> 
 				УМК: {{ emcOnSchool.EMC.title }} 
 			</v-card-title>
 			<v-card-text class='text-h5'>

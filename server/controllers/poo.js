@@ -33,26 +33,17 @@ module.exports = {
 			const levels = await Level.findAll()
 
 			// Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
-			const emcsToAttach = await getEMCToAttach(req)
+			const emcs = await getEMCs(req)
 			
-			res.json({ 
+			res.json({
 				areasAndSchools: areasAndSchools,
 				subjects: subjects,
 				publishers: publishers,
 				levels: levels,
-				emcsToAttach: emcsToAttach 
+				emcs: emcs 
 			})
 
 		} catch (err) {console.error(err) }
-	},
-	async getEMCsOnSchoolByPOO(req, res) {
-		try {
-			const emcsOnSchool = await getEMCsOnSchool(req)
-
-			res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool})
-		} catch (error) {
-			console.error(error)
-		}
 	},
 	async getEMCsByPOO(req, res){
 		try {
@@ -62,6 +53,15 @@ module.exports = {
 			return res.json({ message: 'Данные получены', emcs: emcs })	
 			
 		} catch(err) { console.error(err) }
+	},
+	async getEMCsOnSchoolByPOO(req, res) {
+		try {
+			const emcsOnSchool = await getEMCsOnSchool(req)
+
+			res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool})
+		} catch (error) {
+			console.error(error)
+		}
 	},
 	// Прикрепление умк определённой школе
 	async attachEMC(req, res){
@@ -105,9 +105,14 @@ module.exports = {
 			if(emcId == undefined)
 				res.status(404).json({ message: 'УМК не найдена' })
 			
+			if(req.user.schoolId === undefined || req.user.gia === undefined)
+				return res.status(403).json({ message: 'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.' })
+			
 			await EMCOnSchool.destroy({ where: { schoolId: req.user.schoolId, emcId: emcId } })
 
-			res.json({ message:'УМК откреплены' })
+			const emcsOnSchool = await getEMCsOnSchool (req)
+
+			res.json({ message:'УМК откреплены', emcsOnSchool: emcsOnSchool })
 
 		} catch(err) { console.error(err) }
 	},

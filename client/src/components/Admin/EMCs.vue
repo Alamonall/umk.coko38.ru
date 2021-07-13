@@ -50,7 +50,7 @@
 					>
 					 ГИА-{{ emc.gia }}
 					</v-chip>
-					<v-chip v-if='emc.gia == 11'
+					<v-chip 
 						color='light-blue accent-3'
 						text-color='white'
 						pill

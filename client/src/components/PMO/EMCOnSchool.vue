@@ -1,29 +1,26 @@
 <template>
-	<v-row dense v-if='isSignin && user.UserRole.code == 2' >
+	<v-row v-if='isSignin && user.UserRole.code == 2' dense>
 		<v-col cols="12">
 		<EMCOnSchoolSelector
-			@onAttachEMCTo='attachEMCTo'
+			v-if="$route.params.subjectCode"
 			/>
 		</v-col>
-		<v-card v-if='emcsOnSchool.length === 0'
+		<v-card v-if='emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined'
 			class="mx-auto text-center"
 		>
 		УМК у данного ОО отсутствует
 		</v-card>
 		<v-col cols="12">
 			<EMCOnSchoolCard
-				v-for='emcOnSchool in emcsOnSchool'
-				:key='emcOnSchool.id'
-				:emcOnSchool='emcOnSchool'
-				@onDetachEMCFrom='detachEMCFrom'
-				@onSwapApprovingStatusEMCOnSchool='swapApprovingStatusEMCOnSchool'
-				/>
+				@onDetachEMCFrom="detachEMCFrom"
+				@onSwapApprovingStatusEMCOnSchool="swapApprovingStatusEMCOnSchool"
+			/>
 		</v-col>
 	</v-row>
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 import EMCOnSchoolCard from './EMCOnSchoolCard.vue' 
 import EMCOnSchoolSelector from './EMCOnSchoolSelector.vue' 
@@ -34,14 +31,10 @@ export default {
 		EMCOnSchoolSelector,
 	},
 	data: () => ({
-		emcsOnSchool: [],
 		error: null,
 	}),
 	computed: {
-		 ...mapState([
-			'isSignin',
-			'user',
-		]),
+		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs']),
 	},
 	created() {
 		this.$store.dispatch('setAreasSidebar', true) // Включаем sidebar для EMCsOnSchool
@@ -53,52 +46,46 @@ export default {
 			this.getEMCsOnSchool()
 		}
 	},
-	methods: {
+	methods: {		
+		async getEMCs() {
+			try {
+				console.log('eos get emcs')
+
+				const response = await PmoService.getEMCs(this.$route.params)
+
+				console.log('eos new emcs ', response.data.emcs)
+				// this.$store.commit('setEMCs', response.data.emcs)
+				this.emcs = [...response.data.emcs]
+
+			} catch (err) { this.error = err}
+		},
 		async getEMCsOnSchool() {
 			// Получение УМК школы 
 			try {
 				const response = await PmoService.getEMCsOnSchool(this.$route.params)
-				this.emcsOnSchool = response.data.emcsOnSchool
-			} catch (err){ this.error = err }
-		},
-		async attachEMCTo(emcModel) {
-			try {
-				// Отправляем серверу запрос на добавление Умк для данной школы (через параметры)
-				const response = await PmoService.attachTo(this.$route.params, emcModel.entry.id)
-				this.message = response.data.message
-
-				// удаляем из списка умк умк, которую мы только что добавили к школе, чтобы не было возможности её добавить повторно
-				this.$store.dispatch('removeFromEMCs', emcModel.entry)
-
-				
-				// добавляем в список умк у школы умк, которую мы только что добавили и получили в ответе от сервера
-				if(response.data.emcsOnSchool.length > 0)
-					this.emcsOnSchool.splice(0, 0, response.data.emcsOnSchool[0])
-				
+				console.log('eos school: ', this.$route.params.schoolCode,'; subject: ',
+					this.$route.params.subjectCode, '; eos: ',  response.data.emcsOnSchool)
+				this.emcsOnSchool = [...response.data.emcsOnSchool]
+				// this.$store.dispatch('setEMCsOnSchool', response.data.emcsOnSchool)
+				// this.emcsOnSchool = response.data.emcsOnSchool
 			} catch (err){ this.error = err }
 		},
 		async detachEMCFrom(emcOnSchool) {
 			try {
+				console.log('eos detachEMCFrom')
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				await PmoService.detachFrom(this.$route.params, emcOnSchool.emcId)
-
-				// добавляем удалённую умк в список возможных на добавлением
-				// [0] - потому что vue автоматом добавляет свойства по наблюдению, а нам нужен только сам объект
-				//	- средства наблюдения есть уже у архива emcs			
-				this.$set(this.emcs, this.emcs.length, emcOnSchool.EMC)
-
-				// удаляем удалённую умк из списка умк у школы
-				this.emcsOnSchool.splice( this.emcsOnSchool.indexOf(emcOnSchool), 1)
-
-				// обновлять sidebar
+				const response = await PmoService.detachFrom(this.$route.params, emcOnSchool.emcId)
+				console.log('detachEMCFrom: ', response)
+				this.emcsOnSchool = [...response.data.emcsOnSchool]
+				this.getEMCs()
 			} catch (err){ this.error = err}
 		},
 		async swapApprovingStatusEMCOnSchool(emcOnSchool){
 			try {
-				emcOnSchool.isApproved = !emcOnSchool.isApproved
-				
-				const response = await PmoService.setEMCOnSchool(emcOnSchool)
-				this.$set(this.emcsOnSchool, this.emcsOnSchool.indexOf(emcOnSchool), response.data.emc[0] )
+				console.log('eos not from the store: ', emcOnSchool)
+				this.$store.dispatch('updateEMCOnSchoolApproval', emcOnSchool)
+
+				await PmoService.setEMCOnSchool(emcOnSchool)
 			} catch (error) {
 				this.error = error
 			}

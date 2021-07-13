@@ -19,7 +19,7 @@ export default new Vuex.Store({
 		areas: [],
 		levels: [],
 		emcs: [],
-		emcsOnSchool: [], 
+		emcsOnSchool: [],
 	},
 	mutations: {
 		updateField,
@@ -57,7 +57,7 @@ export default new Vuex.Store({
 			state.emcs = [...state.emcs]
 		},
 		updateEMC(state, emc) {
-			const index =  state.emcs.findIndex(x => x.id === emc.id)
+			const index = state.emcs.findIndex((x) => x.id === emc.id)
 			if (index !== -1) {
 				console.log('before mutate: ', state.emcs[index])
 				state.emcs.splice(index, 0, emc)
@@ -74,15 +74,18 @@ export default new Vuex.Store({
 			state.emcs = [...state.emcs]
 		},
 		deleteEMC(state, emc) {
-			const index =  state.emcs.findIndex(x => x.id === emc.id)
+			const index = state.emcs.findIndex((x) => x.id === emc.id)
 			if (index !== -1) {
 				state.emcs.splice(index, 1)
 			}
 			state.emcs = [...state.emcs]
 		},
 		updateEMCOnSchoolApproval(state, emcOnSchool) {
-			const index =  state.emcsOnSchool.findIndex(x => x.id === emcOnSchool.id)
-			console.log('index emcOnSchoolToChange in store: ', state.emcsOnSchool.findIndex(x => x.id === emcOnSchool.id))
+			const index = state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id)
+			console.log(
+				'index emcOnSchoolToChange in store: ',
+				state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id),
+			)
 			console.log('emcOnSchool ', emcOnSchool)
 			if (index !== -1) {
 				state.emcsOnSchool[index].isApproved = !state.emcsOnSchool[index].isApproved
@@ -90,13 +93,13 @@ export default new Vuex.Store({
 			console.log('state.emcsOnSchool: ', state.emcsOnSchool)
 			state.emcsOnSchool = [...state.emcsOnSchool]
 		},
-		swapCreatingStatus(state, emc){
-			const index =  state.emcs.findIndex(x => x.id === emc.id)
+		swapCreatingStatus(state, emc) {
+			const index = state.emcs.findIndex((x) => x.id === emc.id)
 			if (index !== -1 && !state.emcs[index].createdBy === null) {
 				state.emcs[index].isCustom = !state.emcs[index].isCustom
 			}
 			state.emcs = [...state.emcs]
-		}
+		},
 	},
 	actions: {
 		setToken({ commit }, token) {
@@ -129,7 +132,7 @@ export default new Vuex.Store({
 		updateEMCOnSchoolApproval({ commit }, emcOnSchool) {
 			commit('updateEMCOnSchoolApproval', emcOnSchool)
 		},
-		updateEMCOnSchool({ commit }, emcOnSchool){
+		updateEMCOnSchool({ commit }, emcOnSchool) {
 			commit('updateEMCOnSchool', emcOnSchool)
 		},
 		updateEMC({ commit }, emc) {
@@ -145,7 +148,7 @@ export default new Vuex.Store({
 		},
 		swapCreatingStatusEMC({ commit }, emc) {
 			commit('swapCreatingStatus', emc)
-		}
+		},
 	},
 	getters: {
 		getField,
