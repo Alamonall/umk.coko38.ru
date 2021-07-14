@@ -1,9 +1,5 @@
 <template>
-	<v-container
-		v-if='isSignin && user.UserRole.code == 2' 
-		class="px-0"
-		fluid
-		>
+	<v-container v-if="isSignin && user.UserRole.code == 2" class="px-0" fluid>
 		<v-card>
 			<v-card-title class="text-h4"> Создание УМК </v-card-title>
 			<v-card-text class="text-h5">
@@ -43,7 +39,7 @@
 				></v-select>
 				<v-select
 					v-model="emc.Subject"
-					:items=subjects
+					:items="subjects"
 					item-text="name"
 					no-data-text="Нет данных"
 					label="Предмет"
@@ -53,7 +49,7 @@
 				></v-select>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn text color="teal accent-4" @click='createEMC'> Создать УМК </v-btn>
+				<v-btn text color="teal accent-4" @click="createEMC"> Создать УМК </v-btn>
 				<v-btn text color="red accent-2" :to="{ name: 'pmo-emcs' }"> Назад </v-btn>
 			</v-card-actions>
 		</v-card>
@@ -64,14 +60,14 @@ import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 
 export default {
-	data : () => ({
+	data: () => ({
 		error: null,
 		message: null,
 		emc: {
 			title: null,
 			grades: null,
 			authors: null,
-			levelId:null,
+			levelId: null,
 			Level: null,
 			subjectId: null,
 			Subject: null,
@@ -88,21 +84,22 @@ export default {
 		this.$store.dispatch('setSubjectsSidebar', false)
 	},
 	methods: {
-		async createEMC(){
+		async createEMC() {
 			try {
 				console.log('creating emc ', this.emc)
 				// так как из-за vuex нам сначала надо обновить данные в хранилище
 				this.$store.dispatch('createEMC', this.emc)
 				await PmoService.createEMC(this.emc)
-								
-				this.$router.push({ name: 'pmo-subject-emcs', params: { subjectCode: this.emc.Subject.code } })
+
+				this.$router.push({
+					name: 'pmo-subject-emcs',
+					params: { subjectCode: this.emc.Subject.code },
+				})
 			} catch (error) {
 				this.error = error
 			}
-		}
-	}
+		},
+	},
 }
 </script>
-<style scope>
-	
-</style>
+<style scope></style>

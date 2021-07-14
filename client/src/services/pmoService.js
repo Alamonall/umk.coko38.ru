@@ -31,13 +31,15 @@ export default {
 	createEMC(EMC = null) {
 		return api().post('/pmo/emcs/create', EMC)
 	},
-	attachTo(params = null, emcId) {
-		console.log('attachTo: ', params)
-		return api().post(`/pmo
+	attachTo(params = null, emcId, eos) {
+		return api().post(
+			`/pmo
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/attach`)
+			/emcs/${emcId}/attach`,
+			eos,
+		)
 	},
 	detachFrom(params = null, emcId) {
 		return api().delete(`/pmo

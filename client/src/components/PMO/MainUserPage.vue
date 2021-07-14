@@ -21,13 +21,11 @@ export default {
 		async getUserData() {
 			try {
 				const response = await PmoService.getUserData()
-				
 				this.$store.dispatch('setAreas', response.data.areasAndSchools)
 				this.$store.dispatch('setSubjects', response.data.subjects)
 				this.$store.dispatch('setPublishers', response.data.publishers)
 				this.$store.dispatch('setLevels', response.data.levels)
 				this.$store.dispatch('setEMCs', response.data.emcs)
-				
 			} catch (err) {
 				this.err = err
 			}

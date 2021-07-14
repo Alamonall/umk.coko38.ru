@@ -30,12 +30,15 @@ export default {
 	createEMC(EMC = null) {
 		return api().post('/admin/emcs/create', EMC)
 	},
-	attachTo(params = null, emcId) {
-		return api().post(`/admin
+	attachTo(params = null, emcId, eos) {
+		return api().post(
+			`/admin
 			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
 			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
 			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/attach`)
+			/emcs/${emcId}/attach`,
+			eos,
+		)
 	},
 	detachFrom(params = null, emcId) {
 		return api().delete(`/admin

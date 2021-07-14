@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
-    "prettier": "prettier --write src/**/*.js"
+    "prettier": "prettier --write src/"
   },
   "dependencies": {
     "axios": "^0.21.1",

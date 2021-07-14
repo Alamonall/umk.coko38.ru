@@ -4,7 +4,7 @@ import store from '../store'
 
 export default () => {
 	return axios.create({
-		baseURL: 'https://umk.coko38.ru/',
+		baseURL: 'http://localhost:3000',
 		headers: {
 			Authorization: `Bearer ${store.state.token}`,
 		},

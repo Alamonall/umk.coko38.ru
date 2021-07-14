@@ -1,14 +1,13 @@
 <template>
-  <v-app>
-		<PageHeader/>		
-		<TheSidebar 
-			v-if='isAreasSidebar && isSignin'>
-			<v-list-group 
+	<v-app>
+		<PageHeader />
+		<TheSidebar v-if="isAreasSidebar && isSignin">
+			<v-list-group
 				v-for="area in areas"
 				:key="area.AreaID"
 				:value="false"
 				prepend-icon="mdi-account-circle"
-				>
+			>
 				<template v-slot:activator>
 					<v-list-item-title>{{ area.name }}</v-list-item-title>
 				</template>
@@ -19,151 +18,138 @@
 					:value="false"
 					no-action
 					sub-group
-					>
+				>
 					<template v-slot:activator>
 						<v-list-item-content>
-							<v-list-item-title blue>{{school.code}} {{school.name}} </v-list-item-title>
+							<v-list-item-title blue>{{ school.code }} {{ school.name }} </v-list-item-title>
 						</v-list-item-content>
 					</template>
 
 					<v-list-item
-						v-for='subject in subjects'
-						:key='subject.SubjectGlobalID'
+						v-for="subject in subjects"
+						:key="subject.SubjectGlobalID"
 						:value="false"
 						link
-						>
+					>
 						<v-list-item-content>
 							<v-btn
-								v-if='user.UserRole.code == 1'
+								v-if="user.UserRole.code == 1"
 								plain
-								:to="{ 
-									name: 'admin-emcs-on-school', 
+								:to="{
+									name: 'admin-emcs-on-school',
 									params: {
 										areaCode: area.code,
 										schoolCode: school.code,
-										subjectCode: subject.code
-									}
+										subjectCode: subject.code,
+									},
 								}"
-								>
-								{{subject.name}} 
+							>
+								{{ subject.name }}
 							</v-btn>
 							<v-btn
-								v-if='user.UserRole.code == 2'
+								v-if="user.UserRole.code == 2"
 								plain
-								:to="{ 
-									name: 'pmo-emcs-on-school', 
+								:to="{
+									name: 'pmo-emcs-on-school',
 									params: {
 										areaCode: area.code,
 										schoolCode: school.code,
-										subjectCode: subject.code
-									}
+										subjectCode: subject.code,
+									},
 								}"
-								>
-								{{subject.name}} 
+							>
+								{{ subject.name }}
 							</v-btn>
 							<v-btn
-								v-if='user.UserRole.code == 3'
+								v-if="user.UserRole.code == 3"
 								plain
-								:to="{ 
-									name: 'poo-emcs-on-school', 
+								:to="{
+									name: 'poo-emcs-on-school',
 									params: {
 										areaCode: area.code,
 										schoolCode: school.code,
-										subjectCode: subject.code
-									}
+										subjectCode: subject.code,
+									},
 								}"
-								>
-								{{subject.name}} 
+							>
+								{{ subject.name }}
 							</v-btn>
 						</v-list-item-content>
-					</v-list-item>          
+					</v-list-item>
 				</v-list-group>
 			</v-list-group>
 		</TheSidebar>
 
-		<TheSidebar 
-			v-if='isSubjectsSidebar && isSignin'>
-			<v-list-item
-				v-for='subject in subjects'
-				:key='subject.SubjectGlobalID'
-				:value="false"
-				link
-				>
+		<TheSidebar v-if="isSubjectsSidebar && isSignin">
+			<v-list-item v-for="subject in subjects" :key="subject.SubjectGlobalID" :value="false" link>
 				<v-list-item-content>
 					<v-btn
-						v-if='user.UserRole.code == 1'
+						v-if="user.UserRole.code == 1"
 						plain
-						:to="{ 
-							name: 'admin-subject-emcs', 
+						:to="{
+							name: 'admin-subject-emcs',
 							params: {
-								subjectCode: subject.code
-							}
+								subjectCode: subject.code,
+							},
 						}"
-						> 
-						{{subject.name}} 
+					>
+						{{ subject.name }}
 					</v-btn>
 					<v-btn
-						v-if='user.UserRole.code == 2'
+						v-if="user.UserRole.code == 2"
 						plain
-						:to="{ 
-							name: 'pmo-subject-emcs', 
+						:to="{
+							name: 'pmo-subject-emcs',
 							params: {
-								subjectCode: subject.code
-							}
+								subjectCode: subject.code,
+							},
 						}"
-						> 
-						{{subject.name}} 
+					>
+						{{ subject.name }}
 					</v-btn>
 					<v-btn
-						v-if='user.UserRole.code == 3'
+						v-if="user.UserRole.code == 3"
 						plain
-						:to="{ 
-							name: 'poo-subject-emcs', 
+						:to="{
+							name: 'poo-subject-emcs',
 							params: {
-								subjectCode: subject.code
-							}
+								subjectCode: subject.code,
+							},
 						}"
-						> 
-						{{subject.name}} 
+					>
+						{{ subject.name }}
 					</v-btn>
 				</v-list-item-content>
-			</v-list-item> 
+			</v-list-item>
 		</TheSidebar>
-		
-    <v-main>
+
+		<v-main>
 			<!-- Provides the application the proper gutter -->
 			<v-container fluid>
-      	<!-- If using vue-router -->
-      	<router-view></router-view>
-    	</v-container>
-    </v-main>
+				<!-- If using vue-router -->
+				<router-view></router-view>
+			</v-container>
+		</v-main>
 		<!-- FOOTER -->
-  </v-app>
+	</v-app>
 </template>
 
 <script>
-import { mapState } from 'vuex' 
+import { mapState } from 'vuex'
 import PageHeader from './components/TheHeader.vue'
 import TheSidebar from './components/TheSidebar.vue'
 
 export default {
-  name: 'App',
-  components: {
+	name: 'App',
+	components: {
 		PageHeader,
-		TheSidebar
+		TheSidebar,
 	},
-  data: () => ({
+	data: () => ({
 		err: null,
-  }),
+	}),
 	computed: {
-		...mapState([
-      'isSignin',
-			'user',
-			'isSubjectsSidebar',
-			'isAreasSidebar',
-			'subjects',
-			'areas'
-    ]),		
-	}
+		...mapState(['isSignin', 'user', 'isSubjectsSidebar', 'isAreasSidebar', 'subjects', 'areas']),
+	},
 }
 </script>
