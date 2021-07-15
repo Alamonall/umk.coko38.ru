@@ -36,32 +36,32 @@
 						<v-list-item-title v-text="field.value"></v-list-item-title>
 						<v-list-item-subtitle v-text="field.key"></v-list-item-subtitle>
 					</v-list-item-content>
-					<v-list-item
-						><v-text-field
-							v-model="additionalDataForEMCOnSchool.studentsCount"
-							type="number"
-							label="Количество учеников"
-						></v-text-field>
-					</v-list-item>
-					<v-list-item
-						><v-text-field
-							v-model="additionalDataForEMCOnSchool.usingCoz"
-							label="Причины использования"
-						></v-text-field
-					></v-list-item>
-					<v-list-item
-						><v-text-field
-							v-model="additionalDataForEMCOnSchool.swapCoz"
-							label="Причины смены"
-						></v-text-field
-					></v-list-item>
-					<v-list-item
-						><v-text-field
-							v-model="additionalDataForEMCOnSchool.correctionCoz"
-							label="Планируемая корректировка"
-						></v-text-field
-					></v-list-item>
 				</v-list-item>
+				<v-list-item>
+					<v-text-field
+						v-model="additionalDataForEMCOnSchool.studentsCount"
+						type="number"
+						label="Количество учеников"
+					></v-text-field>
+				</v-list-item>
+				<v-list-item
+					><v-text-field
+						v-model="additionalDataForEMCOnSchool.usingCoz"
+						label="Причины использования"
+					></v-text-field
+				></v-list-item>
+				<v-list-item
+					><v-text-field
+						v-model="additionalDataForEMCOnSchool.swapCoz"
+						label="Причины смены"
+					></v-text-field
+				></v-list-item>
+				<v-list-item
+					><v-text-field
+						v-model="additionalDataForEMCOnSchool.correctionCoz"
+						label="Планируемая корректировка"
+					></v-text-field
+				></v-list-item>
 			</v-list>
 		</v-expand-transition>
 	</v-card>

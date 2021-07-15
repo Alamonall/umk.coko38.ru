@@ -1,10 +1,12 @@
+import dotenv from 'dotenv'
 import axios from 'axios'
 // eslint-disable-next-line
 import store from '../store'
 
+dotenv.config()
+
 export default () => {
 	return axios.create({
-		baseURL: 'https://umk.coko38.ru/',
 		headers: {
 			Authorization: `Bearer ${store.state.token}`,
 		},
