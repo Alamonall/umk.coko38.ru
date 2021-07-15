@@ -6,7 +6,7 @@
 					<v-icon>mdi-home</v-icon>
 				</v-list-item-icon>
 				<v-list-item-title> МО</v-list-item-title>
-				<v-list-item-subtitle>subtext </v-list-item-subtitle>
+				<v-list-item-subtitle>Выберите оъект </v-list-item-subtitle>
 			</v-list-item-content>
 		</v-list-item>
 		<v-divider></v-divider>

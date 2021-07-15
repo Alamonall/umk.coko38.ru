@@ -130,7 +130,7 @@
 				<router-view></router-view>
 			</v-container>
 		</v-main>
-		<!-- FOOTER -->
+		<TheFooter />
 	</v-app>
 </template>
 
@@ -138,12 +138,14 @@
 import { mapState } from 'vuex'
 import PageHeader from './components/TheHeader.vue'
 import TheSidebar from './components/TheSidebar.vue'
+import TheFooter from './components/TheFooter.vue'
 
 export default {
 	name: 'App',
 	components: {
 		PageHeader,
 		TheSidebar,
+		TheFooter,
 	},
 	data: () => ({
 		err: null,

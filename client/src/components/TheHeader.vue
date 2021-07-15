@@ -1,11 +1,11 @@
 <template>
-	<v-app-bar app color="primary" dark clipped-left>
+	<v-app-bar app clipped-left>
 		<div class="d-flex align-center">
 			<v-img
 				alt="Vuetify Logo"
 				class="shrink mr-2"
 				contain
-				src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+				src="../assets/logo.png"
 				transition="scale-transition"
 				width="40"
 			/>
@@ -32,7 +32,7 @@
 		>
 		<v-btn v-if="isSignin" plain @click="signout"> Выход </v-btn>
 		<v-btn v-if="!isSignin" plain :to="{ name: '/' }"> Войти </v-btn>
-		<v-btn v-if="!isSignin" plain :to="{ name: 'signup' }"> Регистрация </v-btn>
+		<!--v-btn v-if="!isSignin" plain :to="{ name: 'signup' }"> Регистрация </v-btn-->
 	</v-app-bar>
 </template>
 <script>
