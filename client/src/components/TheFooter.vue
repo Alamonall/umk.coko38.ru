@@ -22,30 +22,28 @@
 	</v-footer>
 </template>
 <script>
-import { mdiHomeCircle, mdiVk, mdiFacebook, mdiInstagram } from '@mdi/js'
-
 export default {
 	data: () => ({
 		links: [
 			{
 				name: 'Наш сайт',
 				link: 'https://coko38.ru',
-				icon: mdiHomeCircle,
+				icon: 'mdi-home-circle',
 			},
 			{
 				name: 'ВКонтакте',
 				link: 'https://vk.com/public196012235',
-				icon: mdiVk,
+				icon: 'mdi-vk',
 			},
 			{
 				name: 'Facebook',
 				link: 'https://www.facebook.com/groups/249765916319275/',
-				icon: mdiFacebook,
+				icon: 'mdi-facebook',
 			},
 			{
 				name: 'Instagram',
 				link: 'https://www.instagram.com/copmkimko/?hl=ru',
-				icon: mdiInstagram,
+				icon: 'mdi-instagram',
 			},
 		],
 	}),

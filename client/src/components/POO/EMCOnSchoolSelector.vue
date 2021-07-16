@@ -2,33 +2,39 @@
 	<v-card>
 		<v-card-title class="text-h5"> Добавить УМК </v-card-title>
 		<v-card-text>
-			<v-autocomplete
-				v-model="model"
-				:items="emcsTitles"
-				no-data-text="Нет данных"
-				item-text="Description"
-				item-value="emc"
-				dense
-				rounded
-				solo
-				hide-selected
-				label="УМК"
-				placeholder="Введите параметр УМК, по которому вы хотите найти нужный"
-				prepend-icon="mdi-database-search"
-			></v-autocomplete>
+			<v-row>
+				<v-col cols="12">
+					<v-autocomplete
+						v-model="model"
+						:items="emcsTitles"
+						no-data-text="Нет данных"
+						item-text="Description"
+						item-value="emc"
+						dense
+						rounded
+						solo
+						hide-selected
+						label="УМК"
+						placeholder="Введите параметр УМК, по которому вы хотите найти нужный"
+						prepend-icon="mdi-database-search"
+					>
+						<template v-slot:item="data">
+							<v-list-item-content>
+								<v-list-item-title>{{ data.item.emc.previewData['Название'] }}</v-list-item-title>
+								<v-list-item-subtitle>
+									<p>
+										Авторы: {{ data.item.emc.previewData['Авторы'] }}; Издатель:
+										{{ data.item.emc.previewData['Издатель'] }}; Классы:
+										{{ data.item.emc.previewData['Классы'] }}
+									</p>
+								</v-list-item-subtitle>
+							</v-list-item-content>
+						</template>
+					</v-autocomplete>
+				</v-col>
+			</v-row>
 		</v-card-text>
-		<v-card-actions>
-			<v-btn :disabled="!model" color="teal accent-3" @click="attachEMC">
-				Добавить
-				<v-icon right> mdi-check </v-icon>
-			</v-btn>
-			<v-spacer></v-spacer>
-			<v-btn :disabled="!model" color="red lighten-1" @click="model = null">
-				Закрыть
-				<v-icon right> mdi-close-circle </v-icon>
-			</v-btn>
-		</v-card-actions>
-		<v-divider></v-divider>
+
 		<v-expand-transition>
 			<v-list v-if="model">
 				<v-list-item v-for="(field, i) in fields" :key="i">
@@ -63,8 +69,18 @@
 					>
 					</v-text-field>
 				</v-list-item>
-			</v-list>
-		</v-expand-transition>
+			</v-list> </v-expand-transition
+		><v-card-actions>
+			<v-btn :disabled="!model" color="teal accent-3" @click="attachEMC">
+				Добавить
+				<v-icon right> mdi-check </v-icon>
+			</v-btn>
+			<v-spacer></v-spacer>
+			<v-btn :disabled="!model" color="red lighten-1" @click="model = null">
+				Закрыть
+				<v-icon right> mdi-close-circle </v-icon>
+			</v-btn>
+		</v-card-actions>
 	</v-card>
 </template>
 <script>
