@@ -153,12 +153,7 @@ export default {
 	methods: {
 		async getEMCs() {
 			try {
-				console.log('get emcs')
-
 				const response = await AdminService.getEMCs(this.$route.params)
-
-				console.log('new emcs ', response.data.emcs)
-				// this.$store.commit('setEMCs', response.data.emcs)
 				this.emcs = [...response.data.emcs]
 			} catch (err) {
 				this.error = err
@@ -169,11 +164,7 @@ export default {
 				const response = await AdminService.attachTo(this.$route.params, this.model.entry.id, {
 					...this.additionalDataForEMCOnSchool,
 				})
-
-				console.log('get response: ', response.data.emcsOnSchool)
-
 				this.emcsOnSchool = response.data.emcsOnSchool
-				// this.$emit('onAttachEMCTo', this.model)
 				this.model = null
 				this.getEMCs()
 			} catch (err) {

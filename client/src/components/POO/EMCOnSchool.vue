@@ -1,20 +1,27 @@
 <template>
-	<v-row v-if="isSignin && user.UserRole.code == 3" dense>
-		<v-col cols="12">
-			<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
-		</v-col>
-		<v-card
-			v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
-			class="mx-auto text-center"
-		>
-			УМК у данного ОО отсутствует
-		</v-card>
-		<v-col cols="12">
-			<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
-				<EMCOnSchoolCard :emc-on-school="emcOnSchool" @onDetachEMCFrom="detachEMCFrom" />
-			</v-row>
-		</v-col>
-	</v-row>
+	<v-container v-if="isSignin && user.UserRole.code == 1" fluid>
+		<v-row v-if="$route.params.subjectCode">
+			<v-col cols="12">
+				<h1 class="text-center">{{ subjectTitle }}</h1>
+			</v-col>
+		</v-row>
+		<v-row dense>
+			<v-col cols="12">
+				<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
+			</v-col>
+			<v-card
+				v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
+				class="mx-auto text-center"
+			>
+				УМК у данного ОО отсутствует
+			</v-card>
+			<v-col cols="12">
+				<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
+					<EMCOnSchoolCard :emc-on-school="emcOnSchool" @onDetachEMCFrom="detachEMCFrom" />
+				</v-row>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script>
@@ -32,7 +39,10 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs']),
+		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects']),
+		subjectTitle() {
+			return this.subjects.find((subject) => subject.code === this.$route.params.subjectCode).name
+		},
 	},
 	watch: {
 		$route() {

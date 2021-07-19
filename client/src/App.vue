@@ -153,5 +153,8 @@ export default {
 	computed: {
 		...mapState(['isSignin', 'user', 'isSubjectsSidebar', 'isAreasSidebar', 'subjects', 'areas']),
 	},
+	created() {
+		document.title = 'АИС «УМК»'
+	},
 }
 </script>

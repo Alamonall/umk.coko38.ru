@@ -36,7 +36,7 @@
 					no-data-text="Нет данных"
 					return-object
 				></v-select>
-				<v-checkbox v-model="emc.isCustom" label="Пользовательский"></v-checkbox>
+				<v-checkbox v-if="emc.createdBy" v-model="emc.isCustom" label="Пользовательский"></v-checkbox>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="saveEMC"> Сохранить изменения </v-btn>
@@ -65,15 +65,14 @@ export default {
 	created() {
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
-		this.getEMCsForEdit()
+		this.getEMCForEdit()
 	},
 	methods: {
-		async getEMCsForEdit() {
+		async getEMCForEdit() {
 			try {
 				const response = await AdminService.getEMCs(this.$route.params)
-				if (response.status === 200) {
+				if (response.data.error === undefined) {
 					const [localEMC] = response.data.emcs
-					console.log('response: ', localEMC)
 					this.emc = localEMC
 				} else {
 					this.$router.push({
@@ -81,21 +80,22 @@ export default {
 						params: { subjectCode: this.emc.Subject.code },
 					})
 				}
-			} catch (error) {
-				this.error = error
+			} catch (err) {
+				this.error = err
 			}
 		},
 		async saveEMC() {
 			try {
-				console.log('this.emc: ', this.emc)
-				await AdminService.setEMC(this.emc)
-				this.$store.dispatch('updateEMC', this.emc)
+				console.log('save this.emc : ', this.emc)
+				const response = await AdminService.setEMC({...this.emc, publisherId: this.emc.Publisher.id, levelId: this.emc.Level.id, subjectId: this.emc.Subject.id })
+				this.$store.dispatch('updateEMC', response.data.emc)
+				console.log('save emc : ', response)
 				this.$router.push({
 					name: 'admin-subject-emcs',
-					params: { subjectCode: this.emc.Subject.code },
+					params: { subjectCode: response.data.emc.Subject.code },
 				})
-			} catch (error) {
-				this.error = error
+			} catch (err) {
+				this.error = err
 			}
 		},
 	},

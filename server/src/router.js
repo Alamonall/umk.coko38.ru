@@ -28,13 +28,13 @@ module.exports = (app) => {
 	app.get('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
 		isAuthenticated,
 		roleCheck.isAdmin,
-		adminController.getEMCsOnSchoolByAdmin)
+		adminController.getEMCsOnSchool)
 
 	// получение всех умк
 	app.get('/admin(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
 		isAuthenticated,
 		roleCheck.isAdmin,
-		adminController.getEMCsByAdmin)
+		adminController.getEMCs)
 
 	// Добавление нового умк 
 	app.post('/admin/emcs/create',
@@ -46,7 +46,7 @@ module.exports = (app) => {
 	app.put('/admin/emcs/:emcId',
 		isAuthenticated,
 		roleCheck.isAdmin,
-		adminController.setEMC)
+		adminController.updateEMC)
 	
 		// сохранения изменений сделанных админом для конкретного умк
 	app.delete('/admin/emcs/:emcId/delete',
@@ -58,7 +58,7 @@ module.exports = (app) => {
 	app.put('/admin/emcOnSchool/:emcOnSchoolId',
 		isAuthenticated,
 		roleCheck.isAdmin,
-		adminController.setEMCOnSchool)
+		adminController.updateEMCOnSchool)
 		
 	// Прикрепить умк к определённому месту - зависит от параметров
 	app.post('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
@@ -73,7 +73,7 @@ module.exports = (app) => {
 		adminController.detachEMC)
 	//#endregion
 
-	//#region PMO
+	// #region PMO
 	// главная страница PMO
 	app.get('/pmo',
 		isAuthenticated,
@@ -84,13 +84,13 @@ module.exports = (app) => {
 	app.get('/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
 		isAuthenticated,
 		roleCheck.isPMO,
-		pmoController.getEMCsOnSchoolByPMO)
+		pmoController.getEMCsOnSchool)
 
 	// получение всех умк
 	app.get('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
 		isAuthenticated,
 		roleCheck.isPMO,
-		pmoController.getEMCsByPMO)
+		pmoController.getEMCs)
 
 	// Добавление нового умк 
 	app.post('/pmo/emcs/create',
@@ -102,7 +102,7 @@ module.exports = (app) => {
 	app.put('/pmo/emcs/:emcId',
 		isAuthenticated,
 		roleCheck.isPMO,
-		pmoController.setEMC)
+		pmoController.updateEMC)
 	
 		// сохранения изменений сделанных админом для конкретного умк
 	app.delete('/pmo/emcs/:emcId/delete',
@@ -114,7 +114,7 @@ module.exports = (app) => {
 	app.put('/pmo/emcOnSchool/:emcOnSchoolId',
 		isAuthenticated,
 		roleCheck.isPMO,
-		pmoController.setEMCOnSchool)
+		pmoController.updateEMCOnSchool)
 		
 	// Прикрепить умк к определённому месту - зависит от параметров
 	app.post('/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
@@ -139,13 +139,13 @@ module.exports = (app) => {
 	app.get('/poo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
 		isAuthenticated,
 		roleCheck.isPOO,
-		pooController.getEMCsOnSchoolByPOO)
+		pooController.getEMCsOnSchool)
 
 	// получение всех умк
 	app.get('/poo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
 		isAuthenticated,
 		roleCheck.isPOO,
-		pooController.getEMCsByPOO)
+		pooController.getEMCs)
 
 	// Добавление нового умк 
 	app.post('/poo/emcs/create',
@@ -157,7 +157,7 @@ module.exports = (app) => {
 	app.put('/poo/emcs/:emcId',
 		isAuthenticated,
 		roleCheck.isPOO,
-		pooController.setEMC)
+		pooController.updateEMC)
 	
 		// сохранения изменений сделанных админом для конкретного умк
 	app.delete('/poo/emcs/:emcId/delete',
@@ -169,7 +169,7 @@ module.exports = (app) => {
 	app.put('/poo/emcOnSchool/:emcOnSchoolId',
 		isAuthenticated,
 		roleCheck.isPOO,
-		pooController.setEMCOnSchool)
+		pooController.updateEMCOnSchool)
 		
 	// Прикрепить умк к определённому месту - зависит от параметров
 	app.post('/poo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',

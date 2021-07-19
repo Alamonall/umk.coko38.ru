@@ -59,9 +59,7 @@ export default new Vuex.Store({
 		updateEMC(state, emc) {
 			const index = state.emcs.findIndex((x) => x.id === emc.id)
 			if (index !== -1) {
-				console.log('before mutate: ', state.emcs[index])
-				state.emcs.splice(index, 0, emc)
-				console.log('after mutate: ', state.emcs[index])
+				state.emcs[index] = { ...emc }
 			}
 			state.emcs = [...state.emcs]
 		},
@@ -69,7 +67,6 @@ export default new Vuex.Store({
 			emc.publisherId = emc.Publisher.id
 			emc.levelId = emc.Level.id
 			emc.subjectId = emc.Subject.id
-			console.log('mutating emc ', emc)
 			state.emcs.push(emc)
 			state.emcs = [...state.emcs]
 		},
@@ -80,25 +77,12 @@ export default new Vuex.Store({
 			}
 			state.emcs = [...state.emcs]
 		},
-		updateEMCOnSchoolApproval(state, emcOnSchool) {
+		updateEMCOnSchool(state, emcOnSchool) {
 			const index = state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id)
-			console.log(
-				'index emcOnSchoolToChange in store: ',
-				state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id),
-			)
-			console.log('emcOnSchool ', emcOnSchool)
 			if (index !== -1) {
-				state.emcsOnSchool[index].isApproved = !state.emcsOnSchool[index].isApproved
+				state.emcsOnSchool[index] = { ...emcOnSchool }
 			}
-			console.log('state.emcsOnSchool: ', state.emcsOnSchool)
 			state.emcsOnSchool = [...state.emcsOnSchool]
-		},
-		swapCreatingStatus(state, emc) {
-			const index = state.emcs.findIndex((x) => x.id === emc.id)
-			if (index !== -1 && !state.emcs[index].createdBy === null) {
-				state.emcs[index].isCustom = !state.emcs[index].isCustom
-			}
-			state.emcs = [...state.emcs]
 		},
 	},
 	actions: {
@@ -129,25 +113,17 @@ export default new Vuex.Store({
 		setEMCs({ commit }, emcs) {
 			commit('setEMCs', emcs)
 		},
-		updateEMCOnSchoolApproval({ commit }, emcOnSchool) {
-			commit('updateEMCOnSchoolApproval', emcOnSchool)
-		},
 		updateEMCOnSchool({ commit }, emcOnSchool) {
 			commit('updateEMCOnSchool', emcOnSchool)
 		},
 		updateEMC({ commit }, emc) {
-			console.log('commiting updateEMC')
 			commit('updateEMC', emc)
 		},
 		createEMC({ commit }, emc) {
-			console.log('commiting createEMC ', emc)
 			commit('createEMC', emc)
 		},
 		deleteEMC({ commit }, emc) {
 			commit('deleteEMC', emc)
-		},
-		swapCreatingStatusEMC({ commit }, emc) {
-			commit('swapCreatingStatus', emc)
 		},
 	},
 	getters: {

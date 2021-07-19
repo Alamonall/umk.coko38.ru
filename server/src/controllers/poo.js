@@ -1,12 +1,49 @@
 const { EMC, EMCOnSchool, School, Publisher, Subject, Level } = require('../models')
-const { Op, col, fn, literal } = require('sequelize')
-const { getAreasAndSchools, getEMCs, getEMCsOnSchool, getEMCToAttach} = require('../helpers')
+const { col, fn, literal } = require('sequelize')
+const { getEMCs, getEMCsOnSchool } = require('../helpers')
+
 
 module.exports = {
 	async index(req, res){
 		try {
 			// Информация для sidebar
-			const areasAndSchools = await getAreasAndSchools(req, res)
+			const areasAndSchools = await Area.findAll({
+				attributes:[
+					'name',
+					'code'
+				],
+				where: areaWhere
+				,
+				include: [
+					{
+						model: School,
+						require: true,
+						attributes: [
+							'name', 'code', 'gia'],
+						where: schoolWhere,
+						include: [
+							{
+								model: EMCOnSchool,
+								attributes: [],
+								include: [
+									{
+										model: EMC,
+										attributes: [],
+										include: [
+											{
+												model: Subject,
+												attributes: ['name','code'],
+											}
+										]
+									}
+								]
+							}
+						]
+					}
+				],
+				order: [
+					[School, 'code', 'ASC']]
+			})
 			
 			// Информация для редактирования и создания умк
 			const publishers = await Publisher.findAll()
@@ -45,7 +82,7 @@ module.exports = {
 
 		} catch (err) {console.error(err) }
 	},
-	async getEMCsByPOO(req, res){
+	async getEMCs(req, res){
 		try {
 
 			const emcs = await getEMCs(req, res)
@@ -54,7 +91,7 @@ module.exports = {
 			
 		} catch(err) { console.error(err) }
 	},
-	async getEMCsOnSchoolByPOO(req, res) {
+	async getEMCsOnSchool(req, res) {
 		try {
 			const emcsOnSchool = await getEMCsOnSchool(req)
 
@@ -117,7 +154,7 @@ module.exports = {
 		} catch(err) { console.error(err) }
 	},
 	// изменения данных умк
-	async setEMC (req, res) {
+	async updateEMC (req, res) {
 		try {
 			/** Обновляем УМК с данными при условии, что данный пользователь 
 				* его создатель и админ не сделал его официальным умк 
@@ -144,7 +181,7 @@ module.exports = {
 		}
 	},
 	// изменения данных умк у школы
-	async setEMCOnSchool (req, res) {
+	async updateEMCOnSchool (req, res) {
 		try {
 			/**
 			 * Применяем изменения при условии, что данный умк принадлежит оо данного пользователя

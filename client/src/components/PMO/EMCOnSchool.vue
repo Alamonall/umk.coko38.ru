@@ -1,24 +1,31 @@
 <template>
-	<v-row v-if="isSignin && user.UserRole.code == 2" dense>
-		<v-col cols="12">
-			<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
-		</v-col>
-		<v-card
-			v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
-			class="mx-auto text-center"
-		>
-			УМК у данного ОО отсутствует
-		</v-card>
-		<v-col cols="12">
-			<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
-				<EMCOnSchoolCard
-					:emc-on-school="emcOnSchool"
-					@onDetachEMCFrom="detachEMCFrom"
-					@onSwapApprovingStatusEMCOnSchool="swapApprovingStatusEMCOnSchool"
-				/>
-			</v-row>
-		</v-col>
-	</v-row>
+	<v-container v-if="isSignin && user.UserRole.code == 1" fluid>
+		<v-row v-if="$route.params.subjectCode">
+			<v-col cols="12">
+				<h1 class="text-center">{{ subjectTitle }}</h1>
+			</v-col>
+		</v-row>
+		<v-row dense>
+			<v-col cols="12">
+				<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
+			</v-col>
+			<v-card
+				v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
+				class="mx-auto text-center"
+			>
+				УМК у данного ОО отсутствует
+			</v-card>
+			<v-col cols="12">
+				<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
+					<EMCOnSchoolCard
+						:emc-on-school="emcOnSchool"
+						@onDetachEMCFrom="detachEMCFrom"
+						@onSwapApprovingStatusEMCOnSchool="swapApprovingStatusEMCOnSchool"
+					/>
+				</v-row>
+			</v-col>
+		</v-row>
+	</v-container>
 </template>
 
 <script>
@@ -36,7 +43,10 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs']),
+		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects']),
+		subjectTitle() {
+			return this.subjects.find((subject) => subject.code === this.$route.params.subjectCode).name
+		},
 	},
 	watch: {
 		$route() {
@@ -51,12 +61,7 @@ export default {
 	methods: {
 		async getEMCs() {
 			try {
-				console.log('eos get emcs')
-
 				const response = await PmoService.getEMCs(this.$route.params)
-
-				console.log('eos new emcs ', response.data.emcs)
-				// this.$store.commit('setEMCs', response.data.emcs)
 				this.emcs = [...response.data.emcs]
 			} catch (err) {
 				this.error = err
@@ -66,27 +71,15 @@ export default {
 			// Получение УМК школы
 			try {
 				const response = await PmoService.getEMCsOnSchool(this.$route.params)
-				console.log(
-					'eos school: ',
-					this.$route.params.schoolCode,
-					'; subject: ',
-					this.$route.params.subjectCode,
-					'; eos: ',
-					response.data.emcsOnSchool,
-				)
 				this.emcsOnSchool = [...response.data.emcsOnSchool]
-				// this.$store.dispatch('setEMCsOnSchool', response.data.emcsOnSchool)
-				// this.emcsOnSchool = response.data.emcsOnSchool
 			} catch (err) {
 				this.error = err
 			}
 		},
 		async detachEMCFrom(emcOnSchool) {
 			try {
-				console.log('eos detachEMCFrom')
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
 				const response = await PmoService.detachFrom(this.$route.params, emcOnSchool.emcId)
-				console.log('detachEMCFrom: ', response)
 				this.emcsOnSchool = [...response.data.emcsOnSchool]
 				this.getEMCs()
 			} catch (err) {
@@ -95,7 +88,6 @@ export default {
 		},
 		async swapApprovingStatusEMCOnSchool(emcOnSchool) {
 			try {
-				console.log('eos not from the store: ', emcOnSchool)
 				this.$store.dispatch('updateEMCOnSchoolApproval', emcOnSchool)
 
 				await PmoService.setEMCOnSchool(emcOnSchool)

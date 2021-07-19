@@ -1,6 +1,5 @@
-require('dotenv/config')
 const { User, EMC, EMCOnSchool, Publisher, School, Subject, Area, Level } = require('../models')
-const { Op, literal, fn, col } = require('sequelize')
+const { Op } = require('sequelize')
 
 module.exports = {
 	async getEMCsOnSchool( req) {
@@ -8,12 +7,13 @@ module.exports = {
 
 		return await EMCOnSchool.findAll({
 			attribute:['correctionCoz','studentsCount','swapCoz','usingCoz', 'isApproved'],
+			where: req.params.emcOnSchoolId ? { id: req.params.emcOnSchoolId } : {},
 			include: [
 				{
 					model: EMC,
 					require: true,
 					where: { gia: req.user.gia },
-					attributes:['id', 'title','authors', 'gia', 'grades','isCustom','createdBy'],
+					attributes:['id', 'title', 'authors', 'gia', 'grades', 'isCustom', 'createdBy'],
 					include: 	[
 						{
 							model: Publisher,
@@ -27,7 +27,7 @@ module.exports = {
 							model: Subject,
 							require: true,
 							attributes: [['code', 'subjectCode'], ['name', 'subjectName']],
-							where: subjectCode ? { code: subjectCode } : { code: null }
+							where: subjectCode ? { code: subjectCode } : {}
 						},
 						{
 							model: Level,
@@ -45,7 +45,7 @@ module.exports = {
 						['name','schoolName'],
 						['gia','schoolGia'],
 					],
-					where: schoolCode ? { code: schoolCode, gia: req.user.gia } : { code: null, gia: req.user.gia },
+					where: schoolCode ? { code: schoolCode, gia: req.user.gia } : { gia: req.user.gia },
 					include: [
 						{
 							model: Area,
@@ -68,86 +68,14 @@ module.exports = {
 		})
 	},
 	async getAreasAndSchools( req){
-		const {areaCode, schoolCode, giaCode, subjectCode} = req.params
-		let areaWhere, schoolWhere
-
-		schoolWhere = { ...schoolWhere, ...{ gia: req.user.gia } }
-		areaWhere = req.user.gia === 9 ? { gia: { [Op.in]: [9, 99] } } : { gia: { [Op.in]: [11, 99] } }
-
-		switch(req.user.UserRole.code){
-			case 1: 
-				areaWhere = areaCode ? {...areaWhere, ...{ code: areaCode } } : areaWhere
-				schoolWhere = schoolCode ? {...schoolWhere, ...{ code: schoolCode } } : schoolWhere
-				break;
-			case 2: 
-				areaWhere.AreaID = req.user.areaId 
-				schoolWhere = schoolCode ? { ...schoolWhere, ...{ code: schoolCode } } : schoolWhere
-				break;
-			case 3: 
-				schoolWhere.id = req.user.schoolId
-				break;
-		}
-
-		return await Area.findAll({
-			attributes:[
-				'name',
-				'code'
-			],
-			where: areaWhere
-			,
-			include: [
-				{
-					model: School,
-					require: true,
-					attributes: [
-						'name', 'code', 'gia'],
-					where: schoolWhere,
-					include: [
-						{
-							model: EMCOnSchool,
-							attributes: [],
-							include: [
-								{
-									model: EMC,
-									attributes: [],
-									include: [
-										{
-											model: Subject,
-											attributes: ['name','code'],
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			],
-			order: [
-				[School, 'code', 'ASC']]
-		})
+		
 	},
 	async getEMCs(req){
 
-		// const emcsWhere = { gia: req.user.gia }
-
-		/**
-		 * Выдача УМК с фильтром по gia
-		 */
-		/*
-		if(req.user.UserRole.code == (2 || 3)){
-			emcsWhere.isCustom = true
-			emcsWhere.createdBy = { [Op.not]: null }
-		}
-		*/
-
-		/* 
-		if(req.params.emcId)
-			emcsWhere.id = req.params.emcId
-		*/
 		// Получаем УМК по параметру id либо все
 		return await EMC.findAll({
-			attributes: ['id', 'gia', 'authors', 'grades', 'isCustom','publisherId', 'subjectId', 'title', 'createdBy'],
-			where: req.params.emcId ? { id: req.params.emcId, gia: req.user.gia } : { gia: req.user.gia },
+			attributes: ['id', 'gia', 'authors', 'grades', 'isCustom','publisherId', 'subjectId', 'levelId', 'title', 'createdBy'],
+			where: req.params.emcId ? { id: req.params.emcId } : { gia: req.user.gia },
 			include: [
 				{ 
 					model: Publisher,

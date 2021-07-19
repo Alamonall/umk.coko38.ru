@@ -14,12 +14,14 @@
 						Пользовательский
 					</v-chip>
 				</div>
-				<p><strong> Издательство: </strong> {{ emcOnSchool.EMC.Publisher.publisherName }}</p>
-				<p><strong> Авторы: </strong> {{ emcOnSchool.EMC.authors }}</p>
-				<p>Класс: {{ emcOnSchool.EMC.grades }}</p>
-				<!--p> Кол-во учеников: {{ emcOnSchool.studentsCount }} </p-->
-				<p>ГИА-{{ emcOnSchool.EMC.gia }}</p>
-				<p>Уровень: {{ emcOnSchool.EMC.Level ? emcOnSchool.EMC.Level.name : 'Нет данных' }}</p>
+				<p><strong>Издательство:</strong> {{ emcOnSchool.EMC.Publisher.publisherName }}</p>
+				<p><strong>Авторы:</strong> {{ emcOnSchool.EMC.authors }}</p>
+				<p><strong>Класс:</strong> {{ emcOnSchool.EMC.grades }}</p>
+				<p><strong>Кол-во учеников:</strong> {{ emcOnSchool.studentsCount }}</p>
+				<p>
+					<strong>Уровень:</strong>
+					{{ emcOnSchool.EMC.Level ? emcOnSchool.EMC.Level.name : 'Нет данных' }}
+				</p>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="isDetailing = !isDetailing"> Комментарии </v-btn>
@@ -43,11 +45,65 @@
 			</v-card-actions>
 			<v-expand-transition>
 				<v-card v-show="isDetailing">
-					<v-card-text class="pb-0">
-						<p><strong>Причина исползования:</strong> {{ emcOnSchool.usingCoz }}</p>
-						<p><strong>Причина изменений:</strong> {{ emcOnSchool.correctionCoz }}</p>
-						<p><strong>Причина смены: </strong> {{ emcOnSchool.swapCoz }}</p>
-					</v-card-text>
+					<v-tabs
+						v-model="tab"
+						background-color="transparent"
+						color="basil"
+						grow
+					>
+						<v-tab>Кол-во учеников</v-tab>
+						<v-tab>Причина использования</v-tab>
+						<v-tab>Причина изменения</v-tab>
+						<v-tab>Причина смены</v-tab>
+					</v-tabs>
+					<v-tabs-items v-model="tab">
+						<v-tab-item>
+							<v-card flat>
+								<v-card-text>
+									<TheEditAdditionalEOSData
+										additionalEOSTitle="Кол-во учеников"
+										:additionalEOSDataValue="emcOnSchool.studentsCount"
+										@onSaveStudentsCount="saveStudentsCount"
+										:isNumber="true"
+									/>
+									{{ emcOnSchool.studentsCount }}</v-card-text>
+							</v-card>
+						</v-tab-item>
+						<v-tab-item>
+							<v-card flat>
+								<v-card-text>
+									<TheEditAdditionalEOSData
+										additionalEOSTitle="Причина использования"
+										:additionalEOSDataValue="emcOnSchool.usingCoz"
+										@onSaveAdditionalData="saveUsingCozComment"
+									/>
+									{{ emcOnSchool.usingCoz }}
+								</v-card-text>
+							</v-card>
+						</v-tab-item>
+						<v-tab-item>
+							<v-card flat>
+								<v-card-text>
+									<TheEditAdditionalEOSData
+										additionalEOSTitle="Причина изменения"
+										:additionalEOSDataValue="emcOnSchool.correctionCoz"
+										@onSaveAdditionalData="saveCorrectionCozComment"
+									/>
+									{{ emcOnSchool.correctionCoz }}</v-card-text>
+							</v-card>
+						</v-tab-item>
+						<v-tab-item>
+							<v-card flat>
+								<v-card-text>
+									<TheEditAdditionalEOSData
+										additionalEOSTitle="Причина смены"
+										:additionalEOSDataValue="emcOnSchool.swapCoz"
+										@onSaveAdditionalData="saveSwapCozComment"
+									/>
+									{{ emcOnSchool.swapCoz }}</v-card-text>
+							</v-card>
+						</v-tab-item>
+					</v-tabs-items>
 				</v-card>
 			</v-expand-transition>
 		</v-card>
@@ -55,8 +111,13 @@
 </template>
 <script>
 import { mapFields } from 'vuex-map-fields'
+import TheEditAdditionalEOSData from '../TheEditAdditionalEOSData.vue'
+import AdminService from '../../services/adminService'
 
 export default {
+	components: {
+		TheEditAdditionalEOSData,
+	},
 	props: {
 		emcOnSchool: {
 			type: Object,
@@ -64,10 +125,46 @@ export default {
 		},
 	},
 	data: () => ({
+		error: null,
+		tab: null,
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs']),
+		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool',]),
+	},
+	methods: {
+		async saveUsingCozComment(comment) {
+			try {
+				const response = await AdminService.setEMCOnSchool({ id: this.emcOnSchool.id, usingCoz: comment })
+				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+			} catch (error) {
+				this.error = error
+			}
+		},
+		async saveCorrectionCozComment(comment) {
+			try {
+				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, correctionCoz: comment})
+				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+			} catch (error) {
+				this.error = error
+			}
+		},
+		async saveSwapCozComment(comment) {
+			try {
+				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, swapCoz: comment})
+				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+			} catch (error) {
+				this.error = error
+			}
+		},
+		async saveStudentsCount(number) {
+			try {
+				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, studentsCount: number})
+				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+			} catch (error) {
+				this.error = error
+			}
+		}
 	},
 }
 </script>

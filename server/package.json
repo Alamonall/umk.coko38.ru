@@ -7,7 +7,8 @@
     "nodemon": "nodemon src/app",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
-    "prettier": "prettier --write src/**/*.js"
+    "prettier": "prettier --write src/**/*.js",
+		"seed": "node seeds"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

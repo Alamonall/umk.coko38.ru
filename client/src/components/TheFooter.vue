@@ -1,5 +1,5 @@
 <template>
-	<v-footer outlined padless>
+	<v-footer app outlined padless>
 		<v-row justify="center" no-gutters>
 			<v-btn
 				v-for="link in links"
