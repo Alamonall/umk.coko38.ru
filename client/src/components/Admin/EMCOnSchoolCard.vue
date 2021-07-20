@@ -5,10 +5,10 @@
 			<v-card-text class="text-h5">
 				<div>
 					<v-chip v-show="emcOnSchool.isApproved" color="green" text-color="white" pill>
-						Подтверждено
+						Утверждено
 					</v-chip>
 					<v-chip v-show="!emcOnSchool.isApproved" color="yellow" text-color="black" pill>
-						Не подтверждено
+						Не утверждено
 					</v-chip>
 					<v-chip v-show="emcOnSchool.EMC.isCustom" color="red" text-color="white" pill>
 						Пользовательский
@@ -39,18 +39,16 @@
 				>
 					Редактировать
 				</v-btn>
-				<v-btn text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn v-if="$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
 					Открепить УМК
+				</v-btn>
+				<v-btn v-if="!$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+					Открепить УМК от всех МО и ОО
 				</v-btn>
 			</v-card-actions>
 			<v-expand-transition>
 				<v-card v-show="isDetailing">
-					<v-tabs
-						v-model="tab"
-						background-color="transparent"
-						color="basil"
-						grow
-					>
+					<v-tabs v-model="tab" background-color="transparent" color="basil" grow>
 						<v-tab>Кол-во учеников</v-tab>
 						<v-tab>Причина использования</v-tab>
 						<v-tab>Причина изменения</v-tab>
@@ -63,10 +61,11 @@
 									<TheEditAdditionalEOSData
 										additionalEOSTitle="Кол-во учеников"
 										:additionalEOSDataValue="emcOnSchool.studentsCount"
-										@onSaveStudentsCount="saveStudentsCount"
+										@onSaveAdditionalData="saveStudentsCount"
 										:isNumber="true"
 									/>
-									{{ emcOnSchool.studentsCount }}</v-card-text>
+									{{ emcOnSchool.studentsCount }}</v-card-text
+								>
 							</v-card>
 						</v-tab-item>
 						<v-tab-item>
@@ -89,7 +88,8 @@
 										:additionalEOSDataValue="emcOnSchool.correctionCoz"
 										@onSaveAdditionalData="saveCorrectionCozComment"
 									/>
-									{{ emcOnSchool.correctionCoz }}</v-card-text>
+									{{ emcOnSchool.correctionCoz }}</v-card-text
+								>
 							</v-card>
 						</v-tab-item>
 						<v-tab-item>
@@ -100,7 +100,8 @@
 										:additionalEOSDataValue="emcOnSchool.swapCoz"
 										@onSaveAdditionalData="saveSwapCozComment"
 									/>
-									{{ emcOnSchool.swapCoz }}</v-card-text>
+									{{ emcOnSchool.swapCoz }}</v-card-text
+								>
 							</v-card>
 						</v-tab-item>
 					</v-tabs-items>
@@ -130,12 +131,15 @@ export default {
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool',]),
+		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool']),
 	},
 	methods: {
 		async saveUsingCozComment(comment) {
 			try {
-				const response = await AdminService.setEMCOnSchool({ id: this.emcOnSchool.id, usingCoz: comment })
+				const response = await AdminService.setEMCOnSchool({
+					id: this.emcOnSchool.id,
+					usingCoz: comment,
+				})
 				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
 			} catch (error) {
 				this.error = error
@@ -143,7 +147,10 @@ export default {
 		},
 		async saveCorrectionCozComment(comment) {
 			try {
-				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, correctionCoz: comment})
+				const response = await AdminService.setEMCOnSchool({
+					id: this.emcOnSchool.id,
+					correctionCoz: comment,
+				})
 				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
 			} catch (error) {
 				this.error = error
@@ -151,7 +158,10 @@ export default {
 		},
 		async saveSwapCozComment(comment) {
 			try {
-				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, swapCoz: comment})
+				const response = await AdminService.setEMCOnSchool({
+					id: this.emcOnSchool.id,
+					swapCoz: comment,
+				})
 				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
 			} catch (error) {
 				this.error = error
@@ -159,12 +169,15 @@ export default {
 		},
 		async saveStudentsCount(number) {
 			try {
-				const response = await AdminService.setEMCOnSchool({id: this.emcOnSchool.id, studentsCount: number})
+				const response = await AdminService.setEMCOnSchool({
+					id: this.emcOnSchool.id,
+					studentsCount: number,
+				})
 				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
 			} catch (error) {
 				this.error = error
 			}
-		}
+		},
 	},
 }
 </script>

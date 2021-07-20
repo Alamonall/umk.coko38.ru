@@ -1,5 +1,5 @@
 <template>
-	<v-container v-if="isSignin && user.UserRole.code == 1" fluid>
+	<v-container v-if="isSignin && user.UserRole.code == 2" fluid>
 		<v-row v-if="$route.params.subjectCode">
 			<v-col cols="12">
 				<h1 class="text-center">{{ subjectTitle }}</h1>
@@ -88,11 +88,13 @@ export default {
 		},
 		async swapApprovingStatusEMCOnSchool(emcOnSchool) {
 			try {
-				this.$store.dispatch('updateEMCOnSchoolApproval', emcOnSchool)
-
-				await PmoService.setEMCOnSchool(emcOnSchool)
-			} catch (error) {
-				this.error = error
+				const response = await PmoService.setEMCOnSchool({
+					...emcOnSchool,
+					isApproved: !emcOnSchool.isApproved,
+				})
+				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+			} catch (err) {
+				this.error = err
 			}
 		},
 	},

@@ -88,7 +88,10 @@ export default {
 		},
 		async swapApprovingStatusEMCOnSchool(emcOnSchool) {
 			try {
-				const response = await AdminService.setEMCOnSchool({...emcOnSchool, isApproved: !emcOnSchool.isApproved })
+				const response = await AdminService.setEMCOnSchool({
+					...emcOnSchool,
+					isApproved: !emcOnSchool.isApproved,
+				})
 				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
 			} catch (err) {
 				this.error = err

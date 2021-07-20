@@ -24,7 +24,7 @@ export default {
 		return api().delete(`/admin/emcs/${emc.id}/delete`)
 	},
 	setEMCOnSchool(EMCOnSchool) {
-		console.log('setEMCOnSchool: ',  { ...EMCOnSchool })
+		console.log('setEMCOnSchool: ', { ...EMCOnSchool })
 		return api().put(`/admin/emcOnSchool/${EMCOnSchool.id}`, { ...EMCOnSchool })
 	},
 	createEMC(EMC = null) {

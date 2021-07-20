@@ -1,5 +1,5 @@
 <template>
-	<v-container v-if="isSignin && user.UserRole.code == 1" fluid>
+	<v-container v-if="isSignin && user.UserRole.code == 3" fluid>
 		<v-row v-if="$route.params.subjectCode">
 			<v-col cols="12">
 				<h1 class="text-center">{{ subjectTitle }}</h1>
@@ -10,7 +10,7 @@
 				<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
 			</v-col>
 			<v-card
-				v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
+				v-if="emcsOnSchool.length === 0 && $route.params.schoolCode !== undefined"
 				class="mx-auto text-center"
 			>
 				УМК у данного ОО отсутствует

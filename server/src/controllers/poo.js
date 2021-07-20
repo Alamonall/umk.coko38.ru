@@ -1,5 +1,5 @@
-const { EMC, EMCOnSchool, School, Publisher, Subject, Level } = require('../models')
-const { col, fn, literal } = require('sequelize')
+const { Level, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
+const { Op, fn, literal, col } = require('sequelize')
 const { getEMCs, getEMCsOnSchool } = require('../helpers')
 
 
@@ -7,6 +7,26 @@ module.exports = {
 	async index(req, res){
 		try {
 			// Информация для sidebar
+			const { areaCode, schoolCode } = req.params
+			let areaWhere, schoolWhere
+
+			schoolWhere = { ...schoolWhere, ...{ gia: req.user.gia } }
+			areaWhere = req.user.gia === 9 ? { gia: { [Op.in]: [9, 99] } } : { gia: { [Op.in]: [11, 99] } }
+
+			switch(req.user.UserRole.code){
+				case 1: 
+					areaWhere = areaCode ? {...areaWhere, ...{ code: areaCode } } : areaWhere
+					schoolWhere = schoolCode ? {...schoolWhere, ...{ code: schoolCode } } : schoolWhere
+					break;
+				case 2: 
+					areaWhere.AreaID = req.user.areaId 
+					schoolWhere = schoolCode ? { ...schoolWhere, ...{ code: schoolCode } } : schoolWhere
+					break;
+				case 3: 
+					schoolWhere.id = req.user.schoolId
+					break;
+			}
+
 			const areasAndSchools = await Area.findAll({
 				attributes:[
 					'name',
@@ -159,10 +179,11 @@ module.exports = {
 			/** Обновляем УМК с данными при условии, что данный пользователь 
 				* его создатель и админ не сделал его официальным умк 
 				*/
-			const emc = await EMC.update(req.body,
-				{ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }, returning: true })
-			
-			res.json({ message: 'Данные обновлены', emc: emc })
+			await EMC.update(req.body, { where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }})
+						
+			const emcs = await getEMCs(req)
+
+			res.json({ message: 'Данные обновлены', emc: emcs[0] })
 
 		} catch(err) { console.error(err) }
 	},
@@ -172,10 +193,9 @@ module.exports = {
 			 * Удаляем умк при условии, что админ не сделал его официальным и 
 			 * данный пользователь является создателем
 			 */
-			const emc = await EMC.destroy(
-				{ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }, returning: true })
+			await EMC.destroy({ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }})
 			
-			res.json({ message: 'УМК удалена', emc: emc })
+			res.json({ message: 'УМК удалена'})
 		} catch (error) {
 			console.error(error)
 		}
@@ -186,10 +206,12 @@ module.exports = {
 			/**
 			 * Применяем изменения при условии, что данный умк принадлежит оо данного пользователя
 			 */
-			const emcOnSchool = await EMCOnSchool.update(req.body, 
-				{ where: { id: req.params.emcOnSchoolId, schoolId: req.user.schoolId }, returning: true })
+ 
+			await EMCOnSchool.update(req.body, { where: { id: req.params.emcOnSchoolId, schoolId: req.user.schoolId }})
 
-			res.json({ message: 'Данные обновлены', emcOnSchool: emcOnSchool })
+			const emcOnSchool = await getEMCsOnSchool(req) 
+
+			res.json({ message: 'Данные обновлены', emcOnSchool: emcOnSchool[0] })
 
 		} catch(err) { console.error(err) }
 	},

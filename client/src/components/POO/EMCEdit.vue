@@ -64,10 +64,10 @@ export default {
 	created() {
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
-		this.getEMCsForEdit()
+		this.getEMCForEdit()
 	},
 	methods: {
-		async getEMCsForEdit() {
+		async getEMCForEdit() {
 			try {
 				const response = await PooService.getEMCs(this.$route.params)
 				if (response.status === 200) {
@@ -86,12 +86,16 @@ export default {
 		},
 		async saveEMC() {
 			try {
-				console.log('this.emc: ', this.emc)
-				await PooService.setEMC(this.emc)
-				this.$store.dispatch('updateEMC', this.emc)
+				const response = await PooService.setEMC({
+					...this.emc,
+					publisherId: this.emc.Publisher.id,
+					levelId: this.emc.Level.id,
+					subjectId: this.emc.Subject.id,
+				})
+				this.$store.dispatch('updateEMC', response.data.emc)
 				this.$router.push({
 					name: 'poo-subject-emcs',
-					params: { subjectCode: this.emc.Subject.code },
+					params: { subjectCode: response.data.emc.Subject.code },
 				})
 			} catch (error) {
 				this.error = error

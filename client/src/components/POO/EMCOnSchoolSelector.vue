@@ -34,7 +34,6 @@
 				</v-col>
 			</v-row>
 		</v-card-text>
-
 		<v-expand-transition>
 			<v-list v-if="model">
 				<v-list-item v-for="(field, i) in fields" :key="i">
@@ -169,7 +168,7 @@ export default {
 
 				this.emcsOnSchool = [...response.data.emcsOnSchool]
 				this.model = null
-				// this.getEMCs()
+				this.getEMCs()
 			} catch (err) {
 				this.error = err
 			}

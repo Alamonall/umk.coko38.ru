@@ -64,15 +64,14 @@ export default {
 	created() {
 		this.$store.dispatch('setAreasSidebar', false)
 		this.$store.dispatch('setSubjectsSidebar', false)
-		this.getEMCsForEdit()
+		this.getEMCForEdit()
 	},
 	methods: {
-		async getEMCsForEdit() {
+		async getEMCForEdit() {
 			try {
 				const response = await PmoService.getEMCs(this.$route.params)
-				if (response.status === 200) {
+				if (response.data.error === undefined) {
 					const [localEMC] = response.data.emcs
-					console.log('response: ', localEMC)
 					this.emc = localEMC
 				} else {
 					this.$router.push({
@@ -80,18 +79,22 @@ export default {
 						params: { subjectCode: this.emc.Subject.code },
 					})
 				}
-			} catch (error) {
-				this.error = error
+			} catch (err) {
+				this.error = err
 			}
 		},
 		async saveEMC() {
 			try {
-				console.log('this.emc: ', this.emc)
-				await PmoService.setEMC(this.emc)
-				this.$store.dispatch('updateEMC', this.emc)
+				const response = await PmoService.setEMC({
+					...this.emc,
+					publisherId: this.emc.Publisher.id,
+					levelId: this.emc.Level.id,
+					subjectId: this.emc.Subject.id,
+				})
+				this.$store.dispatch('updateEMC', response.data.emc)
 				this.$router.push({
 					name: 'pmo-subject-emcs',
-					params: { subjectCode: this.emc.Subject.code },
+					params: { subjectCode: response.data.emc.Subject.code },
 				})
 			} catch (error) {
 				this.error = error

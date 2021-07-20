@@ -36,7 +36,11 @@
 					no-data-text="Нет данных"
 					return-object
 				></v-select>
-				<v-checkbox v-if="emc.createdBy" v-model="emc.isCustom" label="Пользовательский"></v-checkbox>
+				<v-checkbox
+					v-if="emc.createdBy"
+					v-model="emc.isCustom"
+					label="Пользовательский"
+				></v-checkbox>
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="saveEMC"> Сохранить изменения </v-btn>
@@ -87,7 +91,12 @@ export default {
 		async saveEMC() {
 			try {
 				console.log('save this.emc : ', this.emc)
-				const response = await AdminService.setEMC({...this.emc, publisherId: this.emc.Publisher.id, levelId: this.emc.Level.id, subjectId: this.emc.Subject.id })
+				const response = await AdminService.setEMC({
+					...this.emc,
+					publisherId: this.emc.Publisher.id,
+					levelId: this.emc.Level.id,
+					subjectId: this.emc.Subject.id,
+				})
 				this.$store.dispatch('updateEMC', response.data.emc)
 				console.log('save emc : ', response)
 				this.$router.push({
