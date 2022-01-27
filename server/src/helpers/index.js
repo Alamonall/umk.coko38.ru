@@ -11,13 +11,11 @@ module.exports = {
 			include: [
 				{
 					model: EMC,
-					require: true,
 					where: { gia: req.user.gia },
 					attributes:['id', 'title', 'authors', 'gia', 'grades', 'isCustom', 'createdBy'],
 					include: 	[
 						{
 							model: Publisher,
-							require: true,
 							attributes: [['name', 'publisherName']]
 						},
 						{
@@ -25,20 +23,17 @@ module.exports = {
 						},
 						{
 							model: Subject,
-							require: true,
 							attributes: [['code', 'subjectCode'], ['name', 'subjectName']],
 							where: subjectCode ? { code: subjectCode } : {}
 						},
 						{
 							model: Level,
-							require: true,
 							attributes: ['name', 'code']
 						}
 					]
 				},
 				{
 					model: School,
-					require: true,
 					attributes: [
 						['id', 'schoolId'],
 						['code','schoolCode'], 
@@ -49,7 +44,6 @@ module.exports = {
 					include: [
 						{
 							model: Area,
-							require: true,
 							attributes: [
 								['AreaID', 'areaId'],
 								['code','areaCode'], 
@@ -79,26 +73,23 @@ module.exports = {
 			include: [
 				{ 
 					model: Publisher,
-					require: true,
+					required: true,
 					attributes: ['id', 'name']
 				},
 				{
 					model: Subject,
-					require: true,
 					attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
 					where: req.params.subjectCode ? { code: req.params.subjectCode } : {}
 				},
 				{
 					model: Level,
 					attributes: ['id', 'code', 'name'],
-					require: true,
 				},
 				{
 					model: EMCOnSchool,
 					include:[
 						{
 							model: School,
-							require: true,
 							where: req.params.schoolCode ? { 'code': { [Op.ne]: req.params.schoolCode } } : {}
 						}
 					]
@@ -122,19 +113,16 @@ module.exports = {
 				include: [
 					{ 
 						model: Publisher,
-						require: true,
 						attributes: ['id', 'name']
 					},
 					{
 						model: Subject,
-						require: true,
 						attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
 						where: req.params.subjectCode ? { code: req.params.subjectCode } : {}
 					},
 					{
 						model: Level,
 						attributes: ['id', 'code', 'name'],
-						require: true,
 					},
 					{
 						model: EMCOnSchool,
@@ -152,19 +140,16 @@ module.exports = {
 					include: [
 						{ 
 							model: Publisher,
-							require: true,
 							attributes: ['id', 'name']
 						},
 						{
 							model: Subject,
-							require: true,
 							attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
 							where: req.params.subjectCode ? { code: req.params.subjectCode } : {}
 						},
 						{
 							model: Level,
 							attributes: ['id', 'code', 'name'],
-							require: true,
 						},
 					]
 				})

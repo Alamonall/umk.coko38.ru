@@ -8,7 +8,7 @@
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
     "prettier": "prettier --write src/**/*.js",
-		"seed": "node seeds"
+    "seed": "node seeds"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

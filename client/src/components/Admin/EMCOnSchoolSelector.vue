@@ -101,7 +101,10 @@ export default {
 		...mapFields(['emcs', 'emcsOnSchool', 'user']),
 		fields() {
 			if (!this.model) return []
+			console.log(this.model.previewData)
 			return Object.keys(this.model.previewData).map((key) => {
+				console.log(this.model)
+				console.log(this.model.previewData[key])
 				return {
 					key: this.model.previewData[key],
 					value: key,
@@ -132,7 +135,7 @@ export default {
 					emc.previewData['Издатель'] = entry.Publisher.name
 					emc.previewData['Предмет'] = entry.Subject.name
 					emc.previewData['Классы'] = entry.grades
-					emc.previewData['Уровень'] = entry.gia
+					emc.previewData['Уровень'] = entry.Level.name
 					emc.previewData['Пользовательская'] = entry.isCustom ? 'Да' : 'Нет'
 					emc.entry = entry
 					filtered.push({ Description, emc })

@@ -42,7 +42,6 @@ export default {
 					password: this.password,
 				})
 
-				console.log(response)
 				this.$store.dispatch('setToken', response.data.token)
 				this.$store.dispatch('setUser', response.data.user)
 				if (this.$store.state.user.UserRole.code === 1) this.$router.push('/admin')

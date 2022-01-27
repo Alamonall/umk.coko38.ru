@@ -3,6 +3,6 @@ module.exports = {
 	outputDir: '../server/src/public',
 	publicPath: 'https://umk.coko38.ru',
 	devServer: {
-    proxy: 'http://localhost:3000'
+    proxy: 'http://localhost:3006'
   },
 }

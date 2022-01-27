@@ -1,4 +1,17 @@
-require('dotenv').config();
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '../../.env') })
+console.log(
+	'config: DATABASE: ',
+	process.env.DB,
+	'USER: ',
+	process.env.DB_USER,
+	'PASSWORD: ',
+	process.env.DB_PASSWORD,
+	'DIALECT: ',
+	process.env.DB_DIALECT,
+	'HOST: ',
+	process.env.DB_HOST,
+)
 module.exports = { 
 	port: process.env.PORT || 3000,
 	db: {

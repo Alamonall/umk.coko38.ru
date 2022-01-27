@@ -92,11 +92,11 @@ module.exports = {
 			const emcs = await getEMCs(req)
 			
 			res.json({ 
-				areasAndSchools: areasAndSchools,
-				subjects: subjects,
-				publishers: publishers,
-				levels: levels,
-				emcs: emcs
+				areasAndSchools,
+				subjects,
+				publishers,
+				levels,
+				emcs
 			})
 
 		} catch (err) { console.error(err)}
