@@ -133,7 +133,7 @@ export default {
 					emc.previewData['Издатель'] = entry.Publisher.name
 					emc.previewData['Предмет'] = entry.Subject.name
 					emc.previewData['Классы'] = entry.grades
-					emc.previewData['Уровень'] = entry.gia
+					emc.previewData['Уровень'] = entry.Level.name
 					emc.previewData['Создана вами'] = entry.createdBy === this.user.id ? 'Да' : 'Нет'
 					emc.entry = entry
 					filtered.push({ Description, emc })
