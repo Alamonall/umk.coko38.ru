@@ -50,7 +50,7 @@
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="createEMC"> Создать УМК </v-btn>
-				<v-btn text color="red accent-2" :to="{ name: 'pmo-emcs' }"> Назад </v-btn>
+				<v-btn text color="red accent-2" :to="{ name: 'pmo-emc' }"> Назад </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
@@ -91,8 +91,8 @@ export default {
 				await PmoService.createEMC(this.emc)
 
 				this.$router.push({
-					name: 'pmo-subject-emcs',
-					params: { subjectCode: this.emc.Subject.code },
+					name: 'pmo-subject-emc',
+					params: { subjectId: this.emc.Subject.id },
 				})
 			} catch (error) {
 				this.error = error

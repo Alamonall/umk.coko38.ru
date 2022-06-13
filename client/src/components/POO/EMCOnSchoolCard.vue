@@ -45,7 +45,7 @@
 					v-if="emcOnSchool.EMC.isCustom && emcOnSchool.EMC.createdBy === user.id"
 					text
 					color="teal accent-4"
-					:to="{ name: 'pmo-emc-edit', params: { emcId: emcOnSchool.emcId } }"
+					@click="goTo({ name: 'pmo-emc-edit', params: { emcId: emcOnSchool.emcId } })"
 				>
 					Редактировать
 				</v-btn>
@@ -118,6 +118,7 @@
 	</v-container>
 </template>
 <script>
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import TheEditAdditionalEOSData from '../TheEditAdditionalEOSData.vue'
 import PooService from '../../services/pooService'
@@ -162,6 +163,21 @@ export default {
 				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
 			} catch (err) {
 				this.error = err
+			}
+		},
+		goTo({ name, params }) {
+			if(!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = { ...this.activeRouteParams, ...params }
+				this.$router.push({ name }).catch(err => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
+				})
 			}
 		}
 	},

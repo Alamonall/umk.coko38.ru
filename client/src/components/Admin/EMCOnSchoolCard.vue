@@ -28,21 +28,21 @@
 				<v-btn
 					text
 					color="teal accent-4"
-					@click="$emit('onSwapApprovingStatusEMCOnSchool', emcOnSchool)"
+					@click="$emit('onSwapApprovingStatusEmcOnSchool', emcOnSchool)"
 				>
 					{{ emcOnSchool.isApproved ? 'Отменить утверждение' : 'Утвердить' }}
 				</v-btn>
 				<v-btn
 					text
 					color="teal accent-4"
-					:to="{ name: 'admin-emc-edit', params: { emcId: emcOnSchool.emcId } }"
+					@click="goTo({ name: 'admin-emc-edit', params: { emcId: emcOnSchool.emcId } })"
 				>
 					Редактировать
 				</v-btn>
-				<v-btn v-if="$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn v-if="activeRouteParams.subjectId" text color="teal accent-4" @click="$emit('onDetachEmcFrom', emcOnSchool)">
 					Открепить УМК
 				</v-btn>
-				<v-btn v-if="!$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn v-if="!activeRouteParams.subjectId" text color="teal accent-4" @click="$emit('onDetachEmcFrom', emcOnSchool)">
 					Открепить УМК от всех МО и ОО
 				</v-btn>
 			</v-card-actions>
@@ -111,6 +111,7 @@
 	</v-container>
 </template>
 <script>
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import TheEditAdditionalEOSData from '../TheEditAdditionalEOSData.vue'
 import AdminService from '../../services/adminService'
@@ -131,53 +132,47 @@ export default {
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool']),
+		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool', 'activeRouteParams']),
 	},
 	methods: {
-		async saveUsingCozComment(comment) {
+		saveUsingCozComment(comment) {
+			this.updateEmcOnSchool({ usingCoz: comment })
+		},
+		saveCorrectionCozComment(comment) {
+			this.updateEmcOnSchool({ correctionCoz: comment })
+		},
+		saveSwapCozComment(comment) {
+			this.updateEmcOnSchool({ swapCoz: comment })
+		},
+		saveStudentsCount(number) {
+			this.updateEmcOnSchool({ studentsCount: number })
+		},
+		async updateEmcOnSchool(data) {
 			try {
-				const response = await AdminService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					usingCoz: comment,
+				const response = await AdminService.updateEmcOnSchool({
+					emcOnSchoolId: this.emcOnSchool.id,
+					...data
 				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
+				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
+			} catch (err) {
+				this.error = err
 			}
 		},
-		async saveCorrectionCozComment(comment) {
-			try {
-				const response = await AdminService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					correctionCoz: comment,
+		goTo({ name, params }) {
+			if(!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = { ...this.activeRouteParams, ...params }
+				this.$router.push({ name }).catch(err => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
 				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
 			}
-		},
-		async saveSwapCozComment(comment) {
-			try {
-				const response = await AdminService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					swapCoz: comment,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
-			}
-		},
-		async saveStudentsCount(number) {
-			try {
-				const response = await AdminService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					studentsCount: number,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
-			}
-		},
+		}
 	},
 }
 </script>

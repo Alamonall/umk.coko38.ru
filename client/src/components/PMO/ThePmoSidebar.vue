@@ -22,7 +22,7 @@
 					<v-list-item-content>
 						<v-btn
 							plain
-							@click="goTo({ name: 'admin-emcs-on-school', params:{ subjectId: subject.id, schoolId: school.id } })"
+							@click="goTo({ name: 'admin-emc-on-school', params:{ subjectId: subject.id, schoolId: school.id } })"
 						>
 							{{ subject.name }}
 						</v-btn>

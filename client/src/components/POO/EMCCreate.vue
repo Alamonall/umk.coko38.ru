@@ -50,7 +50,7 @@
 			</v-card-text>
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="createEmc"> Создать УМК </v-btn>
-				<v-btn text color="red accent-2" :to="{ name: 'poo-emcs' }"> Назад </v-btn>
+				<v-btn text color="red accent-2" :to="{ name: 'poo-emc' }"> Назад </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
@@ -98,7 +98,7 @@ export default {
 
 				await PooService.createEmc({ emc: this.emc })
 				this.activeRouteParams = { subjectId: this.emc.Subject.id }
-				this.$router.push({ name: 'poo-emcs' })
+				this.$router.push({ name: 'poo-emc' })
 			} catch (error) {
 				this.error = error
 				console.error(error)

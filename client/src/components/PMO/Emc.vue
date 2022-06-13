@@ -1,6 +1,9 @@
 <template>
 	<v-row v-if="isSignin && user.UserRole.code == 2" dense>
 		<v-col cols="12">
+			<h1 class="text-center">{{ subjectTitle }}</h1>
+		</v-col>
+		<v-col cols="12">
 			<v-btn text color="teal accent-4" :to="{ name: 'pmo-emc-create' }"> Создать УМК </v-btn>
 		</v-col>
 		<v-col cols="12">
@@ -41,7 +44,7 @@
 						v-if="emc.isCustom && emc.createdBy === user.id"
 						text
 						color="teal accent-4"
-						:to="{ name: 'pmo-emc-edit', params: { emcId: emc.id } }"
+						@click="goTo({ name: 'pmo-emc-edit', params: { emcId: emc.id } })"
 					>
 						Редактировать
 					</v-btn>
@@ -50,7 +53,7 @@
 						v-if="emc.isCustom && emc.createdBy === user.id"
 						text
 						color="red darken-1"
-						@click="deleteEMC(emc)"
+						@click="deleteEmc({emc})"
 					>
 						Удалить
 					</v-btn>
@@ -60,6 +63,7 @@
 	</v-row>
 </template>
 <script>
+import {_} from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 
@@ -68,37 +72,66 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'activeSidebar']),
-		emcsFilteredForPMO() {
-			return this.emcs.filter((emc) => emc.isCustom && emc.createdBy === this.user.id)
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'activeSidebar']),
+		subjectTitle() {
+			return this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ?? 'Все предметы' 
 		},
+		routeParams() { return this.activeRouteParams },
 	},
 	watch: {
-		$route() {
-			this.getEMCsForConstructor()
+		routeParams() {
+			this.page = 1
+			this.getEmcsForConstructor()
 		},
+		page() {
+			this.getEmcsForConstructor()
+		}
 	},
 	created() {
 		this.activeSidebar = 'subjects'
-		this.getEMCsForConstructor()
+		this.getEmcsForConstructor()
 	},
 	methods: {
-		async getEMCsForConstructor() {
+		async getEmcsForConstructor() {
 			try {
-				const response = await PmoService.getEMCs(this.$route.params)
-				this.$store.commit('setEMCs', response.data.emcs)
-			} catch (err) {
+				const response = await PmoService.getEmc({
+					...this.activeRouteParams, 
+					skip: (this.page-1)*this.limit, limit: this.limit
+				})
+				console.log({msg: 'response: ', emcs: response.data.emcs, totalEmcs: response.data.totalEmcs})
+				this.emcs = response.data.emcs
+				this.totalPages = Math.ceil(response.data.totalEmcs/this.limit)
+		} catch (err) {
 				this.error = err
 			}
 		},
-		async deleteEMC(emc) {
+		async deleteEmc({emc}) {
 			try {
-				const response = await PmoService.deleteEMC(emc)
-				if (response.status === 200) this.$store.dispatch('deleteEMC', emc)
+				const response = await PmoService.deleteEmc({ emcId: emc.id })
+				if (response.status === 200)	{
+					const { emcId, ...rest } = this.activeRouteParams
+					this.activeRouteParams = rest
+					this.$store.dispatch('deleteEmc', { emcId: emc.id })
+				}
 			} catch (error) {
 				this.error = error
 			}
 		},
+		goTo({ name, params }) {
+			if(!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = { ...this.activeRouteParams, ...params }
+				this.$router.push({ name }).catch(err => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
+				})
+			}
+		}
 	},
 }
 </script>

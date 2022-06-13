@@ -2,49 +2,82 @@ import api from './api'
 
 export default {
 	getUserData() {
-		return api().get('/admin')
+		return api().post('/admin')
 	},
-	getEMCsOnSchool(params = null) {
-		return api().get(`/admin
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs-on-school`)
+	getEmcOnSchool({ areaId, schoolId, subjectId, limit, skip }) {
+		return api().post('/admin/list_emc_on_school', { areaId, schoolId, subjectId, limit, skip })
 	},
-	getEMCs(params = null) {
-		return api().get(`/admin
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs
-			${params?.emcId ? `/${params.emcId}` : ''}`)
+	getEmc({ emcId, areaId, schoolId, subjectId, limit, skip }) {
+		return api().post('/admin/list_emc', { emcId, areaId, schoolId, subjectId, limit, skip })
 	},
-	setEMC(EMC) {
-		return api().put(`/admin/emcs/${EMC.id}`, EMC)
+	getEmcToAttach({ areaId, schoolId, subjectId, skip, limit }) {
+		return api().post('/admin/list_emc_to_attach', { areaId, schoolId, subjectId, skip, limit })
 	},
-	deleteEMC(emc = null) {
-		return api().delete(`/admin/emcs/${emc.id}/delete`)
+	updateEmc({ emc, areaId, schoolId, subjectId, limit, skip }) {
+		return api().post('/admin/update_emc', { emc, areaId, schoolId, subjectId, limit, skip })
 	},
-	setEMCOnSchool(EMCOnSchool) {
-		console.log('setEMCOnSchool: ', { ...EMCOnSchool })
-		return api().put(`/admin/emcOnSchool/${EMCOnSchool.id}`, { ...EMCOnSchool })
+	deleteEmc({ emcId, areaId, schoolId, subjectId, limit, skip }) {
+		return api().post('/admin/delete_emc', { emcId, areaId, schoolId, subjectId, limit, skip })
 	},
-	createEMC(EMC = null) {
-		return api().post('/admin/emcs/create', EMC)
+	updateEmcOnSchool({
+		emcOnSchoolId,
+		usingCoz,
+		correctionCoz,
+		swapCoz,
+		studentsCount,
+		isApproved,
+	}) {
+		console.log({
+			msg: 'updateEmcOnSchool: ',
+			emcOnSchoolId,
+			usingCoz,
+			correctionCoz,
+			swapCoz,
+			studentsCount,
+			isApproved,
+		})
+		return api().post('/admin/update_emc_on_school', {
+			emcOnSchoolId,
+			usingCoz,
+			correctionCoz,
+			swapCoz,
+			studentsCount,
+			isApproved,
+		})
 	},
-	attachTo(params = null, emcId, eos) {
-		return api().post(
-			`/admin
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/attach`,
-			eos,
-		)
+	createEmc({ emc }) {
+		return api().post('/admin/create_emc', {
+			title: emc.title,
+			authors: emc.authors,
+			grades: emc.grades,
+			publisherId: emc.Publisher.id,
+			subjectId: emc.Subject.id,
+			levelId: emc.Level.id,
+		})
 	},
-	detachFrom(params = null, emcId) {
-		return api().delete(`/admin
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/detach`)
+	attachTo({
+		emcId,
+		areaId,
+		schoolId,
+		subjectId,
+		swapCoz,
+		usingCoz,
+		correctionCoz,
+		studentsCount,
+	}) {
+		console.log({ subjectId, swapCoz, usingCoz, correctionCoz, studentsCount })
+		return api().post('/admin/attach_emc', {
+			emcId,
+			areaId,
+			schoolId,
+			subjectId,
+			swapCoz,
+			usingCoz,
+			correctionCoz,
+			studentsCount,
+		})
+	},
+	detachFrom({ areaId, schoolId, subjectId, emcOnSchoolId }) {
+		return api().post('/admin/detach_emc', { areaId, schoolId, subjectId, emcOnSchoolId })
 	},
 }

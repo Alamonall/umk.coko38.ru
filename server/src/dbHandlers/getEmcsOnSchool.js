@@ -27,7 +27,7 @@ module.exports = async function ({
       'usingCoz',
       'isApproved',
     ],
-    where: emcOnSchoolId ? { id: emcOnSchoolId } : {},
+    where: emcOnSchoolId == null ? {} : { id: emcOnSchoolId },
     include: [
       {
         model: EMC,
@@ -56,7 +56,7 @@ module.exports = async function ({
               ['code', 'subjectCode'],
               ['name', 'subjectName'],
             ],
-            where: subjectId ? { SubjectGlobalID: subjectId } : {},
+            where: subjectId == null ? {} : { SubjectGlobalID: subjectId },
           },
           {
             model: Level,
@@ -72,7 +72,7 @@ module.exports = async function ({
           ['name', 'schoolName'],
           ['gia', 'schoolGia'],
         ],
-        where: schoolId ? { id: schoolId, gia } : { gia },
+        where: schoolId == null ? { gia } : { id: schoolId, gia },
         include: [
           {
             model: Area,
@@ -82,9 +82,10 @@ module.exports = async function ({
               ['name', 'areaName'],
               ['gia', 'areaGia'],
             ],
-            where: areaId
-              ? { AreaID: areaId, gia: { [Op.in]: [gia, 99] } }
-              : { gia: { [Op.in]: [gia, 99] } },
+            where:
+              areaId == null
+                ? { gia: { [Op.in]: [gia, 99] } }
+                : { AreaID: areaId, gia: { [Op.in]: [gia, 99] } },
           },
         ],
       },
@@ -102,7 +103,7 @@ module.exports = async function ({
       'usingCoz',
       'isApproved',
     ],
-    where: emcOnSchoolId ? { id: emcOnSchoolId } : {},
+    where: emcOnSchoolId == null ? {} : { id: emcOnSchoolId },
     include: [
       {
         model: EMC,
@@ -131,7 +132,7 @@ module.exports = async function ({
               ['code', 'subjectCode'],
               ['name', 'subjectName'],
             ],
-            where: subjectId ? { SubjectGlobalID: subjectId } : {},
+            where: subjectId == null ? {} : { SubjectGlobalID: subjectId },
           },
           {
             model: Level,
@@ -147,7 +148,7 @@ module.exports = async function ({
           ['name', 'schoolName'],
           ['gia', 'schoolGia'],
         ],
-        where: schoolId ? { id: schoolId, gia } : { gia },
+        where: schoolId == null ? { gia } : { id: schoolId, gia },
         include: [
           {
             model: Area,
@@ -157,9 +158,10 @@ module.exports = async function ({
               ['name', 'areaName'],
               ['gia', 'areaGia'],
             ],
-            where: areaId
-              ? { AreaID: areaId, gia: { [Op.in]: [gia, 99] } }
-              : { gia: { [Op.in]: [gia, 99] } },
+            where:
+              areaId == null
+                ? { gia: { [Op.in]: [gia, 99] } }
+                : { AreaID: areaId, gia: { [Op.in]: [gia, 99] } },
           },
         ],
       },

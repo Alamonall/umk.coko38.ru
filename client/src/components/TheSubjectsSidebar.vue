@@ -6,7 +6,7 @@
 						v-if="user.UserRole.code == 1"
 						plain
 						@click="goTo({
-							name: 'admin-emcs',
+							name: 'admin-emc',
 							params: { subjectId: subject.id }
 						})"
 					>
@@ -16,7 +16,7 @@
 						v-if="user.UserRole.code == 2"
 						plain
 						@click="goTo({
-							name: 'pmo-emcs',
+							name: 'pmo-emc',
 							params: { subjectId: subject.id }
 						})"
 					>
@@ -26,7 +26,7 @@
 						v-if="user.UserRole.code == 3"
 						plain
 						@click="goTo({
-							name: 'poo-emcs',
+							name: 'poo-emc',
 							params:{ subjectId: subject.id }
 						})"
 					>

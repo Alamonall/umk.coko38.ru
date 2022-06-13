@@ -6,22 +6,22 @@ import PageNotFound from '../components/PageNotFound.vue'
 import store from '../store'
 
 import adminMainUserPage from '../components/admin/MainUserPage.vue'
-import adminEMCOnSchool from '../components/admin/EMCOnSchool.vue'
-import adminEMCEdit from '../components/admin/EMCEdit.vue'
-import adminEMCCreate from '../components/admin/EMCCreate.vue'
-import adminEMCs from '../components/admin/EMCs.vue'
+import adminEmcOnSchool from '../components/admin/EmcOnSchool.vue'
+import adminEmcEdit from '../components/admin/EmcEdit.vue'
+import adminEmcCreate from '../components/admin/EmcCreate.vue'
+import adminEmc from '../components/admin/adminEmc.vue'
 
 import pmoMainUserPage from '../components/pmo/MainUserPage.vue'
-import pmoEMCOnSchool from '../components/pmo/EMCOnSchool.vue'
-import pmoEMCEdit from '../components/pmo/EMCEdit.vue'
-import pmoEMCCreate from '../components/pmo/EMCCreate.vue'
-import pmoEMCs from '../components/pmo/EMCs.vue'
+import pmoEmcOnSchool from '../components/pmo/EmcOnSchool.vue'
+import pmoEmcEdit from '../components/pmo/EmcEdit.vue'
+import pmoEmcCreate from '../components/pmo/EmcCreate.vue'
+import pmoEmc from '../components/pmo/Emc.vue'
 
 import pooMainUserPage from '../components/poo/MainUserPage.vue'
 import pooEmcOnSchool from '../components/poo/EmcOnSchool.vue'
 import pooEmcEdit from '../components/poo/EmcEdit.vue'
 import pooEmcCreate from '../components/poo/EmcCreate.vue'
-import pooEmcs from '../components/poo/Emc.vue'
+import pooEmc from '../components/poo/Emc.vue'
 
 Vue.use(Router)
 
@@ -71,39 +71,27 @@ export default new Router({
 			beforeEnter: SignedAdmin,
 		},
 		{
-			name: 'admin-emcs-on-school-index',
-			path: '/admin/emcs-on-school',
-			component: adminEMCOnSchool,
+			name: 'admin-emc-on-school',
+			path: '/admin/list_emc_on_school',
+			component: adminEmcOnSchool,
 			beforeEnter: SignedAdmin,
 		},
 		{
-			name: 'admin-emcs-on-school',
-			path: '/admin/areas/:areaCode/schools/:schoolCode/subjects/:subjectCode/emcs-on-school',
-			component: adminEMCOnSchool,
-			beforeEnter: SignedAdmin,
-		},
-		{
-			name: 'admin-emcs',
-			path: '/admin/emcs',
-			component: adminEMCs,
-			beforeEnter: SignedAdmin,
-		},
-		{
-			name: 'admin-subject-emcs',
-			path: '/admin/subjects/:subjectCode/emcs',
-			component: adminEMCs,
+			name: 'admin-emc',
+			path: '/admin/list_emc',
+			component: adminEmc,
 			beforeEnter: SignedAdmin,
 		},
 		{
 			name: 'admin-emc-create',
-			path: '/admin/emcs/create',
-			component: adminEMCCreate,
+			path: '/admin/create_emc',
+			component: adminEmcCreate,
 			beforeEnter: SignedAdmin,
 		},
 		{
 			name: 'admin-emc-edit',
-			path: '/admin/emcs/:emcId/edit',
-			component: adminEMCEdit,
+			path: '/admin/update_emc',
+			component: adminEmcEdit,
 			beforeEnter: SignedAdmin,
 		},
 
@@ -114,39 +102,27 @@ export default new Router({
 			beforeEnter: SignedPMO,
 		},
 		{
-			name: 'pmo-emcs-on-school-index',
-			path: '/pmo/emcs-on-school',
-			component: pmoEMCOnSchool,
+			name: 'pmo-emc-on-school',
+			path: '/pmo/list_emc_on_school',
+			component: pmoEmcOnSchool,
 			beforeEnter: SignedPMO,
 		},
 		{
-			name: 'pmo-emcs-on-school',
-			path: '/pmo/areas/:areaCode/schools/:schoolCode/subjects/:subjectCode/emcs-on-school',
-			component: pmoEMCOnSchool,
-			beforeEnter: SignedPMO,
-		},
-		{
-			name: 'pmo-emcs',
-			path: '/pmo/emcs',
-			component: pmoEMCs,
-			beforeEnter: SignedPMO,
-		},
-		{
-			name: 'pmo-subject-emcs',
-			path: '/pmo/subjects/:subjectCode/emcs',
-			component: pmoEMCs,
+			name: 'pmo-emc',
+			path: '/pmo/list_emc',
+			component: pmoEmc,
 			beforeEnter: SignedPMO,
 		},
 		{
 			name: 'pmo-emc-create',
-			path: '/pmo/emcs/create',
-			component: pmoEMCCreate,
+			path: '/pmo/create_emc',
+			component: pmoEmcCreate,
 			beforeEnter: SignedPMO,
 		},
 		{
 			name: 'pmo-emc-edit',
-			path: '/pmo/emcs/:emcId/edit',
-			component: pmoEMCEdit,
+			path: '/pmo/update_emc',
+			component: pmoEmcEdit,
 			beforeEnter: SignedPMO,
 		},
 
@@ -157,15 +133,15 @@ export default new Router({
 			beforeEnter: SignedPOO,
 		},
 		{
-			name: 'poo-emcs-on-school',
-			path: '/poo/emcs_on_school',
+			name: 'poo-emc-on-school',
+			path: '/poo/list_emc_on_school',
 			component: pooEmcOnSchool,
 			beforeEnter: SignedPOO,
 		},
 		{
-			name: 'poo-emcs',
-			path: '/poo/emcs',
-			component: pooEmcs,
+			name: 'poo-emc',
+			path: '/poo/emc',
+			component: pooEmc,
 			beforeEnter: SignedPOO,
 		},
 		{

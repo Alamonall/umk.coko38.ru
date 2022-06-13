@@ -40,7 +40,7 @@
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="saveEMC"> Сохранить изменения </v-btn>
 				<v-spacer></v-spacer>
-				<v-btn text color="red accent-2" :to="{ name: 'pmo-emcs' }">
+				<v-btn text color="red accent-2" :to="{ name: 'pmo-emc' }">
 					Отменить редактирование
 				</v-btn>
 			</v-card-actions>
@@ -74,7 +74,7 @@ export default {
 					this.emc = localEMC
 				} else {
 					this.$router.push({
-						name: 'pmo-subject-emcs',
+						name: 'pmo-subject-emc',
 						params: { subjectCode: this.emc.Subject.code },
 					})
 				}
@@ -92,7 +92,7 @@ export default {
 				})
 				this.$store.dispatch('updateEMC', response.data.emc)
 				this.$router.push({
-					name: 'pmo-subject-emcs',
+					name: 'pmo-subject-emc',
 					params: { subjectCode: response.data.emc.Subject.code },
 				})
 			} catch (error) {

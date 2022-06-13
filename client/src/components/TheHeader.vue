@@ -13,18 +13,18 @@
 		<v-btn v-if="!isSignin" plain @click="goTo({ name: '/' })"> Система учёта УМК </v-btn>
 		<div v-if="isSignin">
 			<v-btn plain :to="{ path: `/${user.UserRole.name}` }"> Система учёта УМК </v-btn>
-			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emcs-on-school'})">
+			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc-on-school'})">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emcs' })"> Конструктор </v-btn>
-			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emcs-on-school'})">
+			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc' })"> Конструктор </v-btn>
+			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc-on-school'})">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emcs' })"> Конструктор </v-btn>
-			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emcs-on-school' })">
+			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc' })"> Конструктор </v-btn>
+			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emc-on-school' })">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emcs' })"> Конструктор </v-btn>
+			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emc' })"> Конструктор </v-btn>
 		</div>
 		<v-spacer></v-spacer>
 		<v-btn v-if="isSignin" plain :to="{ path: `/${user.UserRole.name}` }">

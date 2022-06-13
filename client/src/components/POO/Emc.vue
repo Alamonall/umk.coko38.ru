@@ -53,14 +53,14 @@
 						v-if="emc.isCustom && emc.createdBy === user.id"
 						text
 						color="red darken-1"
-						@click="deleteEmc(emc)"
+						@click="deleteEmc({emc})"
 					>
 						Удалить
 					</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-col>
-		<v-col cols="12" :disabled="emcs.length > limit">
+		<v-col cols="12">
 			<v-pagination
 				v-model="page"
 				:length="totalPages"
@@ -69,7 +69,7 @@
 	</v-row>
 </template>
 <script>
-import _ from 'lodash'
+import {_} from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import PooService from '../../services/pooService'
 
@@ -108,14 +108,14 @@ export default {
 					...this.activeRouteParams, 
 					skip: (this.page-1)*this.limit, limit: this.limit
 				})
-				console.log('response: ', response.data.emcs)
-				this.emcs = [...response.data.emcs]
+				console.log({msg: 'response: ', emcs: response.data.emcs, totalEmcs: response.data.totalEmcs})
+				this.emcs = response.data.emcs
 				this.totalPages = Math.ceil(response.data.totalEmcs/this.limit)
 			} catch (err) {
 				this.error = err
 			}
 		},
-		async deleteEmc(emc) {
+		async deleteEmc({emc}) {
 			try {
 				const response = await PooService.deleteEmc({ emcId: emc.id })
 				if (response.status === 200)	{

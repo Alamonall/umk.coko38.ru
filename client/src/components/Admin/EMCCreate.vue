@@ -49,8 +49,8 @@
 				></v-select>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn text color="teal accent-4" @click="createEMC"> Создать УМК </v-btn>
-				<v-btn text color="red accent-2" :to="{ name: 'admin-emcs' }"> Назад </v-btn>
+				<v-btn text color="teal accent-4" @click="createEmc"> Создать УМК </v-btn>
+				<v-btn text color="red accent-2" :to="{ name: 'admin-emc' }"> Назад </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
@@ -77,23 +77,30 @@ export default {
 		},
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'publishers', 'subjects', 'levels']),
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'publishers', 'subjects', 'levels']),
 	},
 	created() {
-		this.activeSidebar = ''
+		this.activeSidebar = null
 	},
 	methods: {
-		async createEMC() {
+		async createEmc() {
 			try {
+				if (
+					this.emc.title == null ||
+					this.emc.authors == null ||
+					this.emc.grades == null ||
+					this.emc.Publisher == null ||
+					this.emc.Subject == null ||
+					this.emc.Level == null
+				)
+					throw Error('Один из параметров не указан')
+				
 				console.log('creating emc ', this.emc)
-				// так как из-за vuex нам сначала надо обновить данные в хранилище
-				this.$store.dispatch('createEMC', this.emc)
-				await AdminService.createEMC(this.emc)
+				this.$store.dispatch('createEmc', this.emc)
+				await AdminService.createEmc({ emc: this.emc })
 
-				this.$router.push({
-					name: 'admin-subject-emcs',
-					params: { subjectCode: this.emc.Subject.code },
-				})
+				this.activeRouteParams = { subjectId: this.emc.Subject.id }
+				this.$router.push({ name: 'admin-emc' })
 			} catch (error) {
 				this.error = error
 			}

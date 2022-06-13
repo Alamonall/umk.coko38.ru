@@ -7,7 +7,7 @@
 		</v-row>
 		<v-row dense>
 			<v-col cols="12">
-				<EMCOnSchoolSelector v-if="$route.params.subjectCode" />
+				<EmcOnSchoolSelector v-if="$route.params.subjectCode" />
 			</v-col>
 			<v-card
 				v-if="emcsOnSchool.length === 0 && this.$route.params.schoolCode !== undefined"
@@ -17,7 +17,7 @@
 			</v-card>
 			<v-col cols="12">
 				<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
-					<EMCOnSchoolCard
+					<EmcOnSchoolCard
 						:emc-on-school="emcOnSchool"
 						@onDetachEMCFrom="detachEMCFrom"
 						@onSwapApprovingStatusEMCOnSchool="swapApprovingStatusEMCOnSchool"
@@ -31,13 +31,13 @@
 <script>
 import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
-import EMCOnSchoolCard from './EMCOnSchoolCard.vue'
-import EMCOnSchoolSelector from './EMCOnSchoolSelector.vue'
+import EmcOnSchoolCard from './EmcOnSchoolCard.vue'
+import EmcOnSchoolSelector from './EmcOnSchoolSelector.vue'
 
 export default {
 	components: {
-		EMCOnSchoolCard,
-		EMCOnSchoolSelector,
+		EmcOnSchoolCard,
+		EmcOnSchoolSelector,
 	},
 	data: () => ({
 		error: null,

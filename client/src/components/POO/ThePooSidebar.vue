@@ -9,7 +9,7 @@
 						<v-list-item-content>
 							<v-btn
 								plain
-								@click="goTo({ name: 'poo-emcs-on-school', params: { subjectId: subject.id } })"
+								@click="goTo({ name: 'poo-emc-on-school', params: { subjectId: subject.id } })"
 							>
 								{{ subject.name }}
 							</v-btn>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import _ from 'lodash'
+import {_} from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 
 export default {

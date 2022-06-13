@@ -99,7 +99,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcs', 'emcsOnSchool', 'user']),
+		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
 		fields() {
 			if (!this.model) return []
 			return Object.keys(this.model.previewData).map((key) => {

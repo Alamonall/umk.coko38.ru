@@ -2,19 +2,18 @@ const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
   try {
-    const { emcOnSchoolId, subjectId, skip, limit } = req.body;
+    const { areaId, schoolId, subjectId, limit, skip } = req.body;
 
-    console.log({ emcOnSchoolId, subjectId, skip, limit });
     const { emcsOnSchool, totalEmcsOnSchool } = await getEmcsOnSchool({
-      schoolId: req.user.schoolId,
-      subjectId,
-      emcOnSchoolId,
-      gia: req.user.gia,
-      skip,
+      areaId,
+      schoolId,
       limit,
+      skip,
+      subjectId,
+      gia: req.user.gia,
     });
 
-    res.json({
+    return res.json({
       message: 'Данные получены',
       emcsOnSchool,
       totalEmcsOnSchool,

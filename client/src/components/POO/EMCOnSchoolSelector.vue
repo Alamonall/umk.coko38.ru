@@ -123,8 +123,10 @@ export default {
 							eos.emcId === entry.id && eos.School.id === this.user.schoolId,
 					).length === 0
 				) {
+					const defaultTitle = entry.title == null ? 'Нет имени' : entry.title
+					const defaultAuthorsField = entry.authors == null ? 'Нет авторов' : entry.authors
 					const unpreparedDescription =
-						entry.title?.concat('. ') + entry.authors?.concat('. ') + entry.Publisher.name
+						defaultTitle.concat('. ') + defaultAuthorsField.concat('. ') + entry.Publisher.name
 					const Description =
 						unpreparedDescription.length > this.descriptionLimit
 							? unpreparedDescription.slice(0, this.descriptionLimit).concat('...')
@@ -132,8 +134,8 @@ export default {
 
 					const emc = []
 					emc.previewData = {}
-					emc.previewData['Название'] = entry.title
-					emc.previewData['Авторы'] = entry.authors
+					emc.previewData['Название'] = defaultTitle
+					emc.previewData['Авторы'] = defaultAuthorsField
 					emc.previewData['Издатель'] = entry.Publisher.name
 					emc.previewData['Предмет'] = entry.Subject.name
 					emc.previewData['Классы'] = entry.grades
@@ -148,32 +150,30 @@ export default {
 	},
 	watch: {
 		routeParams() {
-			this.getEmcs()
+			this.getEmc()
 		},
 	},
 	created() {
-		this.getEmcs()
+		this.getEmc()
 	},
 	methods: {
-		async getEmcs() {
+		async getEmc() {
 			try {
-				const response = await PooService.getEmcsForAttach({...this.activeRouteParams })
-				this.emcs = [...response.data.emcs]
+				const response = await PooService.getEmcForAttach({ ...this.activeRouteParams })
+				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
 			}
 		},
 		async attachEmc() {
 			try {
-				const response = await PooService.attachTo({
+				await PooService.attachTo({
 					...this.activeRouteParams,
 					...this.additionalDataForEmcOnSchool,
 					emcId: this.model.entry.id, 
 				})
-
-				this.emcsOnSchool = [...response.data.emcsOnSchool]
+				this.activeRouteParams = { ...this.activeRouteParams }
 				this.model = null
-				this.getEmcs()
 			} catch (err) {
 				this.error = err
 			}

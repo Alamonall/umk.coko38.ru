@@ -43,33 +43,33 @@
 				</v-list-item>
 				<v-list-item>
 					<v-text-field
-						v-model="additionalDataForEMCOnSchool.studentsCount"
+						v-model="additionalDataForEmcOnSchool.studentsCount"
 						type="number"
 						label="Количество учеников"
 					></v-text-field>
 				</v-list-item>
 				<v-list-item
 					><v-text-field
-						v-model="additionalDataForEMCOnSchool.usingCoz"
+						v-model="additionalDataForEmcOnSchool.usingCoz"
 						label="Причины использования"
 					></v-text-field
 				></v-list-item>
 				<v-list-item
 					><v-text-field
-						v-model="additionalDataForEMCOnSchool.swapCoz"
+						v-model="additionalDataForEmcOnSchool.swapCoz"
 						label="Причины смены"
 					></v-text-field
 				></v-list-item>
 				<v-list-item
 					><v-text-field
-						v-model="additionalDataForEMCOnSchool.correctionCoz"
+						v-model="additionalDataForEmcOnSchool.correctionCoz"
 						label="Планируемая корректировка"
 					></v-text-field
 				></v-list-item>
 			</v-list>
 		</v-expand-transition>
 		<v-card-actions>
-			<v-btn :disabled="!model" color="teal accent-3" @click="attachEMC">
+			<v-btn :disabled="!model" color="teal accent-3" @click="attachEmc">
 				Добавить
 				<v-icon right> mdi-check </v-icon>
 			</v-btn>
@@ -88,7 +88,7 @@ import AdminService from '../../services/adminService'
 export default {
 	data: () => ({
 		model: null,
-		additionalDataForEMCOnSchool: {
+		additionalDataForEmcOnSchool: {
 			swapCoz: null,
 			usingCoz: null,
 			correctionCoz: null,
@@ -98,7 +98,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcs', 'emcsOnSchool', 'user']),
+		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
 		fields() {
 			if (!this.model) return []
 			console.log(this.model.previewData)
@@ -115,14 +115,16 @@ export default {
 			return this.emcs.reduce((filtered, entry) => {
 				if (
 					!!entry &&
-					entry.Subject.code === this.$route.params.subjectCode &&
+					entry.Subject.id === this.activeRouteParams.subjectId &&
 					this.emcsOnSchool.filter(
 						(eos) =>
-							eos.emcId === entry.id && eos.School.schoolCode === this.$route.params.schoolCode,
+							eos.emcId === entry.id && eos.School.id === this.activeRouteParams.schoolId,
 					).length === 0
 				) {
+					const defaultTitle = entry.title == null ? 'Нет имени' : entry.title
+					const defaultAuthorsField = entry.authors == null ? 'Нет авторов' : entry.authors
 					const unpreparedDescription =
-						entry.title.concat('. ') + entry.authors.concat('. ') + entry.Publisher.name
+						defaultTitle.concat('. ') + defaultAuthorsField.concat('. ') + entry.Publisher.name
 					const Description =
 						unpreparedDescription.length > this.descriptionLimit
 							? unpreparedDescription.slice(0, this.descriptionLimit).concat('...')
@@ -130,8 +132,8 @@ export default {
 
 					const emc = []
 					emc.previewData = {}
-					emc.previewData['Название'] = entry.title
-					emc.previewData['Авторы'] = entry.authors
+					emc.previewData['Название'] = defaultTitle
+					emc.previewData['Авторы'] = defaultAuthorsField
 					emc.previewData['Издатель'] = entry.Publisher.name
 					emc.previewData['Предмет'] = entry.Subject.name
 					emc.previewData['Классы'] = entry.grades
@@ -147,29 +149,34 @@ export default {
 	watch: {
 		$route() {
 			this.model = null
-			this.getEMCs()
+			this.getEmc()
 		},
 	},
 	created() {
-		this.getEMCs()
+		this.getEmc()
 	},
 	methods: {
-		async getEMCs() {
+		async getEmc() {
 			try {
-				const response = await AdminService.getEMCs(this.$route.params)
-				this.emcs = [...response.data.emcs]
+				const response = await AdminService.getEmc({ ...this.activeRouteParams })
+				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
 			}
 		},
-		async attachEMC() {
+		async attachEmc() {
 			try {
-				const response = await AdminService.attachTo(this.$route.params, this.model.entry.id, {
-					...this.additionalDataForEMCOnSchool,
+				console.log({ msg: 'trying to attach', ...this.activeRouteParams,
+					...this.additionalDataForEmcOnSchool,
+					emcId: this.model.entry.id})
+				const response = await AdminService.attachTo({
+					...this.activeRouteParams,
+					...this.additionalDataForEmcOnSchool,
+					emcId: this.model.entry.id
 				})
-				this.emcsOnSchool = response.data.emcsOnSchool
+				console.log({ msg:'response_about_attaching', ...response.data })
+				this.activeRouteParams = { ...this.activeRouteParams }
 				this.model = null
-				this.getEMCs()
 			} catch (err) {
 				this.error = err
 			}

@@ -40,7 +40,7 @@
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="saveEmc"> Сохранить изменения </v-btn>
 				<v-spacer></v-spacer>
-				<v-btn text color="red accent-2" @click="goTo({ name: 'poo-emcs' })">
+				<v-btn text color="red accent-2" @click="goTo({ name: 'poo-emc' })">
 					Отменить редактирование
 				</v-btn>
 			</v-card-actions>
@@ -69,12 +69,12 @@ export default {
 	methods: {
 		async getEmcForEdit() {
 			try {
-				const response = await PooService.getEmcs({ ...this.activeRouteParams })
+				const response = await PooService.getEmc({ ...this.activeRouteParams })
 				if (response.status === 200) {
 					const [localEMC] = response.data.emcs
 					this.emc = localEMC
 				} else {
-					this.goTo({ name: 'poo-emcs' })
+					this.goTo({ name: 'poo-emc' })
 				}
 			} catch (error) {
 				this.error = error
@@ -91,8 +91,8 @@ export default {
 						subjectId: this.emc.Subject.id,
 					}
 				})
-				this.emcs = [...response.data.emcs]
-				this.goTo({ name: 'poo-emcs' })
+				this.emcs = response.data.emcs
+				this.goTo({ name: 'poo-emc' })
 			} catch (error) {
 				this.error = error
 			}

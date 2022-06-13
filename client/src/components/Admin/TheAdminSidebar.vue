@@ -32,7 +32,7 @@
 						<v-list-item-content>
 							<v-btn
 								plain
-								@click="goTo({ name: 'admin-emcs-on-school', params:{ areaId: area.AreaID, subjectId: subject.id, schoolId: school.id } })"
+								@click="goTo({ name: 'admin-emc-on-school', params: { areaId: area.id, subjectId: subject.id, schoolId: school.id } })"
 							>
 								{{ subject.name }}
 							</v-btn>
@@ -40,8 +40,6 @@
 					</v-list-item>
 				</v-list-group>
 			</v-list-group>
-		<v-divider></v-divider>
-		<slot> Нет данных </slot>
 	</v-navigation-drawer>
 </template>
 
@@ -50,12 +48,12 @@ import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 
 export default {
-	name: 'ThePooSidebar',
+	name: 'TheAdminSidebar',
 	data: () => ({
 		err: null,
 	}),
 	computed: {
-		...mapFields([ 'subjects', 'activeRouteParams'])
+		...mapFields([ 'subjects', 'activeRouteParams', 'areas'])
 	},
 	methods: {
 		goTo({ name, params }) {

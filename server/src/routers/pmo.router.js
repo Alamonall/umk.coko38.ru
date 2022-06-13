@@ -1,33 +1,31 @@
 const router = require('express').Router();
-const pooController = require('../controllers/poo');
+const pmoController = require('../controllers/pmo');
 
 // главная страница PMO
-router.post('/', pooController.poo);
+router.post('/', pmoController.pmo);
 
 // Получение списка прикреплённых к школам умк
-router.post('/list_emc_on_school', pooController.listEmcOnSchool);
+router.post('/list_emc_on_school', pmoController.listEmcOnSchool);
 
 // получение всех умк
-router.post('/list_emc', pooController.listEmc);
-
-router.post('/list_emc_for_attach', pooController.listEmcToAttach);
+router.post('/emc', pmoController.listEmcs);
 
 // Добавление нового умк
-router.post('/create_emc', pooController.createEmc);
+router.post('/create_emc', pmoController.createEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post('/update_emc', pooController.updateEmc);
+router.post('/update_emc', pmoController.updateEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post('/delete_emc', pooController.deleteEmc);
+router.post('/delete_emc', pmoController.deleteEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post('/update_emc_on_school', pooController.updateEmcOnSchool);
+router.post('/update_emc_on_school', pmoController.updateEmcOnSchool);
 
 // Прикрепить умк к определённому месту - зависит от параметров
-router.post('/attach_emc', pooController.attachEmc);
+router.post('/attach_emc', pmoController.attachEmc);
 
 //открепить умк от определённого места - зависит от параметров
-router.post('/detach_emc', pooController.detachEmc);
+router.post('/detach_emc', pmoController.detachEmc);
 
 module.exports = router;
