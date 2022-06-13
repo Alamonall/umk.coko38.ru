@@ -3,7 +3,7 @@
 		<v-card-title class="text-h5"> Добавить УМК </v-card-title>
 		<v-card-text>
 			<v-row>
-				<v-col cols="12">
+				<v-col cols="12" 	>
 					<v-autocomplete
 						v-model="model"
 						:items="emcsTitles"
@@ -44,7 +44,7 @@
 				</v-list-item>
 				<v-list-item>
 					<v-text-field
-						v-model="additionalDataForEMCOnSchool.studentsCount"
+						v-model="additionalDataForEmcOnSchool.studentsCount"
 						type="number"
 						label="Количество учеников"
 					>
@@ -52,25 +52,25 @@
 				</v-list-item>
 				<v-list-item>
 					<v-text-field
-						v-model="additionalDataForEMCOnSchool.usingCoz"
+						v-model="additionalDataForEmcOnSchool.usingCoz"
 						label="Причины использования"
 					>
 					</v-text-field>
 				</v-list-item>
 				<v-list-item>
-					<v-text-field v-model="additionalDataForEMCOnSchool.swapCoz" label="Причины смены">
+					<v-text-field v-model="additionalDataForEmcOnSchool.swapCoz" label="Причины смены">
 					</v-text-field>
 				</v-list-item>
 				<v-list-item>
 					<v-text-field
-						v-model="additionalDataForEMCOnSchool.correctionCoz"
+						v-model="additionalDataForEmcOnSchool.correctionCoz"
 						label="Планируемая корректировка"
 					>
 					</v-text-field>
 				</v-list-item>
 			</v-list> </v-expand-transition
 		><v-card-actions>
-			<v-btn :disabled="!model" color="teal accent-3" @click="attachEMC">
+			<v-btn :disabled="!model" color="teal accent-3" @click="attachEmc">
 				Добавить
 				<v-icon right> mdi-check </v-icon>
 			</v-btn>
@@ -87,9 +87,12 @@ import { mapFields } from 'vuex-map-fields'
 import PooService from '../../services/pooService'
 
 export default {
+	name: 'EmcOnSchoolSelector',
 	data: () => ({
 		model: null,
-		additionalDataForEMCOnSchool: {
+		search: null,
+		isLoading: false,
+		additionalDataForEmcOnSchool: {
 			swapCoz: null,
 			usingCoz: null,
 			correctionCoz: null,
@@ -99,7 +102,8 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcs', 'emcsOnSchool', 'user']),
+		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
+		routeParams() { return this.activeRouteParams },
 		fields() {
 			if (!this.model) return []
 			return Object.keys(this.model.previewData).map((key) => {
@@ -113,14 +117,14 @@ export default {
 			return this.emcs.reduce((filtered, entry) => {
 				if (
 					!!entry &&
-					entry.Subject.code === this.$route.params.subjectCode &&
+					entry.Subject.id === this.activeRouteParams.subjectId &&
 					this.emcsOnSchool.filter(
 						(eos) =>
-							eos.emcId === entry.id && eos.School.schoolCode === this.$route.params.schoolCode,
+							eos.emcId === entry.id && eos.School.id === this.user.schoolId,
 					).length === 0
 				) {
 					const unpreparedDescription =
-						entry.title.concat('. ') + entry.authors.concat('. ') + entry.Publisher.name
+						entry.title?.concat('. ') + entry.authors?.concat('. ') + entry.Publisher.name
 					const Description =
 						unpreparedDescription.length > this.descriptionLimit
 							? unpreparedDescription.slice(0, this.descriptionLimit).concat('...')
@@ -143,32 +147,33 @@ export default {
 		},
 	},
 	watch: {
-		$route() {
-			this.model = null
-			this.getEMCs()
+		routeParams() {
+			this.getEmcs()
 		},
 	},
 	created() {
-		this.getEMCs()
+		this.getEmcs()
 	},
 	methods: {
-		async getEMCs() {
+		async getEmcs() {
 			try {
-				const response = await PooService.getEMCs(this.$route.params)
+				const response = await PooService.getEmcsForAttach({...this.activeRouteParams })
 				this.emcs = [...response.data.emcs]
 			} catch (err) {
 				this.error = err
 			}
 		},
-		async attachEMC() {
+		async attachEmc() {
 			try {
-				const response = await PooService.attachTo(this.$route.params, this.model.entry.id, {
-					...this.additionalDataForEMCOnSchool,
+				const response = await PooService.attachTo({
+					...this.activeRouteParams,
+					...this.additionalDataForEmcOnSchool,
+					emcId: this.model.entry.id, 
 				})
 
 				this.emcsOnSchool = [...response.data.emcsOnSchool]
 				this.model = null
-				this.getEMCs()
+				this.getEmcs()
 			} catch (err) {
 				this.error = err
 			}

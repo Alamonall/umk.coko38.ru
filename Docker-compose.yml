@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "true"
+      SA_PASSWORD: bringmethehorizon2022!
+    ports: [1433:1433]
+    volumes:
+      - ./backups:/var/backup
+# PS D:\Projects\umk.coko38.ru> docker cp ./umk_2.bak umkcoko38ru_mssql_1:/var/backups
+# docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=bringmethehorizon2022!" -p 1433:1433 -d
+# server:
+#   image: node:16-slim
+#   environment:
+#     NODE_ENV: development
+#     PORT: 3000
+#   ports: ["3000:3000"]
+#   stdin_open: true
+#   tty: true
+#   volumes:
+#     - .:/server
+#   working_dir: /server
+#   command: "npm run start"
+#   depends_on: [mssql]
+#   restart: always
+# client:
+#   image: node:16-slim
+#   ports: ["8080:8080"]
+#   volumes:
+#     - .:/client
+#   working_dir: /client
+#   environment:
+#     NODE_ENV: development
+#     PORT: 3000
+#   command: "npm run serve"
+#   depends_on: [server]
+#   restart: always

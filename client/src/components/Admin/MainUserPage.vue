@@ -10,13 +10,12 @@ import AdminService from '../../services/adminService'
 
 export default {
 	computed: {
-		...mapState(['isSignin', 'user']),
+		...mapState(['isSignin', 'user', 'activeSidebar']),
 	},
 	created() {
 		this.getUserData()
 		// Отключаем sidebar для страницы пользователя
-		this.$store.dispatch('setSubjectsSidebar', false)
-		this.$store.dispatch('setAreasSidebar', false)
+		this.activeSidebar = null
 	},
 	methods: {
 		async getUserData() {

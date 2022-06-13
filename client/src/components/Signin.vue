@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { mapFields } from 'vuex-map-fields'
 import auth from '../services/auth'
 
 export default {
@@ -34,6 +35,9 @@ export default {
 		password: '',
 		error: null,
 	}),
+	computed: {
+		...mapFields(['token','user','isSignin']),
+	},
 	methods: {
 		async signin() {
 			try {
@@ -42,11 +46,12 @@ export default {
 					password: this.password,
 				})
 
-				this.$store.dispatch('setToken', response.data.token)
-				this.$store.dispatch('setUser', response.data.user)
-				if (this.$store.state.user.UserRole.code === 1) this.$router.push('/admin')
-				else if (this.$store.state.user.UserRole.code === 2) this.$router.push('/pmo')
-				else if (this.$store.state.user.UserRole.code === 3) this.$router.push('/poo')
+				this.token = response.data.token
+				this.user = response.data.user
+				this.isSignin = true
+				if (this.user.UserRole.code === 1) this.$router.push('/admin').catch(err=>console.error(err))
+				else if (this.user.UserRole.code === 2) this.$router.push('/pmo').catch(err=>console.error(err))
+				else if (this.user.UserRole.code === 3) this.$router.push('/poo').catch(err=>console.error(err))
 			} catch (error) {
 				this.error = error
 			}

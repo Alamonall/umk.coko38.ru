@@ -1,15 +1,15 @@
-require('dotenv/config')
-const passport = require('passport')
+require('dotenv/config');
+const passport = require('passport');
 
-module.exports = (req, res, next) => {	
+module.exports = (req, res, next) => {
   passport.authenticate('jwt', (err, user) => {
     if (err || !user) {
       res.status(403).json({
-        error: 'У вас нет доступа'
-      })
+        error: 'У вас нет доступа',
+      });
     } else {
-      req.user = user
-      next()
+      req.user = user;
+      next();
     }
-  })(req, res, next)
-}
+  })(req, res, next);
+};

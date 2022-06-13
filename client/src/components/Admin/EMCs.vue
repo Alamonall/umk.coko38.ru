@@ -64,7 +64,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs']),
+		...mapFields(['isSignin', 'user', 'emcs', 'activeSidebar']),
 	},
 	watch: {
 		$route() {
@@ -72,15 +72,14 @@ export default {
 		},
 	},
 	created() {
-		this.$store.dispatch('setSubjectsSidebar', true) // Включаем sidebar для EMCs
-		this.$store.dispatch('setAreasSidebar', false) // На всякий случай ставим sidebar EMCsOnSchool на false
+		this.activeSidebar = 'subjects'
 		this.getEMCsForConstructor()
 	},
 	methods: {
 		async getEMCsForConstructor() {
 			try {
 				const response = await AdminService.getEMCs(this.$route.params)
-				this.$store.commit('setEMCs', response.data.emcs)
+				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
 			}
@@ -99,6 +98,7 @@ export default {
 			try {
 				console.log('deleteEMC: ', emc)
 				const response = await AdminService.deleteEMC(emc)
+				// THINK AGAIN
 				if (response.status === 200) this.$store.dispatch('deleteEMC', emc)
 			} catch (error) {
 				this.error = error

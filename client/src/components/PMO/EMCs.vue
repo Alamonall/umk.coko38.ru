@@ -68,7 +68,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs']),
+		...mapFields(['isSignin', 'user', 'emcs', 'activeSidebar']),
 		emcsFilteredForPMO() {
 			return this.emcs.filter((emc) => emc.isCustom && emc.createdBy === this.user.id)
 		},
@@ -79,8 +79,7 @@ export default {
 		},
 	},
 	created() {
-		this.$store.dispatch('setSubjectsSidebar', true) // Включаем sidebar для EMCs
-		this.$store.dispatch('setAreasSidebar', false) // На всякий случай ставим sidebar EMCsOnSchool на false
+		this.activeSidebar = 'subjects'
 		this.getEMCsForConstructor()
 	},
 	methods: {

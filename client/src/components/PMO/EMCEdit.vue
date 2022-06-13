@@ -59,11 +59,10 @@ export default {
 		emc: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
+		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user', 'activeSidebar']),
 	},
 	created() {
-		this.$store.dispatch('setAreasSidebar', false)
-		this.$store.dispatch('setSubjectsSidebar', false)
+		this.activeSidebar = null
 		this.getEMCForEdit()
 	},
 	methods: {

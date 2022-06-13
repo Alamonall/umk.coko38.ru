@@ -1,249 +1,307 @@
-const { Level, EMC, EMCOnSchool, Publisher, School, Subject, Area } = require('../models')
-const { Op, fn, literal, col } = require('sequelize')
-const { getEMCs, getEMCsOnSchool } = require('../helpers')
-
+const {
+  Level,
+  EMC,
+  EMCOnSchool,
+  Publisher,
+  School,
+  Subject,
+  Area,
+} = require('../models');
+const { Op, fn, literal, col } = require('sequelize');
+const getEMCs = require('../dbHandlers/getEmcs');
+const getEmcsOnSchool = require('../dbHandlers/getEmcsOnSchool');
 
 module.exports = {
-	async index(req, res) {
-		try {
-			// Информация для sidebar
-			const { areaCode, schoolCode } = req.params
-			let areaWhere, schoolWhere
+  async index(req, res) {
+    try {
+      // Информация для sidebar
+      const { areaCode, schoolCode } = req.params;
+      let areaWhere, schoolWhere;
 
-			schoolWhere = { ...schoolWhere, ...{ gia: req.user.gia } }
-			areaWhere = req.user.gia === 9 ? { gia: { [Op.in]: [9, 99] } } : { gia: { [Op.in]: [11, 99] } }
+      schoolWhere = { ...schoolWhere, ...{ gia: req.user.gia } };
+      areaWhere =
+        req.user.gia === 9
+          ? { gia: { [Op.in]: [9, 99] } }
+          : { gia: { [Op.in]: [11, 99] } };
 
-			switch(req.user.UserRole.code){
-				case 1: 
-					areaWhere = areaCode ? {...areaWhere, ...{ code: areaCode } } : areaWhere
-					schoolWhere = schoolCode ? {...schoolWhere, ...{ code: schoolCode } } : schoolWhere
-					break;
-				case 2: 
-					areaWhere.AreaID = req.user.areaId 
-					schoolWhere = schoolCode ? { ...schoolWhere, ...{ code: schoolCode } } : schoolWhere
-					break;
-				case 3: 
-					schoolWhere.id = req.user.schoolId
-					break;
-			}
-			
-			const areasAndSchools = await Area.findAll({
-				attributes:[
-					'name',
-					'code'
-				],
-				where: areaWhere
-				,
-				include: [
-					{
-						model: School,
-						require: true,
-						attributes: [
-							'name', 'code', 'gia'],
-						where: schoolWhere,
-						include: [
-							{
-								model: EMCOnSchool,
-								attributes: [],
-								include: [
-									{
-										model: EMC,
-										attributes: [],
-										include: [
-											{
-												model: Subject,
-												attributes: ['name','code'],
-											}
-										]
-									}
-								]
-							}
-						]
-					}
-				],
-				order: [
-					[School, 'code', 'ASC']]
-			})
-			
-			// Информация для редактирования и создания умк
-			const publishers = await Publisher.findAll()
-			const subjects = await Subject.findAll({
-				attributes: [
-					['SubjectGlobalID','id'],'name', 'code',
-					[fn('count', col('emcId')), 'srcTotalEMCOnSchool'],
-					[literal(`count(case when isApproved = 1 then emcId else null end)`), 'srcApproved']
-				],
-				include: [
-					{
-						model: EMC,
-						attributes: [],
-						include: [
-							{
-								model: EMCOnSchool,
-								attributes: [],
-							}
-						]
-					}
-				],
-				group: ['Subject.SubjectGlobalID', 'Subject.name', 'Subject.code']			
-			})
-			const levels = await Level.findAll()
+      switch (req.user.UserRole.code) {
+      case 1:
+        areaWhere = areaCode
+          ? { ...areaWhere, ...{ code: areaCode } }
+          : areaWhere;
+        schoolWhere = schoolCode
+          ? { ...schoolWhere, ...{ code: schoolCode } }
+          : schoolWhere;
+        break;
+      case 2:
+        areaWhere.AreaID = req.user.areaId;
+        schoolWhere = schoolCode
+          ? { ...schoolWhere, ...{ code: schoolCode } }
+          : schoolWhere;
+        break;
+      case 3:
+        schoolWhere.id = req.user.schoolId;
+        break;
+      }
 
-			// Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
-			const emcs = await getEMCs(req)
-			
-			res.json({ 
-				areasAndSchools: areasAndSchools,
-				subjects: subjects,
-				publishers: publishers,
-				levels: levels,
-				emcs: emcs
-			})
+      const areasAndSchools = await Area.findAll({
+        attributes: ['name', 'code'],
+        where: areaWhere,
+        include: [
+          {
+            model: School,
+            require: true,
+            attributes: ['name', 'code', 'gia'],
+            where: schoolWhere,
+            include: [
+              {
+                model: EMCOnSchool,
+                attributes: [],
+                include: [
+                  {
+                    model: EMC,
+                    attributes: [],
+                    include: [
+                      {
+                        model: Subject,
+                        attributes: ['name', 'code'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        order: [[School, 'code', 'ASC']],
+      });
 
-		} catch (err) { console.error(err) }
-	},
-	async getEMCs(req, res){
-		try {
+      // Информация для редактирования и создания умк
+      const publishers = await Publisher.findAll();
+      const subjects = await Subject.findAll({
+        attributes: [
+          ['SubjectGlobalID', 'id'],
+          'name',
+          'code',
+          [fn('count', col('emcId')), 'srcTotalEMCOnSchool'],
+          [
+            literal('count(case when isApproved = 1 then emcId else null end)'),
+            'srcApproved',
+          ],
+        ],
+        include: [
+          {
+            model: EMC,
+            attributes: [],
+            include: [
+              {
+                model: EMCOnSchool,
+                attributes: [],
+              },
+            ],
+          },
+        ],
+        group: ['Subject.SubjectGlobalID', 'Subject.name', 'Subject.code'],
+      });
+      const levels = await Level.findAll();
 
-			const emcs = await getEMCs(req, res)
-			
-			return res.json({ message: 'Данные получены', emcs: emcs })	
-			
-		} catch(err) { console.error(err) }
-	},
-	async getEMCsOnSchool(req, res) {
-		try {
-			const emcsOnSchool = await getEMCsOnSchool(req)
+      // Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
+      const emcs = await getEMCs({ ...req });
 
-			res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool})
-		} catch (error) {
-			console.error(error)
-		}
-	},
-	// Прикрепление умк определённой школе
-	async attachEMC(req, res){
-		try {
-			const { schoolCode, subjectCode, giaCode, emcId } = req.params
+      res.json({
+        areasAndSchools: areasAndSchools,
+        subjects: subjects,
+        publishers: publishers,
+        levels: levels,
+        emcs: emcs,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  async getEMCs(req, res) {
+    try {
+      const emcs = await getEMCs({ ...req });
 
-			const { usingCoz, correctionCoz, swapCoz, studentsCount } = req.body
+      res.json({ message: 'Данные получены', emcs: emcs });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  async getEMCsOnSchool(req, res) {
+    try {
+      const emcsOnSchool = await getEmcsOnSchool({
+        ...req,
+        areaId: req.user.areaId,
+        gia: req.user.gia,
+        roleCode: req.user.UserRole.code,
+      });
 
-			if(emcId == undefined)
-				res.status(404).json({ message: 'УМК не найдена' })
+      res.json({ message: 'Данные получены', emcsOnSchool: emcsOnSchool });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  // Прикрепление умк определённой школе
+  async attachEMC(req, res) {
+    try {
+      const { schoolCode, emcId } = req.params;
 
-			let schoolWhere = {	areaId: req.user.areaId }
-			if(schoolCode != undefined)
-				schoolWhere.code = schoolCode
-			
-			schoolWhere.gia = req.user.gia
+      const { usingCoz, correctionCoz, swapCoz, studentsCount } = req.body;
 
-			const schools = await School.findAll({ raw: true, where: schoolWhere })
+      if (emcId == undefined)
+        res.status(404).json({ message: 'УМК не найдена' });
 
-			const bulk = []
-			
-			for(const school of schools){
-				bulk.push({
-					usingCoz: usingCoz || '',
-					correctionCoz: correctionCoz || '',
-					swapCoz: swapCoz || '',
-					studentsCount: studentsCount || 0,
-					emcId: emcId,
-					schoolId: school.id,
-					isApproved: false
-				})
-			}
+      let schoolWhere = { areaId: req.user.areaId };
+      if (schoolCode != undefined) schoolWhere.code = schoolCode;
 
-			const inserted = await EMCOnSchool.bulkCreate(bulk)
+      schoolWhere.gia = req.user.gia;
 
-			const emcsOnSchool = await getEMCsOnSchool (req, inserted.map(inserted => inserted.id))
+      const schools = await School.findAll({ raw: true, where: schoolWhere });
 
-			res.json({ message: 'УМК добавлены', emcsOnSchool: emcsOnSchool })
+      const bulk = [];
 
-		} catch(err) { console.error(err) }
-	},
-	async detachEMC(req, res) {
-		try {
-			//Переделать
-			const { schoolCode, emcId } = req.params
+      for (const school of schools) {
+        bulk.push({
+          usingCoz: usingCoz || '',
+          correctionCoz: correctionCoz || '',
+          swapCoz: swapCoz || '',
+          studentsCount: studentsCount || 0,
+          emcId: emcId,
+          schoolId: school.id,
+          isApproved: false,
+        });
+      }
 
-			if(emcId == undefined)
-				return res.status(404).json({ message: 'УМК не найдена' })
+      await EMCOnSchool.bulkCreate(bulk);
 
-			if(req.user.areaId === undefined || req.user.gia === undefined)
-				return res.status(403).json({ message: 'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.' })
-			
-			let schoolWhere = {	areaId: req.user.areaId }
+      const emcsOnSchool = await getEmcsOnSchool({
+        ...req,
+        areaId: req.user.areaId,
+        gia: req.user.gia,
+        roleCode: req.user.UserRole.code,
+      });
 
-			if(schoolCode != undefined)
-				schoolWhere.code = schoolCode
-			
-			schoolWhere.gia = req.user.gia
+      res.json({ message: 'УМК добавлены', emcsOnSchool: emcsOnSchool });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  async detachEMC(req, res) {
+    try {
+      //Переделать
+      const { schoolCode, emcId } = req.params;
 
-			const schools = await School.findAll({ raw: true, where: schoolWhere })
+      if (emcId == undefined)
+        return res.status(404).json({ message: 'УМК не найдена' });
 
-			await EMCOnSchool.destroy({ 
-				where: { 
-					schoolId: { [Op.in]: schools.map((item) => item.id) }, 
-					emcId: emcId 
-				} 
-			})
-			
-			const emcsOnSchool = await getEMCsOnSchool (req)
+      if (req.user.areaId === undefined || req.user.gia === undefined)
+        return res.status(403).json({
+          message:
+            'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.',
+        });
 
-			res.json({ message:'УМК откреплены', emcsOnSchool: emcsOnSchool })
+      let schoolWhere = { areaId: req.user.areaId };
 
+      if (schoolCode != undefined) schoolWhere.code = schoolCode;
 
-		} catch(err) { console.error(err) }
-	},
-	// изменения данных умк
-	async updateEMC (req, res) {
-		try {
-			/** Обновляем УМК с данными при условии, что данный пользователь 
-				* его создатель и админ не сделал его официальным умк 
-				*/
-			await EMC.update(req.body, { where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }})
+      schoolWhere.gia = req.user.gia;
 
-			const emcs = await getEMCs(req)
+      const schools = await School.findAll({ raw: true, where: schoolWhere });
 
-			res.json({ message: 'Данные обновлены', emc: emcs[0] })
+      await EMCOnSchool.destroy({
+        where: {
+          schoolId: { [Op.in]: schools.map((item) => item.id) },
+          emcId: emcId,
+        },
+      });
 
-		} catch(err) { console.error(err) }
-	},
-	async deleteEMC( req, res){
-		try {
-			/** Удаляем умк при условии, что админ не сделал его официальным и 
-			 * данный пользователь является создателем
-			 */
-			await EMC.destroy({ where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true }})
+      const emcsOnSchool = await getEmcsOnSchool({
+        ...req,
+        areaId: req.user.areaId,
+        gia: req.user.gia,
+        roleCode: req.user.UserRole.code,
+      });
 
-			res.json({ message: 'УМК удалена' })
-		} catch (error) {
-			console.error(error)
-		}
-	},
-	// изменения данных умк у школы
-	async updateEMCOnSchool (req, res) {
-		try {
-			/**
-			 * Применяем изменения при условии, что данный умк принадлежит Мо данного пользователя
-			 */
-			await EMCOnSchool.update(req.body, { where: { id: req.params.emcOnSchoolId }})
+      res.json({ message: 'УМК откреплены', emcsOnSchool: emcsOnSchool });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  // изменения данных умк
+  async updateEMC(req, res) {
+    try {
+      /** Обновляем УМК с данными при условии, что данный пользователь
+       * его создатель и админ не сделал его официальным умк
+       */
+      await EMC.update(req.body, {
+        where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true },
+      });
 
-			const emcOnSchool = await getEMCsOnSchool(req)
+      const emcs = await getEMCs({ ...req });
 
-			res.json({ message: 'Данные обновлены', emcOnSchool: emcOnSchool[0] })
+      res.json({ message: 'Данные обновлены', emc: emcs[0] });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  async deleteEMC(req, res) {
+    try {
+      /** Удаляем умк при условии, что админ не сделал его официальным и
+       * данный пользователь является создателем
+       */
+      await EMC.destroy({
+        where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true },
+      });
 
-		} catch(err) { console.error(err) }
-	},
-	// Добавление нового умк для ОО
-	async createEMC(req, res) {
-		try {
-			const { title, authors, publisherId, grades, subjectId, levelId } = req.body
+      res.json({ message: 'УМК удалена' });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  // изменения данных умк у школы
+  async updateEMCOnSchool(req, res) {
+    try {
+      /**
+       * Применяем изменения при условии, что данный умк принадлежит Мо данного пользователя
+       */
+      await EMCOnSchool.update(req.body, {
+        where: { id: req.params.emcOnSchoolId },
+      });
 
-			const emc = await EMC.create({ title: title, authors: authors, subjectId: subjectId, publisherId: publisherId, levelId: levelId,
-				gia: req.user.gia, grades: grades, createdBy: req.user.id, isCustom: true })
+      const emcOnSchool = await getEmcsOnSchool({
+        ...req,
+        areaId: req.user.areaId,
+        gia: req.user.gia,
+        roleCode: req.user.UserRole.code,
+      });
 
-			res.json({ message: 'УМК создано', emc: emc })
-			
-		} catch(err) { console.error(err) }
-	},
-}
+      res.json({ message: 'Данные обновлены', emcOnSchool: emcOnSchool[0] });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  // Добавление нового умк для ОО
+  async createEMC(req, res) {
+    try {
+      const { title, authors, publisherId, grades, subjectId, levelId } =
+        req.body;
+
+      const emc = await EMC.create({
+        title: title,
+        authors: authors,
+        subjectId: subjectId,
+        publisherId: publisherId,
+        levelId: levelId,
+        gia: req.user.gia,
+        grades: grades,
+        createdBy: req.user.id,
+        isCustom: true,
+      });
+
+      res.json({ message: 'УМК создано', emc: emc });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+};

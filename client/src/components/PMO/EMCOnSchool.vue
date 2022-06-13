@@ -43,7 +43,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects']),
+		...mapFields(['emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects', 'activeSidebar']),
 		subjectTitle() {
 			return this.subjects.find((subject) => subject.code === this.$route.params.subjectCode).name
 		},
@@ -54,8 +54,7 @@ export default {
 		},
 	},
 	created() {
-		this.$store.dispatch('setAreasSidebar', true) // Включаем sidebar для EMCsOnSchool
-		this.$store.dispatch('setSubjectsSidebar', false) // На всякий случай ставим sidebar EMCs на false
+		this.activeSidebar = 'pmo'
 		this.getEMCsOnSchool()
 	},
 	methods: {

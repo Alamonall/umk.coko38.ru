@@ -2,48 +2,58 @@ import api from './api'
 
 export default {
 	getUserData() {
-		return api().get('/poo')
+		return api().post('/poo')
 	},
-	getEMCsOnSchool(params = null) {
-		return api().get(`/poo
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs-on-school`)
+	getEmcsOnSchool({ subjectId, skip, limit }) {
+		console.log('poo service ', { subjectId, skip, limit })
+		return api().post('/poo/list_emc_on_school', {
+			subjectId,
+			skip,
+			limit,
+		})
 	},
-	getEMCs(params = null) {
-		return api().get(`/poo
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs
-			${params?.emcId ? `/${params.emcId}` : ''}`)
+	getEmcs({ emcId, subjectId, skip, limit }) {
+		return api().post('/poo/list_emcs', { emcId, subjectId, skip, limit })
 	},
-	setEMC(EMC) {
-		return api().put(`/poo/emcs/${EMC.id}`, EMC)
+	getEmcsForAttach({ subjectId, skip, limit }) {
+		return api().post('/poo/list_emcs_for_attach', { subjectId, skip, limit })
 	},
-	deleteEMC(emc = null) {
-		return api().delete(`/poo/emcs/${emc.id}/delete`)
+	updateEmc({ subjectId, skip, limit, emc }) {
+		return api().post('/poo/update_emc', { subjectId, skip, limit, emc })
 	},
-	setEMCOnSchool(EMCOnSchool) {
-		return api().put(`/poo/emcOnSchool/${EMCOnSchool.id}`, EMCOnSchool)
+	deleteEmc({ emcId }) {
+		return api().post('/poo/delete_emc', { emcId })
 	},
-	createEMC(EMC = null) {
-		return api().post('/poo/emcs/create', EMC)
+	updateEmcOnSchool({ emcId, usingCoz, correctionCoz, swapCoz, studentsCount }) {
+		return api().post('/poo/update_emc_on_school', {
+			emcId,
+			usingCoz,
+			correctionCoz,
+			swapCoz,
+			studentsCount,
+		})
 	},
-	attachTo(params = null, emcId, eos) {
-		return api().post(
-			`/poo
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/attach`,
-			eos,
-		)
+	createEmc({ emc }) {
+		return api().post('/poo/create_emc', {
+			title: emc.title,
+			authors: emc.authors,
+			grades: emc.grades,
+			publisherId: emc.Publisher.id,
+			subjectId: emc.Subject.id,
+			levelId: emc.Level.id,
+		})
 	},
-	detachFrom(params = null, emcId) {
-		return api().delete(`/poo
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/detach`)
+	attachTo({ emcId, subjectId, swapCoz, usingCoz, correctionCoz, studentsCount }) {
+		return api().post('/poo/attach_emc', {
+			emcId,
+			subjectId,
+			swapCoz,
+			usingCoz,
+			correctionCoz,
+			studentsCount,
+		})
+	},
+	detachFrom({ subjectId, emcId }) {
+		return api().post('/poo/detach_emc', { subjectId, emcId })
 	},
 }

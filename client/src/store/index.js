@@ -12,72 +12,36 @@ export default new Vuex.Store({
 		user: null,
 		token: null,
 		isSignin: false,
-		isSubjectsSidebar: false, // активность sidebar со списком предметов
-		isAreasSidebar: false, // активность sidebar со списком Мо и Оо
+		activeSidebar: '', // активность sidebar со списком предметов
 		publishers: [], // Издатели для умк. Так как они не будут меняться часто, можно хранить их в store
 		subjects: [],
 		areas: [],
 		levels: [],
 		emcs: [],
 		emcsOnSchool: [],
+		activeRouteParams: {
+			subjectId: 1,
+			areaId: 1,
+			schoolId: 1,
+		},
 	},
 	mutations: {
 		updateField,
-		setToken(state, token) {
-			state.token = token
-			if (token) {
-				state.isSignin = true
-			} else {
-				state.isSignin = false
-			}
-		},
-		setUser(state, user) {
-			state.user = user
-		},
-		setSubjectsSidebar(state, activity) {
-			state.isSubjectsSidebar = activity
-		},
-		setAreasSidebar(state, activity) {
-			state.isAreasSidebar = activity
-		},
-		setPublishers(state, publishers) {
-			state.publishers = publishers
-		},
-		setSubjects(state, subjects) {
-			state.subjects = subjects
-		},
-		setAreas(state, areas) {
-			state.areas = areas
-		},
-		setLevels(state, levels) {
-			state.levels = levels
-		},
-		setEMCs(state, emcs) {
-			state.emcs = emcs
-			state.emcs = [...state.emcs]
-		},
-		updateEMC(state, emc) {
+		updateEmc(state, emc) {
 			const index = state.emcs.findIndex((x) => x.id === emc.id)
 			if (index !== -1) {
 				state.emcs[index] = { ...emc }
 			}
 			state.emcs = [...state.emcs]
 		},
-		createEMC(state, emc) {
-			emc.publisherId = emc.Publisher.id
-			emc.levelId = emc.Level.id
-			emc.subjectId = emc.Subject.id
-			state.emcs.push(emc)
-			state.emcs = [...state.emcs]
-		},
-		deleteEMC(state, emc) {
-			const index = state.emcs.findIndex((x) => x.id === emc.id)
+		deleteEmc(state, emc) {
+			const index = state.emcs.findIndex((x) => x.id === emc.emcId)
 			if (index !== -1) {
 				state.emcs.splice(index, 1)
 			}
 			state.emcs = [...state.emcs]
 		},
-		updateEMCOnSchool(state, emcOnSchool) {
+		updateEmcOnSchool(state, emcOnSchool) {
 			const index = state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id)
 			if (index !== -1) {
 				state.emcsOnSchool[index] = { ...emcOnSchool }
@@ -86,47 +50,20 @@ export default new Vuex.Store({
 		},
 	},
 	actions: {
-		setToken({ commit }, token) {
-			commit('setToken', token)
+		updateEmcOnSchool({ commit }, emcOnSchool) {
+			commit('updateEmcOnSchool', emcOnSchool)
 		},
-		setUser({ commit }, user) {
-			commit('setUser', user)
+		updateEmc({ commit }, emc) {
+			commit('updateEmc', emc)
 		},
-		setSubjectsSidebar({ commit }, activity) {
-			commit('setSubjectsSidebar', activity)
-		},
-		setAreasSidebar({ commit }, activity) {
-			commit('setAreasSidebar', activity)
-		},
-		setPublishers({ commit }, publishers) {
-			commit('setPublishers', publishers)
-		},
-		setSubjects({ commit }, subjects) {
-			commit('setSubjects', subjects)
-		},
-		setAreas({ commit }, areas) {
-			commit('setAreas', areas)
-		},
-		setLevels({ commit }, levels) {
-			commit('setLevels', levels)
-		},
-		setEMCs({ commit }, emcs) {
-			commit('setEMCs', emcs)
-		},
-		updateEMCOnSchool({ commit }, emcOnSchool) {
-			commit('updateEMCOnSchool', emcOnSchool)
-		},
-		updateEMC({ commit }, emc) {
-			commit('updateEMC', emc)
-		},
-		createEMC({ commit }, emc) {
-			commit('createEMC', emc)
-		},
-		deleteEMC({ commit }, emc) {
-			commit('deleteEMC', emc)
+		deleteEmc({ commit }, emc) {
+			commit('deleteEmc', emc)
 		},
 	},
 	getters: {
+		// activeRouteParams(state) {
+		// 	return state.activeRouteParams
+		// },
 		getField,
 	},
 })
