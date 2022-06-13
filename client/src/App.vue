@@ -1,127 +1,10 @@
 <template>
 	<v-app>
 		<PageHeader />
-		<TheSidebar v-if="isAreasSidebar && isSignin">
-			<v-list-group
-				v-for="area in areas"
-				:key="area.AreaID"
-				:value="false"
-				prepend-icon="mdi-account-circle"
-			>
-				<template v-slot:activator>
-					<v-list-item-title>{{ area.name }}</v-list-item-title>
-				</template>
-
-				<v-list-group
-					v-for="school in area.Schools"
-					:key="school.id"
-					:value="false"
-					no-action
-					sub-group
-				>
-					<template v-slot:activator>
-						<v-list-item-content>
-							<v-list-item-title blue>{{ school.code }} {{ school.name }} </v-list-item-title>
-						</v-list-item-content>
-					</template>
-
-					<v-list-item
-						v-for="subject in subjects"
-						:key="subject.SubjectGlobalID"
-						:value="false"
-						link
-					>
-						<v-list-item-content>
-							<v-btn
-								v-if="user.UserRole.code == 1"
-								plain
-								:to="{
-									name: 'admin-emcs-on-school',
-									params: {
-										areaCode: area.code,
-										schoolCode: school.code,
-										subjectCode: subject.code,
-									},
-								}"
-							>
-								{{ subject.name }}
-							</v-btn>
-							<v-btn
-								v-if="user.UserRole.code == 2"
-								plain
-								:to="{
-									name: 'pmo-emcs-on-school',
-									params: {
-										areaCode: area.code,
-										schoolCode: school.code,
-										subjectCode: subject.code,
-									},
-								}"
-							>
-								{{ subject.name }}
-							</v-btn>
-							<v-btn
-								v-if="user.UserRole.code == 3"
-								plain
-								:to="{
-									name: 'poo-emcs-on-school',
-									params: {
-										areaCode: area.code,
-										schoolCode: school.code,
-										subjectCode: subject.code,
-									},
-								}"
-							>
-								{{ subject.name }}
-							</v-btn>
-						</v-list-item-content>
-					</v-list-item>
-				</v-list-group>
-			</v-list-group>
-		</TheSidebar>
-
-		<TheSidebar v-if="isSubjectsSidebar && isSignin">
-			<v-list-item v-for="subject in subjects" :key="subject.SubjectGlobalID" :value="false" link>
-				<v-list-item-content>
-					<v-btn
-						v-if="user.UserRole.code == 1"
-						plain
-						:to="{
-							name: 'admin-subject-emcs',
-							params: {
-								subjectCode: subject.code,
-							},
-						}"
-					>
-						{{ subject.name }}
-					</v-btn>
-					<v-btn
-						v-if="user.UserRole.code == 2"
-						plain
-						:to="{
-							name: 'pmo-subject-emcs',
-							params: {
-								subjectCode: subject.code,
-							},
-						}"
-					>
-						{{ subject.name }}
-					</v-btn>
-					<v-btn
-						v-if="user.UserRole.code == 3"
-						plain
-						:to="{
-							name: 'poo-subject-emcs',
-							params: {
-								subjectCode: subject.code,
-							},
-						}"
-					>
-						{{ subject.name }}
-					</v-btn>
-				</v-list-item-content>
-			</v-list-item>
-		</TheSidebar>
+		<TheAdminSidebar v-if="activeSidebar === 'admin' && user.UserRole.code === 1 && isSignin"/>
+		<ThePmoSidebar v-if="activeSidebar === 'pmo' && user.UserRole.code === 2 && isSignin"/>
+		<ThePooSidebar v-if="activeSidebar === 'poo' && user.UserRole.code === 3 && isSignin"/>
+		<TheSubjectsSidebar v-if="activeSidebar === 'subjects' && isSignin" />
 
 		<v-main>
 			<!-- Provides the application the proper gutter -->
@@ -135,26 +18,51 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import _ from 'lodash'
+import { mapFields } from 'vuex-map-fields'
 import PageHeader from './components/TheHeader.vue'
-import TheSidebar from './components/TheSidebar.vue'
+import TheAdminSidebar from './components/admin/TheAdminSidebar.vue'
+import ThePmoSidebar from './components/pmo/ThePmoSidebar.vue'
+import ThePooSidebar from './components/poo/ThePooSidebar.vue'
+import TheSubjectsSidebar from './components/TheSubjectsSidebar.vue'
 import TheFooter from './components/TheFooter.vue'
 
 export default {
 	name: 'App',
 	components: {
 		PageHeader,
-		TheSidebar,
+		TheAdminSidebar,
+		ThePmoSidebar,
+		ThePooSidebar,
+		TheSubjectsSidebar,
 		TheFooter,
 	},
 	data: () => ({
 		err: null,
 	}),
 	computed: {
-		...mapState(['isSignin', 'user', 'isSubjectsSidebar', 'isAreasSidebar', 'subjects', 'areas']),
+		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'areas', 'activeRouteParams'])
 	},
 	created() {
 		document.title = 'АИС «УМК»'
 	},
+	methods: {
+		goTo({ name, params }) {
+			console.debug({ msg:'goTo', name, params })
+			if(!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = params
+				this.$router.push({ name }).catch(err => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
+				})
+			}
+		}
+	}
 }
 </script>

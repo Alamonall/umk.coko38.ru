@@ -1,12 +1,12 @@
-'use strict'
+'use strict';
 module.exports = (sequelize, DataTypes) => {
-	const Publisher = sequelize.define('Publisher',{
-		name: DataTypes.STRING
-	})
-    
-	Publisher.associate = (models) => {
-		Publisher.hasMany(models.EMC, {foreignKey: 'publisherId'})
-	}
+  const Publisher = sequelize.define('Publisher', {
+    name: DataTypes.STRING,
+  });
 
-	return Publisher
-}
+  Publisher.associate = (models) => {
+    Publisher.hasMany(models.EMC, { foreignKey: 'publisherId' });
+  };
+
+  return Publisher;
+};

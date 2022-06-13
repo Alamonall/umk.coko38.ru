@@ -30,21 +30,21 @@ export default {
 				link: 'https://coko38.ru',
 				icon: 'mdi-home-circle',
 			},
-			{
-				name: 'ВКонтакте',
-				link: 'https://vk.com/public196012235',
-				icon: 'mdi-vk',
-			},
-			{
-				name: 'Facebook',
-				link: 'https://www.facebook.com/groups/249765916319275/',
-				icon: 'mdi-facebook',
-			},
-			{
-				name: 'Instagram',
-				link: 'https://www.instagram.com/copmkimko/?hl=ru',
-				icon: 'mdi-instagram',
-			},
+			// {
+			// 	name: 'ВКонтакте',
+			// 	link: 'https://vk.com/public196012235',
+			// 	icon: 'mdi-vk',
+			// },
+			// {
+			// 	name: 'Facebook',
+			// 	link: 'https://www.facebook.com/groups/249765916319275/',
+			// 	icon: 'mdi-facebook',
+			// },
+			// {
+			// 	name: 'Instagram',
+			// 	link: 'https://www.instagram.com/copmkimko/?hl=ru',
+			// 	icon: 'mdi-instagram',
+			// },
 		],
 	}),
 }

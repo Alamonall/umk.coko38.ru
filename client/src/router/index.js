@@ -5,23 +5,23 @@ import Signin from '../components/Signin.vue'
 import PageNotFound from '../components/PageNotFound.vue'
 import store from '../store'
 
-import adminMainUserPage from '../components/Admin/MainUserPage.vue'
-import adminEMCOnSchool from '../components/Admin/EMCOnSchool.vue'
-import adminEMCEdit from '../components/Admin/EMCEdit.vue'
-import adminEMCCreate from '../components/Admin/EMCCreate.vue'
-import adminEMCs from '../components/Admin/EMCs.vue'
+import adminMainUserPage from '../components/admin/MainUserPage.vue'
+import adminEMCOnSchool from '../components/admin/EMCOnSchool.vue'
+import adminEMCEdit from '../components/admin/EMCEdit.vue'
+import adminEMCCreate from '../components/admin/EMCCreate.vue'
+import adminEMCs from '../components/admin/EMCs.vue'
 
-import pmoMainUserPage from '../components/PMO/MainUserPage.vue'
-import pmoEMCOnSchool from '../components/PMO/EMCOnSchool.vue'
-import pmoEMCEdit from '../components/PMO/EMCEdit.vue'
-import pmoEMCCreate from '../components/PMO/EMCCreate.vue'
-import pmoEMCs from '../components/PMO/EMCs.vue'
+import pmoMainUserPage from '../components/pmo/MainUserPage.vue'
+import pmoEMCOnSchool from '../components/pmo/EMCOnSchool.vue'
+import pmoEMCEdit from '../components/pmo/EMCEdit.vue'
+import pmoEMCCreate from '../components/pmo/EMCCreate.vue'
+import pmoEMCs from '../components/pmo/EMCs.vue'
 
-import pooMainUserPage from '../components/POO/MainUserPage.vue'
-import pooEMCOnSchool from '../components/POO/EMCOnSchool.vue'
-import pooEMCEdit from '../components/POO/EMCEdit.vue'
-import pooEMCCreate from '../components/POO/EMCCreate.vue'
-import pooEMCs from '../components/POO/EMCs.vue'
+import pooMainUserPage from '../components/poo/MainUserPage.vue'
+import pooEmcOnSchool from '../components/poo/EmcOnSchool.vue'
+import pooEmcEdit from '../components/poo/EmcEdit.vue'
+import pooEmcCreate from '../components/poo/EmcCreate.vue'
+import pooEmcs from '../components/poo/Emc.vue'
 
 Vue.use(Router)
 
@@ -42,6 +42,7 @@ const SignedPMO = (to, from, next) => {
 }
 
 const SignedPOO = (to, from, next) => {
+	console.log('Signed poo: ', store.state.isSignin && store.state.user.UserRole.code === 3)
 	if (store.state.isSignin && store.state.user.UserRole.code === 3) {
 		next()
 		return
@@ -156,39 +157,27 @@ export default new Router({
 			beforeEnter: SignedPOO,
 		},
 		{
-			name: 'poo-emcs-on-school-index',
-			path: '/poo/emcs-on-school',
-			component: pooEMCOnSchool,
-			beforeEnter: SignedPOO,
-		},
-		{
 			name: 'poo-emcs-on-school',
-			path: '/poo/areas/:areaCode/schools/:schoolCode/subjects/:subjectCode/emcs-on-school',
-			component: pooEMCOnSchool,
+			path: '/poo/emcs_on_school',
+			component: pooEmcOnSchool,
 			beforeEnter: SignedPOO,
 		},
 		{
 			name: 'poo-emcs',
 			path: '/poo/emcs',
-			component: pooEMCs,
-			beforeEnter: SignedPOO,
-		},
-		{
-			name: 'poo-subject-emcs',
-			path: '/poo/subjects/:subjectCode/emcs',
-			component: pooEMCs,
+			component: pooEmcs,
 			beforeEnter: SignedPOO,
 		},
 		{
 			name: 'poo-emc-create',
-			path: '/poo/emcs/create',
-			component: pooEMCCreate,
+			path: '/poo/create_emc',
+			component: pooEmcCreate,
 			beforeEnter: SignedPOO,
 		},
 		{
 			name: 'poo-emc-edit',
-			path: '/poo/emcs/:emcId/edit',
-			component: pooEMCEdit,
+			path: '/poo/update_emc',
+			component: pooEmcEdit,
 			beforeEnter: SignedPOO,
 		},
 

@@ -49,7 +49,7 @@
 				>
 					Редактировать
 				</v-btn>
-				<v-btn text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn text color="teal accent-4" @click="$emit('onDetachEmcFrom', emcOnSchool)">
 					Открепить УМК
 				</v-btn>
 			</v-card-actions>
@@ -141,50 +141,29 @@ export default {
 		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool']),
 	},
 	methods: {
-		async saveUsingCozComment(comment) {
+		saveUsingCozComment(comment) {
+			this.updateEmcOnSchool({ usingCoz: comment })
+		},
+		saveCorrectionCozComment(comment) {
+			this.updateEmcOnSchool({ correctionCoz: comment })
+		},
+		saveSwapCozComment(comment) {
+			this.updateEmcOnSchool({ swapCoz: comment })
+		},
+		saveStudentsCount(number) {
+			this.updateEmcOnSchool({ studentsCount: number })
+		},
+		async updateEmcOnSchool(data) {
 			try {
-				const response = await PooService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					usingCoz: comment,
+				const response = await PooService.updateEmcOnSchool({
+					emcId: this.emcOnSchool.id,
+					...data
 				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
+				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
 			} catch (err) {
 				this.error = err
 			}
-		},
-		async saveCorrectionCozComment(comment) {
-			try {
-				const response = await PooService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					correctionCoz: comment,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (err) {
-				this.error = err
-			}
-		},
-		async saveSwapCozComment(comment) {
-			try {
-				const response = await PooService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					swapCoz: comment,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (err) {
-				this.error = err
-			}
-		},
-		async saveStudentsCount(number) {
-			try {
-				const response = await PooService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					studentsCount: number,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (err) {
-				this.error = err
-			}
-		},
+		}
 	},
 }
 </script>

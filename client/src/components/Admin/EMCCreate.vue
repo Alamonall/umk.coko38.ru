@@ -80,8 +80,7 @@ export default {
 		...mapFields(['isSignin', 'user', 'publishers', 'subjects', 'levels']),
 	},
 	created() {
-		this.$store.dispatch('setAreasSidebar', false)
-		this.$store.dispatch('setSubjectsSidebar', false)
+		this.activeSidebar = ''
 	},
 	methods: {
 		async createEMC() {

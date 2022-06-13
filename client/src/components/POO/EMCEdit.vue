@@ -38,9 +38,9 @@
 				></v-select>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn text color="teal accent-4" @click="saveEMC"> Сохранить изменения </v-btn>
+				<v-btn text color="teal accent-4" @click="saveEmc"> Сохранить изменения </v-btn>
 				<v-spacer></v-spacer>
-				<v-btn text color="red accent-2" :to="{ name: 'poo-emcs' }">
+				<v-btn text color="red accent-2" @click="goTo({ name: 'poo-emcs' })">
 					Отменить редактирование
 				</v-btn>
 			</v-card-actions>
@@ -48,6 +48,7 @@
 	</v-container>
 </template>
 <script>
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import PooService from '../../services/pooService'
 
@@ -59,48 +60,59 @@ export default {
 		emc: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user']),
+		...mapFields(['activeSidebar', 'isSignin', 'subjects', 'publishers', 'levels', 'user', 'activeRouteParams']),
 	},
 	created() {
-		this.$store.dispatch('setAreasSidebar', false)
-		this.$store.dispatch('setSubjectsSidebar', false)
-		this.getEMCForEdit()
+		this.activeSidebar = null
+		this.getEmcForEdit()
 	},
 	methods: {
-		async getEMCForEdit() {
+		async getEmcForEdit() {
 			try {
-				const response = await PooService.getEMCs(this.$route.params)
+				const response = await PooService.getEmcs({ ...this.activeRouteParams })
 				if (response.status === 200) {
 					const [localEMC] = response.data.emcs
-					console.log('response: ', localEMC)
 					this.emc = localEMC
 				} else {
-					this.$router.push({
-						name: 'poo-subject-emcs',
-						params: { subjectCode: this.emc.Subject.code },
-					})
+					this.goTo({ name: 'poo-emcs' })
 				}
 			} catch (error) {
 				this.error = error
 			}
 		},
-		async saveEMC() {
+		async saveEmc() {
 			try {
-				const response = await PooService.setEMC({
-					...this.emc,
-					publisherId: this.emc.Publisher.id,
-					levelId: this.emc.Level.id,
-					subjectId: this.emc.Subject.id,
+				const response = await PooService.updateEmc({
+					...this.activeRouteParams,
+					emc: {
+						...this.emc,
+						publisherId: this.emc.Publisher.id,
+						levelId: this.emc.Level.id,
+						subjectId: this.emc.Subject.id,
+					}
 				})
-				this.$store.dispatch('updateEMC', response.data.emc)
-				this.$router.push({
-					name: 'poo-subject-emcs',
-					params: { subjectCode: response.data.emc.Subject.code },
-				})
+				this.emcs = [...response.data.emcs]
+				this.goTo({ name: 'poo-emcs' })
 			} catch (error) {
 				this.error = error
 			}
 		},
+		goTo({ name, params }) {
+			if(!_.isEqual(this.activeRouteParams, params)) {
+				const { emcId, ...rest } = this.activeRouteParams
+				this.activeRouteParams = { ...rest, ...params }
+				this.$router.push({ name }).catch(err => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
+				})
+			}
+		}
 	},
 }
 </script>

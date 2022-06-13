@@ -1,190 +1,155 @@
-const path = require('path')
+const authController = require('./controllers/auth');
+const authContPolicy = require('./policies/auth');
+const adminController = require('./controllers/admin');
+const pmoController = require('./controllers/pmo');
 
-const authController = require('./controllers/auth')
-const authContPolicy = require('./policies/auth')
-const adminController = require('./controllers/admin')
-const pmoController = require('./controllers/pmo')
-const pooController = require('./controllers/poo')
+const isAuthenticated = require('./policies/isAuth');
+const roleCheck = require('./policies/roleCheck');
 
-const isAuthenticated = require('./policies/isAuth')
-const roleCheck = require('./policies/roleCheck')
+const pooRouter = require('./routers/poo.router');
 
 module.exports = (app) => {
-	//#region ADMIN
-	app.post('/signup',
-		authContPolicy.signup,
-		authController.signup)
+  app.use('/poo', pooRouter);
 
-	app.post('/signin',
-		authController.signin)
+  //#region ADMIN
+  app.post('/signup', authContPolicy.signup, authController.signup);
 
-	// главная страница админа
-	app.get('/admin',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.index)
+  app.post('/signin', authController.signin);
 
-	// Получение списка прикреплённых к школам умк
-	app.get('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.getEMCsOnSchool)
+  // // главная страница админа
+  // app.get('/admin', isAuthenticated, roleCheck.isAdmin, adminController.index);
 
-	// получение всех умк
-	app.get('/admin(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.getEMCs)
+  // // Получение списка прикреплённых к школам умк
+  // app.get(
+  //   '/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.getEMCsOnSchool
+  // );
 
-	// Добавление нового умк 
-	app.post('/admin/emcs/create',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.createEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/admin/emcs/:emcId',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.updateEMC)
-	
-		// сохранения изменений сделанных админом для конкретного умк
-	app.delete('/admin/emcs/:emcId/delete',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.deleteEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/admin/emcOnSchool/:emcOnSchoolId',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.updateEMCOnSchool)
-		
-	// Прикрепить умк к определённому месту - зависит от параметров
-	app.post('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.attachEMC)
+  // // получение всех умк
+  // app.get(
+  //   '/admin(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.getEMCs
+  // );
 
-	//открепить умк от определённого места - зависит от параметров
-	app.delete('/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
-		isAuthenticated,
-		roleCheck.isAdmin,
-		adminController.detachEMC)
-	//#endregion
+  // // Добавление нового умк
+  // app.post(
+  //   '/admin/emcs/create',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.createEMC
+  // );
 
-	// #region PMO
-	// главная страница PMO
-	app.get('/pmo',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.index)
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.put(
+  //   '/admin/emcs/:emcId',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.updateEMC
+  // );
 
-	// Получение списка прикреплённых к школам умк
-	app.get('/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.getEMCsOnSchool)
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.delete(
+  //   '/admin/emcs/:emcId/delete',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.deleteEMC
+  // );
 
-	// получение всех умк
-	app.get('/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.getEMCs)
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.put(
+  //   '/admin/emcOnSchool/:emcOnSchoolId',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.updateEMCOnSchool
+  // );
 
-	// Добавление нового умк 
-	app.post('/pmo/emcs/create',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.createEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/pmo/emcs/:emcId',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.updateEMC)
-	
-		// сохранения изменений сделанных админом для конкретного умк
-	app.delete('/pmo/emcs/:emcId/delete',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.deleteEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/pmo/emcOnSchool/:emcOnSchoolId',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.updateEMCOnSchool)
-		
-	// Прикрепить умк к определённому месту - зависит от параметров
-	app.post('/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.attachEMC)
+  // // Прикрепить умк к определённому месту - зависит от параметров
+  // app.post(
+  //   '/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.attachEMC
+  // );
 
-	//открепить умк от определённого места - зависит от параметров
-	app.delete('/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
-		isAuthenticated,
-		roleCheck.isPMO,
-		pmoController.detachEMC)
+  // //открепить умк от определённого места - зависит от параметров
+  // app.delete(
+  //   '/admin(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
+  //   isAuthenticated,
+  //   roleCheck.isAdmin,
+  //   adminController.detachEMC
+  // );
+  // //#endregion
 
-	//#region POO
-	// главная страница PMO
-	app.get('/poo',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.index)
+  // //#region PMO
+  // // главная страница PMO
+  // app.get('/pmo', isAuthenticated, roleCheck.isPMO, pmoController.index);
 
-	// Получение списка прикреплённых к школам умк
-	app.get('/poo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.getEMCsOnSchool)
+  // // Получение списка прикреплённых к школам умк
+  // app.get(
+  //   '/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs-on-school',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.getEMCsOnSchool
+  // );
 
-	// получение всех умк
-	app.get('/poo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.getEMCs)
+  // // получение всех умк
+  // app.get(
+  //   '/pmo(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs(/:emcId)?',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.getEMCs
+  // );
 
-	// Добавление нового умк 
-	app.post('/poo/emcs/create',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.createEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/poo/emcs/:emcId',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.updateEMC)
-	
-		// сохранения изменений сделанных админом для конкретного умк
-	app.delete('/poo/emcs/:emcId/delete',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.deleteEMC)
-	
-	// сохранения изменений сделанных админом для конкретного умк
-	app.put('/poo/emcOnSchool/:emcOnSchoolId',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.updateEMCOnSchool)
-		
-	// Прикрепить умк к определённому месту - зависит от параметров
-	app.post('/poo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.attachEMC)
+  // // Добавление нового умк
+  // app.post(
+  //   '/pmo/emcs/create',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.createEMC
+  // );
 
-	//открепить умк от определённого места - зависит от параметров
-	app.delete('/poo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
-		isAuthenticated,
-		roleCheck.isPOO,
-		pooController.detachEMC)
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.put(
+  //   '/pmo/emcs/:emcId',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.updateEMC
+  // );
 
-	//#endregion
-	 app.get('*', (req, res) => {
-		 res.sendFile(path.join(__dirname,'/public/index.html'))
-	 })
-}
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.delete(
+  //   '/pmo/emcs/:emcId/delete',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.deleteEMC
+  // );
+
+  // // сохранения изменений сделанных админом для конкретного умк
+  // app.put(
+  //   '/pmo/emcOnSchool/:emcOnSchoolId',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.updateEMCOnSchool
+  // );
+
+  // // Прикрепить умк к определённому месту - зависит от параметров
+  // app.post(
+  //   '/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/attach',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.attachEMC
+  // );
+
+  // //открепить умк от определённого места - зависит от параметров
+  // app.delete(
+  //   '/pmo(/areas/:areaCode)?(/schools/:schoolCode)?(/subjects/:subjectCode)?/emcs/:emcId/detach',
+  //   isAuthenticated,
+  //   roleCheck.isPMO,
+  //   pmoController.detachEMC
+  // );
+  // //#endregion PMO
+};

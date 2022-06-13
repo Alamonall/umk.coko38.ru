@@ -5,27 +5,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 import PooService from '../../services/pooService'
 
 export default {
 	computed: {
-		...mapState(['isSignin', 'user']),
+		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'levels', 'publishers'])
 	},
 	created() {
-		this.getUserData()
-		this.$store.dispatch('setSubjectsSidebar', false)
-		this.$store.dispatch('setAreasSidebar', false)
+		this.init()
 	},
 	methods: {
-		async getUserData() {
+		async init() {
 			try {
 				const response = await PooService.getUserData()
-				this.$store.dispatch('setAreas', response.data.areasAndSchools)
-				this.$store.dispatch('setSubjects', response.data.subjects)
-				this.$store.dispatch('setPublishers', response.data.publishers)
-				this.$store.dispatch('setLevels', response.data.levels)
-				this.$store.dispatch('setEMCs', response.data.emcs)
+				this.subjects = response.data.subjects
+				this.publishers = response.data.publishers
+				this.levels = response.data.levels
+				this.activeSidebar = null
 			} catch (err) {
 				this.err = err
 			}

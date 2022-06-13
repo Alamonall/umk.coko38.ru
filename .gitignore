@@ -1,4 +1,5 @@
 # Logs
+/backups
 /iisnode
 logs
 *.log

@@ -10,15 +10,14 @@ import PmoService from '../../services/pmoService'
 
 export default {
 	computed: {
-		...mapState(['isSignin', 'user']),
+		...mapState(['isSignin', 'user', 'activeSidebar']),
 	},
 	created() {
-		this.getUserData()
-		this.$store.dispatch('setSubjectsSidebar', false)
-		this.$store.dispatch('setAreasSidebar', false)
+		this.init()
+		this.activeSidebar = null
 	},
 	methods: {
-		async getUserData() {
+		async init() {
 			try {
 				const response = await PmoService.getUserData()
 				this.$store.dispatch('setAreas', response.data.areasAndSchools)
