@@ -1,16 +1,20 @@
 const { EMC } = require('../../models');
-const getEmcs = require('../../dbHandlers/getEmcs');
 
 module.exports = async function (req, res) {
   try {
-    await EMC.update(req.body, {
-      where: { id: req.params.emcId, gia: req.user.gia },
+    const { emc, skip, limit } = req.body;
+
+    if (emc == null) throw new Error('Некорректные данные');
+
+    console.log({ msg: 'updating_emc', emc, skip, limit });
+
+    await EMC.update(emc, {
+      where: { id: emc.id, gia: req.user.gia },
     });
 
-    const emc = await getEmcs({ ...req });
-
-    res.json({ message: 'Данные обновлены', emc: emc[0] });
+    res.json({ msg: 'Данные обновлены' });
   } catch (error) {
     console.error(error);
+    throw new Error(error);
   }
 };

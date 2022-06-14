@@ -1,28 +1,17 @@
 const { EMCOnSchool, School } = require('../../models');
-const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
   try {
-    const { areaId, schoolId, emcId } = req.body;
+    const { areaId, schoolId, emcOnSchoolId } = req.body;
 
-    if (emcId == null) res.status(404).json({ message: 'УМК не найдена' });
-
-    // const areas = await Area.findAll({
-    //   raw: true,
-    //   where: areaCode
-    //     ? { code: areaCode, gia: { [Op.in]: [req.user.gia, 99] } }
-    //     : { gia: { [Op.in]: [req.user.gia, 99] } },
-    // });
-
-    // if (areas.length == 0)
-    //   res.status(404).json({ message: 'Не найдено районов для открепления' });
+    if (emcOnSchoolId == null) throw new Error('УМК не найдена');
 
     let emcOnSchoolWhere = {};
     emcOnSchoolWhere = schoolId == null ? emcOnSchoolWhere : { id: schoolId };
     emcOnSchoolWhere = areaId == null ? emcOnSchoolWhere : { areaId };
 
     await EMCOnSchool.destroy({
-      where: { emcId },
+      where: { id: emcOnSchoolId },
       include: [
         {
           model: School,
@@ -31,13 +20,9 @@ module.exports = async function (req, res) {
       ],
     });
 
-    const { emcOnSchool, total } = await getEmcsOnSchool({
-      skip: 0,
-      limit: 20,
-    });
-
-    res.json({ msg: 'УМК откреплены', emcOnSchool, total });
+    res.json({ msg: 'УМК откреплены' });
   } catch (err) {
     console.log(err);
+    throw new Error(err);
   }
 };

@@ -16,7 +16,8 @@ module.exports = async function (req, res) {
     }
 
     res.json({ message: 'УМК удалена' });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
+    throw new Error(err);
   }
 };

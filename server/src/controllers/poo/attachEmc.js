@@ -3,7 +3,7 @@ module.exports = async function (req, res) {
   try {
     const { usingCoz, correctionCoz, swapCoz, studentsCount, emcId } = req.body;
 
-    if (emcId == null) res.status(404).json({ message: 'УМК не найдена' });
+    if (emcId == null) throw new Error('УМК не найдена');
 
     console.log({
       usingCoz,
@@ -26,5 +26,6 @@ module.exports = async function (req, res) {
     res.json({ msg: 'УМК добавлены' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

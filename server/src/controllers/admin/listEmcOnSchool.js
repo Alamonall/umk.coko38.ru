@@ -13,12 +13,13 @@ module.exports = async function (req, res) {
       gia: req.user.gia,
     });
 
-    return res.json({
-      message: 'Данные получены',
+    res.json({
+      msg: 'Данные получены',
       emcsOnSchool,
       totalEmcsOnSchool,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
+    throw new Error(err);
   }
 };

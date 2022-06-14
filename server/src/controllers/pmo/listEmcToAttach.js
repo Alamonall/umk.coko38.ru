@@ -7,6 +7,7 @@ module.exports = async function (req, res) {
 
     const response = await getEmcsOnSchool({
       schoolId: req.user.schoolId,
+      areaId: req.user.areaId,
       subjectId,
       gia: req.user.gia,
       skip: 0,
@@ -22,8 +23,9 @@ module.exports = async function (req, res) {
       excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
     });
 
-    res.json({ message: 'Данные получены', emcs, totalEmcs });
+    res.json({ msg: 'Данные получены', emcs, totalEmcs });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };
