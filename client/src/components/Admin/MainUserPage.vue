@@ -10,7 +10,15 @@ import AdminService from '../../services/adminService'
 
 export default {
 	computed: {
-		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'levels', 'areas', 'publishers'])
+		...mapFields([
+			'isSignin',
+			'user',
+			'activeSidebar',
+			'subjects',
+			'levels',
+			'areas',
+			'publishers',
+		]),
 	},
 	created() {
 		this.init()

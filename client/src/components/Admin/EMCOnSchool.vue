@@ -1,6 +1,6 @@
 <template>
 	<v-container v-if="isSignin && user.UserRole.code == 1" fluid>
-		<v-row v-if="$route.params.subjectCode">
+		<v-row v-if="activeRouteParams.subjectId">
 			<v-col cols="12">
 				<h1 class="text-center">{{ subjectTitle }}</h1>
 			</v-col>
@@ -25,10 +25,7 @@
 				</v-row>
 			</v-col>
 			<v-col cols="12">
-				<v-pagination 
-					v-model="page"
-					:length="totalPages"
-				></v-pagination>
+				<v-pagination v-model="page" :length="totalPages"></v-pagination>
 			</v-col>
 		</v-row>
 	</v-container>
@@ -49,12 +46,24 @@ export default {
 		error: null,
 		page: 1,
 		totalPages: 1,
-		limit: 20,
+		limit: 10,
 	}),
 	computed: {
-		...mapFields(['activeSidebar', 'emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects', 'areas', 'activeRouteParams']),
+		...mapFields([
+			'activeRouteParams',
+			'activeSidebar',
+			'emcsOnSchool',
+			'isSignin',
+			'user',
+			'emcs',
+			'subjects',
+			'areas',
+		]),
 		subjectTitle() {
-			return this.subjects.find((subject) => subject.code === this.$route.params.subjectCode).name
+			return (
+				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				'Все предметы'
+			)
 		},
 		routeParams() {
 			return this.activeRouteParams
@@ -62,13 +71,12 @@ export default {
 	},
 	watch: {
 		routeParams() {
-			this.page = 1
 			this.getEmcOnSchool()
 			this.getEmc()
 		},
 		page() {
 			this.getEmcOnSchool()
-		}
+		},
 	},
 	created() {
 		this.activeSidebar = 'admin'
@@ -78,7 +86,7 @@ export default {
 	methods: {
 		async getEmc() {
 			try {
-				const response = await AdminService.getEmcToAttach({...this.activeRouteParams})
+				const response = await AdminService.getEmcToAttach({ ...this.activeRouteParams })
 				console.log({ msg: 'get_emcs_for_attach', ...response.data })
 				this.emcs = response.data.emcs
 			} catch (err) {
@@ -90,11 +98,16 @@ export default {
 			try {
 				const response = await AdminService.getEmcOnSchool({
 					...this.activeRouteParams,
-					skip: (this.page-1)*this.limit, limit: this.limit
+					skip: (this.page - 1) * this.limit,
+					limit: this.limit,
 				})
-				console.log({ msg: 'get_emcs_on_school', totalEmcsOnSchool: response.data.totalEmcsOnSchool, emcsOnSchool: response.data.emcsOnSchool })
+				console.log({
+					msg: 'get_emcs_on_school',
+					totalEmcsOnSchool: response.data.totalEmcsOnSchool,
+					emcsOnSchool: response.data.emcsOnSchool,
+				})
 				this.emcsOnSchool = response.data.emcsOnSchool
-				this.totalPages = Math.ceil(response.data.totalEmcsOnSchool/this.limit)
+				this.totalPages = Math.ceil(response.data.totalEmcsOnSchool / this.limit)
 			} catch (err) {
 				this.error = err
 			}
@@ -102,23 +115,23 @@ export default {
 		async detachEmcFrom(emcOnSchool) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				const response = await AdminService.detachFrom({ 
-					...this.activeRouteParams,  
-					emcOnSchoolId: emcOnSchool.id
+				const response = await AdminService.detachFrom({
+					...this.activeRouteParams,
+					emcOnSchoolId: emcOnSchool.id,
 				})
 				this.emcsOnSchool = response.data.emcsOnSchool
-				this.getEmc()
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}
 		},
 		async swapApprovingStatusEmcOnSchool(emcOnSchool) {
 			try {
-				const response = await AdminService.updateEmcOnSchool({
+				await AdminService.updateEmcOnSchool({
 					emcOnSchoolId: emcOnSchool.id,
 					isApproved: !emcOnSchool.isApproved,
 				})
-				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}

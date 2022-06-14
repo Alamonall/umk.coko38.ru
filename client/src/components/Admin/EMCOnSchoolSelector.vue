@@ -99,12 +99,12 @@ export default {
 	}),
 	computed: {
 		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
+		routeParams() {
+			return this.activeRouteParams
+		},
 		fields() {
 			if (!this.model) return []
-			console.log(this.model.previewData)
 			return Object.keys(this.model.previewData).map((key) => {
-				console.log(this.model)
-				console.log(this.model.previewData[key])
 				return {
 					key: this.model.previewData[key],
 					value: key,
@@ -117,8 +117,7 @@ export default {
 					!!entry &&
 					entry.Subject.id === this.activeRouteParams.subjectId &&
 					this.emcsOnSchool.filter(
-						(eos) =>
-							eos.emcId === entry.id && eos.School.id === this.activeRouteParams.schoolId,
+						(eos) => eos.emcId === entry.id && eos.School.id === this.activeRouteParams.schoolId,
 					).length === 0
 				) {
 					const defaultTitle = entry.title == null ? 'Нет имени' : entry.title
@@ -147,7 +146,7 @@ export default {
 		},
 	},
 	watch: {
-		$route() {
+		routeParams() {
 			this.model = null
 			this.getEmc()
 		},
@@ -158,7 +157,7 @@ export default {
 	methods: {
 		async getEmc() {
 			try {
-				const response = await AdminService.getEmc({ ...this.activeRouteParams })
+				const response = await AdminService.getEmcToAttach({ ...this.activeRouteParams })
 				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
@@ -166,15 +165,11 @@ export default {
 		},
 		async attachEmc() {
 			try {
-				console.log({ msg: 'trying to attach', ...this.activeRouteParams,
-					...this.additionalDataForEmcOnSchool,
-					emcId: this.model.entry.id})
-				const response = await AdminService.attachTo({
+				await AdminService.attachTo({
 					...this.activeRouteParams,
 					...this.additionalDataForEmcOnSchool,
-					emcId: this.model.entry.id
+					emcId: this.model.entry.id,
 				})
-				console.log({ msg:'response_about_attaching', ...response.data })
 				this.activeRouteParams = { ...this.activeRouteParams }
 				this.model = null
 			} catch (err) {

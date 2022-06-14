@@ -94,11 +94,9 @@ export default {
 					this.emc.Level == null
 				)
 					throw Error('Один из параметров не указан')
-				
-				console.log('creating emc ', this.emc)
-				this.$store.dispatch('createEmc', this.emc)
-				await AdminService.createEmc({ emc: this.emc })
 
+				console.log('creating emc ', this.emc)
+				await AdminService.createEmc({ emc: this.emc })
 				this.activeRouteParams = { subjectId: this.emc.Subject.id }
 				this.$router.push({ name: 'admin-emc' })
 			} catch (error) {

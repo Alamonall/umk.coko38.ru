@@ -53,7 +53,7 @@
 						v-if="emc.isCustom && emc.createdBy === user.id"
 						text
 						color="red darken-1"
-						@click="deleteEmc({emc})"
+						@click="deleteEmc({ emc })"
 					>
 						Удалить
 					</v-btn>
@@ -63,7 +63,7 @@
 	</v-row>
 </template>
 <script>
-import {_} from 'lodash'
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 
@@ -74,9 +74,14 @@ export default {
 	computed: {
 		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'activeSidebar']),
 		subjectTitle() {
-			return this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ?? 'Все предметы' 
+			return (
+				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				'Все предметы'
+			)
 		},
-		routeParams() { return this.activeRouteParams },
+		routeParams() {
+			return this.activeRouteParams
+		},
 	},
 	watch: {
 		routeParams() {
@@ -85,7 +90,7 @@ export default {
 		},
 		page() {
 			this.getEmcsForConstructor()
-		}
+		},
 	},
 	created() {
 		this.activeSidebar = 'subjects'
@@ -95,32 +100,34 @@ export default {
 		async getEmcsForConstructor() {
 			try {
 				const response = await PmoService.getEmc({
-					...this.activeRouteParams, 
-					skip: (this.page-1)*this.limit, limit: this.limit
+					...this.activeRouteParams,
+					skip: (this.page - 1) * this.limit,
+					limit: this.limit,
 				})
-				console.log({msg: 'response: ', emcs: response.data.emcs, totalEmcs: response.data.totalEmcs})
+				console.log({
+					msg: 'response: ',
+					emcs: response.data.emcs,
+					totalEmcs: response.data.totalEmcs,
+				})
 				this.emcs = response.data.emcs
-				this.totalPages = Math.ceil(response.data.totalEmcs/this.limit)
-		} catch (err) {
+				this.totalPages = Math.ceil(response.data.totalEmcs / this.limit)
+			} catch (err) {
 				this.error = err
 			}
 		},
-		async deleteEmc({emc}) {
+		async deleteEmc({ emc }) {
 			try {
-				const response = await PmoService.deleteEmc({ emcId: emc.id })
-				if (response.status === 200)	{
-					const { emcId, ...rest } = this.activeRouteParams
-					this.activeRouteParams = rest
-					this.$store.dispatch('deleteEmc', { emcId: emc.id })
-				}
+				await PmoService.deleteEmc({ emcId: emc.id })
+				const { emcId, ...rest } = this.activeRouteParams
+				this.activeRouteParams = { ...rest }
 			} catch (error) {
 				this.error = error
 			}
 		},
 		goTo({ name, params }) {
-			if(!_.isEqual(this.activeRouteParams, params)) {
+			if (!_.isEqual(this.activeRouteParams, params)) {
 				this.activeRouteParams = { ...this.activeRouteParams, ...params }
-				this.$router.push({ name }).catch(err => {
+				this.$router.push({ name }).catch((err) => {
 					// Ignore the vuex err regarding  navigating to the page they are already on.
 					if (
 						err.name !== 'NavigationDuplicated' &&
@@ -131,7 +138,7 @@ export default {
 					}
 				})
 			}
-		}
+		},
 	},
 }
 </script>

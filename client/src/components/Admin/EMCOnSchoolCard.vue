@@ -35,14 +35,29 @@
 				<v-btn
 					text
 					color="teal accent-4"
-					@click="goTo({ name: 'admin-emc-edit', params: { emcId: emcOnSchool.emcId } })"
+					@click="
+						goTo({
+							name: 'admin-emc-edit',
+							params: { emcId: emcOnSchool.emcId, from: 'admin-emc-on-school' },
+						})
+					"
 				>
 					Редактировать
 				</v-btn>
-				<v-btn v-if="activeRouteParams.subjectId" text color="teal accent-4" @click="$emit('onDetachEmcFrom', emcOnSchool)">
+				<v-btn
+					v-if="activeRouteParams.subjectId"
+					text
+					color="teal accent-4"
+					@click="$emit('onDetachEmcFrom', emcOnSchool)"
+				>
 					Открепить УМК
 				</v-btn>
-				<v-btn v-if="!activeRouteParams.subjectId" text color="teal accent-4" @click="$emit('onDetachEmcFrom', emcOnSchool)">
+				<v-btn
+					v-if="!activeRouteParams.subjectId"
+					text
+					color="teal accent-4"
+					@click="$emit('onDetachEmcFrom', emcOnSchool)"
+				>
 					Открепить УМК от всех МО и ОО
 				</v-btn>
 			</v-card-actions>
@@ -132,7 +147,7 @@ export default {
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool', 'activeRouteParams']),
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'emcsOnSchool']),
 	},
 	methods: {
 		saveUsingCozComment(comment) {
@@ -149,19 +164,19 @@ export default {
 		},
 		async updateEmcOnSchool(data) {
 			try {
-				const response = await AdminService.updateEmcOnSchool({
+				await AdminService.updateEmcOnSchool({
 					emcOnSchoolId: this.emcOnSchool.id,
-					...data
+					...data,
 				})
-				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}
 		},
 		goTo({ name, params }) {
-			if(!_.isEqual(this.activeRouteParams, params)) {
+			if (!_.isEqual(this.activeRouteParams, params)) {
 				this.activeRouteParams = { ...this.activeRouteParams, ...params }
-				this.$router.push({ name }).catch(err => {
+				this.$router.push({ name }).catch((err) => {
 					// Ignore the vuex err regarding  navigating to the page they are already on.
 					if (
 						err.name !== 'NavigationDuplicated' &&
@@ -172,7 +187,7 @@ export default {
 					}
 				})
 			}
-		}
+		},
 	},
 }
 </script>

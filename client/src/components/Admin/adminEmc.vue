@@ -4,7 +4,9 @@
 			<h1 class="text-center">{{ subjectTitle }}</h1>
 		</v-col>
 		<v-col cols="12">
-			<v-btn text color="teal accent-4" @click="goTo({ name: 'admin-emc-create' })"> Создать УМК </v-btn>
+			<v-btn text color="teal accent-4" @click="goTo({ name: 'admin-emc-create' })">
+				Создать УМК
+			</v-btn>
 		</v-col>
 		<v-col cols="12">
 			<v-card v-if="emcs.length === 0" class="mx-auto text-center">
@@ -38,7 +40,7 @@
 					<v-btn
 						text
 						color="teal accent-4"
-						@click="goTo({ name: 'admin-emc-edit', params: { emcId: emc.id } })"
+						@click="goTo({ name: 'admin-emc-edit', params: { emcId: emc.id, from: 'admin-emc' } })"
 					>
 						Редактировать
 					</v-btn>
@@ -52,14 +54,17 @@
 						<div v-else>Сделать снова пользовательским (не работает вроде)</div>
 					</v-btn>
 					<v-spacer></v-spacer>
-					<v-btn text color="red darken-1" @click="deleteEmc(emc)"> Удалить </v-btn>
+					<v-btn text color="red darken-1" @click="deleteEmc({ emc })"> Удалить </v-btn>
 				</v-card-actions>
 			</v-card>
+		</v-col>
+		<v-col cols="12">
+			<v-pagination v-model="page" :length="totalPages"></v-pagination>
 		</v-col>
 	</v-row>
 </template>
 <script>
-import {_} from 'lodash'
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
 
@@ -68,23 +73,27 @@ export default {
 		error: null,
 		page: 1,
 		totalPages: 1,
-		limit: 20,
+		limit: 10,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'activeSidebar', 'activeRouteParams']),
-		routeParams() { return this.activeRouteParams },
+		...mapFields(['subjects', 'isSignin', 'user', 'emcs', 'activeRouteParams', 'activeSidebar']),
+		routeParams() {
+			return this.activeRouteParams
+		},
 		subjectTitle() {
-			return this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ?? 'Все предметы' 
+			return (
+				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				'Все предметы'
+			)
 		},
 	},
 	watch: {
 		routeParams() {
-			this.page = 1
 			this.getEmcsForConstructor()
 		},
 		page() {
 			this.getEmcsForConstructor()
-		}
+		},
 	},
 	created() {
 		this.activeSidebar = 'subjects'
@@ -94,12 +103,17 @@ export default {
 		async getEmcsForConstructor() {
 			try {
 				const response = await AdminService.getEmc({
-					...this.activeRouteParams, 
-					skip: (this.page-1)*this.limit, limit: this.limit
+					...this.activeRouteParams,
+					skip: (this.page - 1) * this.limit,
+					limit: this.limit,
 				})
-				console.log({msg: 'response: ', emcs: response.data.emcs, totalEmcs: response.data.totalEmcs})
+				console.log({
+					msg: 'response: ',
+					emcs: response.data.emcs,
+					totalEmcs: response.data.totalEmcs,
+				})
 				this.emcs = response.data.emcs
-				this.totalPages = Math.ceil(response.data.totalEmcs/this.limit)
+				this.totalPages = Math.ceil(response.data.totalEmcs / this.limit)
 			} catch (err) {
 				this.error = err
 			}
@@ -108,7 +122,8 @@ export default {
 			try {
 				// Делаем умк официальной - что позволит добавлять её другим ПМО и ПОО
 				if (emc.createdBy != null) {
-					this.$store.dispatch('updateEmc', emc)
+					await AdminService.updateEmc({ ...this.activeRouteParams, emc })
+					this.activeRouteParams = { ...this.activeRouteParams }
 				}
 			} catch (error) {
 				this.error = error
@@ -117,20 +132,17 @@ export default {
 		async deleteEmc(emc) {
 			try {
 				console.log('deleteEmc: ', emc)
-				const response = await AdminService.deleteEmc({ emcId: emc.id })
-				if (response.status === 200)	{
-					const { emcId, ...rest } = this.activeRouteParams
-					this.activeRouteParams = rest
-					this.$store.dispatch('deleteEmc', { emcId: emc.id })
-				}
+				await AdminService.deleteEmc({ emcId: emc.id })
+				const { emcId, ...rest } = this.activeRouteParams
+				this.activeRouteParams = { ...rest }
 			} catch (error) {
 				this.error = error
 			}
 		},
 		goTo({ name, params }) {
-			if(!_.isEqual(this.activeRouteParams, params)) {
+			if (!_.isEqual(this.activeRouteParams, params)) {
 				this.activeRouteParams = { ...this.activeRouteParams, ...params }
-				this.$router.push({ name }).catch(err => {
+				this.$router.push({ name }).catch((err) => {
 					// Ignore the vuex err regarding  navigating to the page they are already on.
 					if (
 						err.name !== 'NavigationDuplicated' &&
@@ -141,7 +153,7 @@ export default {
 					}
 				})
 			}
-		}
+		},
 	},
 }
 </script>

@@ -44,7 +44,7 @@
 				<v-btn
 					text
 					color="teal accent-4"
-					@click="$emit('onSwapApprovingStatusEMCOnSchool', emcOnSchool)"
+					@click="$emit('onSwapApprovingStatusEmcOnSchool', emcOnSchool)"
 				>
 					{{ emcOnSchool.isApproved ? 'Отменить утверждение' : 'Утвердить' }}
 				</v-btn>
@@ -52,14 +52,29 @@
 					v-if="emcOnSchool.EMC.isCustom && emcOnSchool.EMC.createdBy === user.id"
 					text
 					color="teal accent-4"
-					:to="{ name: 'pmo-emc-edit', params: { emcId: emcOnSchool.emcId } }"
+					@click="
+						goTo({
+							name: 'pmo-emc-edit',
+							params: { emcId: emcOnSchool.emcId, from: 'pmo-emc-on-school' },
+						})
+					"
 				>
 					Редактировать
 				</v-btn>
-				<v-btn v-if="$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn
+					v-if="activeRouteParams.subjectId"
+					text
+					color="teal accent-4"
+					@click="$emit('onDetachEmcFrom', emcOnSchool)"
+				>
 					Открепить УМК
 				</v-btn>
-				<v-btn v-if="!$route.params.subjectCode" text color="teal accent-4" @click="$emit('onDetachEMCFrom', emcOnSchool)">
+				<v-btn
+					v-if="!activeRouteParams.subjectId"
+					text
+					color="teal accent-4"
+					@click="$emit('onDetachEmcFrom', emcOnSchool)"
+				>
 					Открепить УМК от всех ОО
 				</v-btn>
 			</v-card-actions>
@@ -76,10 +91,10 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Кол-во учеников"
-										:additionalEOSDataValue="emcOnSchool.studentsCount"
-										@onSaveAdditionalData="saveStudentsCount"
-										:isNumber="true"
+										additional-eos-title="Кол-во учеников"
+										:additional-eos-data-value="emcOnSchool.studentsCount"
+										:is-number="true"
+										@on-save-additional-data="saveStudentsCount"
 									/>
 									{{ emcOnSchool.studentsCount }}</v-card-text
 								>
@@ -89,9 +104,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина использования"
-										:additionalEOSDataValue="emcOnSchool.usingCoz"
-										@onSaveAdditionalData="saveUsingCozComment"
+										additional-eos-title="Причина использования"
+										:additional-eos-data-value="emcOnSchool.usingCoz"
+										@on-save-additional-data="saveUsingCozComment"
 									/>
 									{{ emcOnSchool.usingCoz }}
 								</v-card-text>
@@ -101,9 +116,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина изменения"
-										:additionalEOSDataValue="emcOnSchool.correctionCoz"
-										@onSaveAdditionalData="saveCorrectionCozComment"
+										additional-eos-title="Причина изменения"
+										:additional-eos-data-value="emcOnSchool.correctionCoz"
+										@on-save-additional-data="saveCorrectionCozComment"
 									/>
 									{{ emcOnSchool.correctionCoz }}</v-card-text
 								>
@@ -113,9 +128,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина смены"
-										:additionalEOSDataValue="emcOnSchool.swapCoz"
-										@onSaveAdditionalData="saveSwapCozComment"
+										additional-eos-title="Причина смены"
+										:additional-eos-data-value="emcOnSchool.swapCoz"
+										@on-save-additional-data="saveSwapCozComment"
 									/>
 									{{ emcOnSchool.swapCoz }}</v-card-text
 								>
@@ -128,6 +143,7 @@
 	</v-container>
 </template>
 <script>
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import TheEditAdditionalEOSData from '../TheEditAdditionalEOSData.vue'
 import PmoService from '../../services/pmoService'
@@ -148,51 +164,45 @@ export default {
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool']),
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'emcsOnSchool']),
 	},
 	methods: {
-		async saveUsingCozComment(comment) {
+		saveUsingCozComment(comment) {
+			this.updateEmcOnSchool({ usingCoz: comment })
+		},
+		saveCorrectionCozComment(comment) {
+			this.updateEmcOnSchool({ correctionCoz: comment })
+		},
+		saveSwapCozComment(comment) {
+			this.updateEmcOnSchool({ swapCoz: comment })
+		},
+		saveStudentsCount(number) {
+			this.updateEmcOnSchool({ studentsCount: number })
+		},
+		async updateEmcOnSchool(data) {
 			try {
-				const response = await PmoService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					usingCoz: comment,
+				await PmoService.updateEmcOnSchool({
+					emcOnSchoolId: this.emcOnSchool.id,
+					...data,
 				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
+				this.activeRouteParams = { ...this.activeRouteParams }
+			} catch (err) {
+				this.error = err
 			}
 		},
-		async saveCorrectionCozComment(comment) {
-			try {
-				const response = await PmoService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					correctionCoz: comment,
+		goTo({ name, params }) {
+			if (!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = { ...this.activeRouteParams, ...params }
+				this.$router.push({ name }).catch((err) => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
 				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
-			}
-		},
-		async saveSwapCozComment(comment) {
-			try {
-				const response = await PmoService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					swapCoz: comment,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
-			}
-		},
-		async saveStudentsCount(number) {
-			try {
-				const response = await PmoService.setEMCOnSchool({
-					id: this.emcOnSchool.id,
-					studentsCount: number,
-				})
-				this.$store.dispatch('updateEMCOnSchool', response.data.emcOnSchool)
-			} catch (error) {
-				this.error = error
 			}
 		},
 	},

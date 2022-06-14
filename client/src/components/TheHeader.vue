@@ -13,18 +13,24 @@
 		<v-btn v-if="!isSignin" plain @click="goTo({ name: '/' })"> Система учёта УМК </v-btn>
 		<div v-if="isSignin">
 			<v-btn plain :to="{ path: `/${user.UserRole.name}` }"> Система учёта УМК </v-btn>
-			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc-on-school'})">
+			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc-on-school' })">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc' })"> Конструктор </v-btn>
-			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc-on-school'})">
+			<v-btn v-if="user.UserRole.code == 1" plain @click="goTo({ name: 'admin-emc' })">
+				Конструктор
+			</v-btn>
+			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc-on-school' })">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc' })"> Конструктор </v-btn>
+			<v-btn v-if="user.UserRole.code == 2" plain @click="goTo({ name: 'pmo-emc' })">
+				Конструктор
+			</v-btn>
 			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emc-on-school' })">
 				УМК
 			</v-btn>
-			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emc' })"> Конструктор </v-btn>
+			<v-btn v-if="user.UserRole.code == 3" plain @click="goTo({ name: 'poo-emc' })">
+				Конструктор
+			</v-btn>
 		</div>
 		<v-spacer></v-spacer>
 		<v-btn v-if="isSignin" plain :to="{ path: `/${user.UserRole.name}` }">
@@ -49,9 +55,9 @@ export default {
 			this.goTo({ name: '/', params: null })
 		},
 		goTo({ name, params }) {
-			console.log({ msg:'goTo', name, params })
+			console.log({ msg: 'goTo', name, params })
 			this.activeRouteParams = params
-			this.$router.push({ name }).catch(err => {
+			this.$router.push({ name }).catch((err) => {
 				// Ignore the vuex err regarding  navigating to the page they are already on.
 				if (
 					err.name !== 'NavigationDuplicated' &&
@@ -61,7 +67,7 @@ export default {
 					console.log(err)
 				}
 			})
-		}
+		},
 	},
 }
 </script>

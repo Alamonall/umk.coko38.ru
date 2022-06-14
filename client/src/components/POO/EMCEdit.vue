@@ -40,15 +40,12 @@
 			<v-card-actions>
 				<v-btn text color="teal accent-4" @click="saveEmc"> Сохранить изменения </v-btn>
 				<v-spacer></v-spacer>
-				<v-btn text color="red accent-2" @click="goTo({ name: 'poo-emc' })">
-					Отменить редактирование
-				</v-btn>
+				<v-btn text color="red accent-2" @click="goTo()"> Отменить редактирование </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
 </template>
 <script>
-import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import PooService from '../../services/pooService'
 
@@ -60,7 +57,15 @@ export default {
 		emc: null,
 	}),
 	computed: {
-		...mapFields(['activeSidebar', 'isSignin', 'subjects', 'publishers', 'levels', 'user', 'activeRouteParams']),
+		...mapFields([
+			'activeRouteParams',
+			'activeSidebar',
+			'isSignin',
+			'subjects',
+			'publishers',
+			'levels',
+			'user',
+		]),
 	},
 	created() {
 		this.activeSidebar = null
@@ -74,7 +79,7 @@ export default {
 					const [localEMC] = response.data.emcs
 					this.emc = localEMC
 				} else {
-					this.goTo({ name: 'poo-emc' })
+					this.goTo()
 				}
 			} catch (error) {
 				this.error = error
@@ -82,37 +87,34 @@ export default {
 		},
 		async saveEmc() {
 			try {
-				const response = await PooService.updateEmc({
+				await PooService.updateEmc({
 					...this.activeRouteParams,
 					emc: {
 						...this.emc,
 						publisherId: this.emc.Publisher.id,
 						levelId: this.emc.Level.id,
 						subjectId: this.emc.Subject.id,
-					}
+					},
 				})
-				this.emcs = response.data.emcs
-				this.goTo({ name: 'poo-emc' })
+				this.goTo()
 			} catch (error) {
 				this.error = error
 			}
 		},
-		goTo({ name, params }) {
-			if(!_.isEqual(this.activeRouteParams, params)) {
-				const { emcId, ...rest } = this.activeRouteParams
-				this.activeRouteParams = { ...rest, ...params }
-				this.$router.push({ name }).catch(err => {
-					// Ignore the vuex err regarding  navigating to the page they are already on.
-					if (
-						err.name !== 'NavigationDuplicated' &&
-						!err.message.includes('Avoided redundant navigation to current location')
-					) {
-						// But print any other errors to the console
-						console.log(err)
-					}
-				})
-			}
-		}
+		goTo() {
+			const { emcId, from, ...rest } = this.activeRouteParams
+			this.activeRouteParams = { ...rest }
+			this.$router.push({ name: from }).catch((err) => {
+				// Ignore the vuex err regarding  navigating to the page they are already on.
+				if (
+					err.name !== 'NavigationDuplicated' &&
+					!err.message.includes('Avoided redundant navigation to current location')
+				) {
+					// But print any other errors to the console
+					console.log(err)
+				}
+			})
+		},
 	},
 }
 </script>

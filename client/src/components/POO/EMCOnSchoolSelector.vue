@@ -3,7 +3,7 @@
 		<v-card-title class="text-h5"> Добавить УМК </v-card-title>
 		<v-card-text>
 			<v-row>
-				<v-col cols="12" 	>
+				<v-col cols="12">
 					<v-autocomplete
 						v-model="model"
 						:items="emcsTitles"
@@ -103,7 +103,9 @@ export default {
 	}),
 	computed: {
 		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
-		routeParams() { return this.activeRouteParams },
+		routeParams() {
+			return this.activeRouteParams
+		},
 		fields() {
 			if (!this.model) return []
 			return Object.keys(this.model.previewData).map((key) => {
@@ -119,8 +121,7 @@ export default {
 					!!entry &&
 					entry.Subject.id === this.activeRouteParams.subjectId &&
 					this.emcsOnSchool.filter(
-						(eos) =>
-							eos.emcId === entry.id && eos.School.id === this.user.schoolId,
+						(eos) => eos.emcId === entry.id && eos.School.id === this.user.schoolId,
 					).length === 0
 				) {
 					const defaultTitle = entry.title == null ? 'Нет имени' : entry.title
@@ -150,6 +151,7 @@ export default {
 	},
 	watch: {
 		routeParams() {
+			this.model = null
 			this.getEmc()
 		},
 	},
@@ -159,7 +161,7 @@ export default {
 	methods: {
 		async getEmc() {
 			try {
-				const response = await PooService.getEmcForAttach({ ...this.activeRouteParams })
+				const response = await PooService.getEmcToAttach({ ...this.activeRouteParams })
 				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
@@ -170,7 +172,7 @@ export default {
 				await PooService.attachTo({
 					...this.activeRouteParams,
 					...this.additionalDataForEmcOnSchool,
-					emcId: this.model.entry.id, 
+					emcId: this.model.entry.id,
 				})
 				this.activeRouteParams = { ...this.activeRouteParams }
 				this.model = null

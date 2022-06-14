@@ -36,7 +36,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['token','user','isSignin']),
+		...mapFields(['token', 'user', 'isSignin']),
 	},
 	methods: {
 		async signin() {
@@ -49,9 +49,12 @@ export default {
 				this.token = response.data.token
 				this.user = response.data.user
 				this.isSignin = true
-				if (this.user.UserRole.code === 1) this.$router.push('/admin').catch(err=>console.error(err))
-				else if (this.user.UserRole.code === 2) this.$router.push('/pmo').catch(err=>console.error(err))
-				else if (this.user.UserRole.code === 3) this.$router.push('/poo').catch(err=>console.error(err))
+				if (this.user.UserRole.code === 1)
+					this.$router.push('/admin').catch((err) => console.error(err))
+				else if (this.user.UserRole.code === 2)
+					this.$router.push('/pmo').catch((err) => console.error(err))
+				else if (this.user.UserRole.code === 3)
+					this.$router.push('/poo').catch((err) => console.error(err))
 			} catch (error) {
 				this.error = error
 			}

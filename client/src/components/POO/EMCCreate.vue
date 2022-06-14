@@ -77,7 +77,7 @@ export default {
 		},
 	}),
 	computed: {
-		...mapFields(['activeSidebar', 'isSignin', 'user', 'publishers', 'subjects', 'levels', 'activeRouteParams']),
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'publishers', 'subjects', 'levels']),
 	},
 	created() {
 		this.activeSidebar = null
@@ -96,6 +96,7 @@ export default {
 				)
 					throw Error('Один из параметров не указан')
 
+				console.log('creating emc ', this.emc)
 				await PooService.createEmc({ emc: this.emc })
 				this.activeRouteParams = { subjectId: this.emc.Subject.id }
 				this.$router.push({ name: 'poo-emc' })
