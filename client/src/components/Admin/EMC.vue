@@ -131,7 +131,6 @@ export default {
 		},
 		async deleteEmc(emc) {
 			try {
-				console.log('deleteEmc: ', emc)
 				await AdminService.deleteEmc({ emcId: emc.id })
 				const { emcId, ...rest } = this.activeRouteParams
 				this.activeRouteParams = { ...rest }

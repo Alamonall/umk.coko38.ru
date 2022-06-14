@@ -34,8 +34,8 @@
 <script>
 import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
-import EmcOnSchoolCard from './EmcOnSchoolCard.vue'
-import EmcOnSchoolSelector from './EmcOnSchoolSelector.vue'
+import EmcOnSchoolCard from './EMCOnSchoolCard.vue'
+import EmcOnSchoolSelector from './EMCOnSchoolSelector.vue'
 
 export default {
 	components: {
