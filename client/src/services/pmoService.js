@@ -2,50 +2,59 @@ import api from './api'
 
 export default {
 	getUserData() {
-		return api().get('/pmo')
+		return api().post('/pmo')
 	},
-	getEMCsOnSchool(params = null) {
-		return api().get(`/pmo
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs-on-school`)
+	getEmcsOnSchool({ schoolId, subjectId, skip, limit }) {
+		console.log('pmo service ', { subjectId, schoolId, skip, limit })
+		return api().post('/pmo/list_emc_on_school', {
+			subjectId,
+			skip,
+			limit,
+		})
 	},
-	getEMCs(params = null) {
-		return api().get(`/pmo
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs
-			${params?.emcId ? `/${params.emcId}` : ''}`)
+	getEmcs({ emcId, subjectId, schoolId, skip, limit }) {
+		return api().post('/pmo/list_emcs', { emcId, subjectId, schoolId, skip, limit })
 	},
-	setEMC(EMC) {
-		console.log(EMC)
-		return api().put(`/pmo/emcs/${EMC.id}`, EMC)
+	getEmcsForAttach({ subjectId, schoolId, skip, limit }) {
+		return api().post('/pmo/list_emcs_for_attach', { subjectId, schoolId, skip, limit })
 	},
-	deleteEMC(emc = null) {
-		return api().delete(`/pmo/emcs/${emc.id}/delete`)
+	updateEmc({ subjectId, schoolId, skip, limit, emc }) {
+		return api().post('/pmo/update_emc', { subjectId, schoolId, skip, limit, emc })
 	},
-	setEMCOnSchool(EMCOnSchool) {
-		console.log('EMCOnSchool:', { ...EMCOnSchool })
-		return api().put(`/pmo/emcOnSchool/${EMCOnSchool.id}`, { ...EMCOnSchool })
+	deleteEmc({ emcId }) {
+		return api().post('/pmo/delete_emc', { emcId })
 	},
-	createEMC(EMC = null) {
-		return api().post('/pmo/emcs/create', EMC)
+	updateEmcOnSchool({ emcId, usingCoz, correctionCoz, swapCoz, studentsCount }) {
+		return api().post('/pmo/update_emc_on_school', {
+			emcId,
+			usingCoz,
+			correctionCoz,
+			swapCoz,
+			studentsCount,
+		})
 	},
-	attachTo(params = null, emcId, eos) {
-		return api().post(
-			`/pmo
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/attach`,
-			eos,
-		)
+	createEmc({ emc }) {
+		return api().post('/pmo/create_emc', {
+			title: emc.title,
+			authors: emc.authors,
+			grades: emc.grades,
+			publisherId: emc.Publisher.id,
+			subjectId: emc.Subject.id,
+			levelId: emc.Level.id,
+		})
 	},
-	detachFrom(params = null, emcId) {
-		return api().delete(`/pmo
-			${params?.areaCode ? '/areas/'.concat(params.areaCode) : ''}
-			${params?.schoolCode ? '/schools/'.concat(params.schoolCode) : ''}
-			${params?.subjectCode ? '/subjects/'.concat(params.subjectCode) : ''}
-			/emcs/${emcId}/detach`)
+	attachTo({ emcId, subjectId, schoolId, swapCoz, usingCoz, correctionCoz, studentsCount }) {
+		return api().post('/pmo/attach_emc', {
+			emcId,
+			subjectId,
+			swapCoz,
+			usingCoz,
+			correctionCoz,
+			studentsCount,
+			schoolId,
+		})
+	},
+	detachFrom({ schoolId, subjectId, emcId }) {
+		return api().post('/pmo/detach_emc', { subjectId, schoolId, emcId })
 	},
 }

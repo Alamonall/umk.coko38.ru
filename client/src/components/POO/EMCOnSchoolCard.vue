@@ -45,7 +45,12 @@
 					v-if="emcOnSchool.EMC.isCustom && emcOnSchool.EMC.createdBy === user.id"
 					text
 					color="teal accent-4"
-					:to="{ name: 'pmo-emc-edit', params: { emcId: emcOnSchool.emcId } }"
+					@click="
+						goTo({
+							name: 'poo-emc-edit',
+							params: { emcId: emcOnSchool.emcId, from: 'poo-emc-on-school' },
+						})
+					"
 				>
 					Редактировать
 				</v-btn>
@@ -66,10 +71,10 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Кол-во учеников"
-										:additionalEOSDataValue="emcOnSchool.studentsCount"
-										@onSaveAdditionalData="saveStudentsCount"
-										:isNumber="true"
+										additional-eos-title="Кол-во учеников"
+										:additional-eos-data-value="emcOnSchool.studentsCount"
+										:is-number="true"
+										@on-save-additional-data="saveStudentsCount"
 									/>
 									{{ emcOnSchool.studentsCount }}</v-card-text
 								>
@@ -79,9 +84,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина использования"
-										:additionalEOSDataValue="emcOnSchool.usingCoz"
-										@onSaveAdditionalData="saveUsingCozComment"
+										additional-eos-title="Причина использования"
+										:additional-eos-data-value="emcOnSchool.usingCoz"
+										@on-save-additional-data="saveUsingCozComment"
 									/>
 									{{ emcOnSchool.usingCoz }}
 								</v-card-text>
@@ -91,9 +96,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина изменения"
-										:additionalEOSDataValue="emcOnSchool.correctionCoz"
-										@onSaveAdditionalData="saveCorrectionCozComment"
+										additional-eos-title="Причина изменения"
+										:additional-eos-data-value="emcOnSchool.correctionCoz"
+										@on-save-additional-data="saveCorrectionCozComment"
 									/>
 									{{ emcOnSchool.correctionCoz }}</v-card-text
 								>
@@ -103,9 +108,9 @@
 							<v-card flat>
 								<v-card-text>
 									<TheEditAdditionalEOSData
-										additionalEOSTitle="Причина смены"
-										:additionalEOSDataValue="emcOnSchool.swapCoz"
-										@onSaveAdditionalData="saveSwapCozComment"
+										additional-eos-title="Причина смены"
+										:additional-eos-data-value="emcOnSchool.swapCoz"
+										@on-save-additional-data="saveSwapCozComment"
 									/>
 									{{ emcOnSchool.swapCoz }}</v-card-text
 								>
@@ -118,6 +123,7 @@
 	</v-container>
 </template>
 <script>
+import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import TheEditAdditionalEOSData from '../TheEditAdditionalEOSData.vue'
 import PooService from '../../services/pooService'
@@ -138,7 +144,7 @@ export default {
 		isDetailing: false,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'emcs', 'emcsOnSchool']),
+		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'emcsOnSchool']),
 	},
 	methods: {
 		saveUsingCozComment(comment) {
@@ -155,15 +161,30 @@ export default {
 		},
 		async updateEmcOnSchool(data) {
 			try {
-				const response = await PooService.updateEmcOnSchool({
+				await PooService.updateEmcOnSchool({
 					emcId: this.emcOnSchool.id,
-					...data
+					...data,
 				})
-				this.$store.dispatch('updateEmcOnSchool', response.data.emcOnSchool)
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}
-		}
+		},
+		goTo({ name, params }) {
+			if (!_.isEqual(this.activeRouteParams, params)) {
+				this.activeRouteParams = { ...this.activeRouteParams, ...params }
+				this.$router.push({ name }).catch((err) => {
+					// Ignore the vuex err regarding  navigating to the page they are already on.
+					if (
+						err.name !== 'NavigationDuplicated' &&
+						!err.message.includes('Avoided redundant navigation to current location')
+					) {
+						// But print any other errors to the console
+						console.log(err)
+					}
+				})
+			}
+		},
 	},
 }
 </script>

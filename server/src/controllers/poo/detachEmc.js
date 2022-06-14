@@ -3,19 +3,20 @@ const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
   try {
-    const { subjectId, emcId } = req.body;
+    const { subjectId, emcOnSchoolId } = req.body;
 
-    if (emcId == null) res.status(404).json({ message: 'УМК не найдена' });
+    if (emcOnSchoolId == null)
+      res.status(404).json({ message: 'УМК не найдена' });
 
     console.log({
       msg: 'detaching emc from ',
       role: req.user.UserRole.code,
       subjectId,
-      emcId,
+      emcOnSchoolId,
     });
 
     await EMCOnSchool.destroy({
-      where: { schoolId: req.user.schoolId, emcId: emcId },
+      where: { schoolId: req.user.schoolId, id: emcOnSchoolId },
     });
 
     const response = await getEmcsOnSchool({

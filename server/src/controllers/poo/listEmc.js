@@ -4,7 +4,7 @@ module.exports = async function (req, res) {
   try {
     const { subjectId, emcId, skip, limit } = req.body;
 
-    const response = await getEmcs({
+    const { emcs, totalEmcs } = await getEmcs({
       gia: req.user.gia,
       subjectId,
       skip,
@@ -14,7 +14,7 @@ module.exports = async function (req, res) {
       emcId,
     });
 
-    res.json({ message: 'Данные получены', ...response });
+    res.json({ message: 'Данные получены', emcs, totalEmcs });
   } catch (err) {
     console.error(err);
   }

@@ -4,7 +4,7 @@ export default {
 	getUserData() {
 		return api().post('/poo')
 	},
-	getEmcsOnSchool({ subjectId, skip, limit }) {
+	getEmcOnSchool({ subjectId, skip, limit }) {
 		console.log('poo service ', { subjectId, skip, limit })
 		return api().post('/poo/list_emc_on_school', {
 			subjectId,
@@ -12,10 +12,10 @@ export default {
 			limit,
 		})
 	},
-	getEmcs({ emcId, subjectId, skip, limit }) {
+	getEmc({ emcId, subjectId, skip, limit }) {
 		return api().post('/poo/list_emcs', { emcId, subjectId, skip, limit })
 	},
-	getEmcsForAttach({ subjectId, skip, limit }) {
+	getEmcToAttach({ subjectId, skip, limit }) {
 		return api().post('/poo/list_emcs_for_attach', { subjectId, skip, limit })
 	},
 	updateEmc({ subjectId, skip, limit, emc }) {
@@ -24,9 +24,9 @@ export default {
 	deleteEmc({ emcId }) {
 		return api().post('/poo/delete_emc', { emcId })
 	},
-	updateEmcOnSchool({ emcId, usingCoz, correctionCoz, swapCoz, studentsCount }) {
+	updateEmcOnSchool({ emcOnSchoolId, usingCoz, correctionCoz, swapCoz, studentsCount }) {
 		return api().post('/poo/update_emc_on_school', {
-			emcId,
+			emcOnSchoolId,
 			usingCoz,
 			correctionCoz,
 			swapCoz,
@@ -53,7 +53,7 @@ export default {
 			studentsCount,
 		})
 	},
-	detachFrom({ subjectId, emcId }) {
-		return api().post('/poo/detach_emc', { subjectId, emcId })
+	detachFrom({ subjectId, emcOnSchoolId }) {
+		return api().post('/poo/detach_emc', { subjectId, emcOnSchoolId })
 	},
 }

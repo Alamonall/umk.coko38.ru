@@ -38,11 +38,9 @@
 				></v-select>
 			</v-card-text>
 			<v-card-actions>
-				<v-btn text color="teal accent-4" @click="saveEMC"> Сохранить изменения </v-btn>
+				<v-btn text color="teal accent-4" @click="saveEmc"> Сохранить изменения </v-btn>
 				<v-spacer></v-spacer>
-				<v-btn text color="red accent-2" :to="{ name: 'pmo-emcs' }">
-					Отменить редактирование
-				</v-btn>
+				<v-btn text color="red accent-2" @click="goTo()"> Отменить редактирование </v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-container>
@@ -59,45 +57,63 @@ export default {
 		emc: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'subjects', 'publishers', 'levels', 'user', 'activeSidebar']),
+		...mapFields([
+			'activeRouteParams',
+			'isSignin',
+			'subjects',
+			'publishers',
+			'levels',
+			'user',
+			'activeSidebar',
+		]),
 	},
 	created() {
 		this.activeSidebar = null
-		this.getEMCForEdit()
+		this.getEmcForEdit()
 	},
 	methods: {
-		async getEMCForEdit() {
+		async getEmcForEdit() {
 			try {
-				const response = await PmoService.getEMCs(this.$route.params)
-				if (response.data.error === undefined) {
-					const [localEMC] = response.data.emcs
-					this.emc = localEMC
+				const response = await PmoService.getEmcs({ ...this.activeRouteParams })
+				if (response.status === 200) {
+					const [localEmc] = response.data.emcs
+					this.emc = localEmc
 				} else {
-					this.$router.push({
-						name: 'pmo-subject-emcs',
-						params: { subjectCode: this.emc.Subject.code },
-					})
+					this.goTo()
 				}
 			} catch (err) {
 				this.error = err
 			}
 		},
-		async saveEMC() {
+		async saveEmc() {
 			try {
-				const response = await PmoService.setEMC({
-					...this.emc,
-					publisherId: this.emc.Publisher.id,
-					levelId: this.emc.Level.id,
-					subjectId: this.emc.Subject.id,
+				await PmoService.updateEmc({
+					...this.activeRouteParams,
+					emc: {
+						...this.emc,
+						publisherId: this.emc.Publisher.id,
+						levelId: this.emc.Level.id,
+						subjectId: this.emc.Subject.id,
+					},
 				})
-				this.$store.dispatch('updateEMC', response.data.emc)
-				this.$router.push({
-					name: 'pmo-subject-emcs',
-					params: { subjectCode: response.data.emc.Subject.code },
-				})
+				this.goTo()
 			} catch (error) {
 				this.error = error
 			}
+		},
+		goTo() {
+			const { emcId, from, ...rest } = this.activeRouteParams
+			this.activeRouteParams = { ...rest }
+			this.$router.push({ name: from }).catch((err) => {
+				// Ignore the vuex err regarding  navigating to the page they are already on.
+				if (
+					err.name !== 'NavigationDuplicated' &&
+					!err.message.includes('Avoided redundant navigation to current location')
+				) {
+					// But print any other errors to the console
+					console.log(err)
+				}
+			})
 		},
 	},
 }

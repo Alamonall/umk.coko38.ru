@@ -5,7 +5,7 @@ module.exports = async function (req, res) {
     const { emcOnSchoolId, subjectId, skip, limit } = req.body;
 
     console.log({ emcOnSchoolId, subjectId, skip, limit });
-    const response = await getEmcsOnSchool({
+    const { emcsOnSchool, totalEmcsOnSchool } = await getEmcsOnSchool({
       schoolId: req.user.schoolId,
       subjectId,
       emcOnSchoolId,
@@ -14,7 +14,11 @@ module.exports = async function (req, res) {
       limit,
     });
 
-    res.json({ message: 'Данные получены', ...response });
+    res.json({
+      message: 'Данные получены',
+      emcsOnSchool,
+      totalEmcsOnSchool,
+    });
   } catch (error) {
     console.error(error);
   }

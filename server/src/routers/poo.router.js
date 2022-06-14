@@ -1,84 +1,33 @@
 const router = require('express').Router();
 const pooController = require('../controllers/poo');
 
-const isAuthenticated = require('../policies/isAuth');
-const roleCheck = require('../policies/roleCheck');
-
-//#region POO
 // главная страница PMO
-router.post('/', isAuthenticated, roleCheck.isPoo, pooController.poo);
+router.post('/', pooController.poo);
 
 // Получение списка прикреплённых к школам умк
-router.post(
-  '/list_emc_on_school',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.listEmcOnSchool
-);
+router.post('/list_emc_on_school', pooController.listEmcOnSchool);
 
 // получение всех умк
-router.post(
-  '/list_emcs',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.listEmcs
-);
+router.post('/list_emc', pooController.listEmc);
 
-router.post(
-  '/list_emcs_for_attach',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.listEmcsForAttach
-);
+router.post('/list_emc_for_attach', pooController.listEmcToAttach);
 
 // Добавление нового умк
-router.post(
-  '/create_emc',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.createEmc
-);
+router.post('/create_emc', pooController.createEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post(
-  '/update_emc',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.updateEmc
-);
+router.post('/update_emc', pooController.updateEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post(
-  '/delete_emc',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.deleteEmc
-);
+router.post('/delete_emc', pooController.deleteEmc);
 
 // сохранения изменений сделанных админом для конкретного умк
-router.post(
-  '/update_emc_on_school',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.updateEmcOnSchool
-);
+router.post('/update_emc_on_school', pooController.updateEmcOnSchool);
 
 // Прикрепить умк к определённому месту - зависит от параметров
-router.post(
-  '/attach_emc',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.attachEmc
-);
+router.post('/attach_emc', pooController.attachEmc);
 
 //открепить умк от определённого места - зависит от параметров
-router.post(
-  '/detach_emc',
-  isAuthenticated,
-  roleCheck.isPoo,
-  pooController.detachEmc
-);
-
-//#endregion
+router.post('/detach_emc', pooController.detachEmc);
 
 module.exports = router;

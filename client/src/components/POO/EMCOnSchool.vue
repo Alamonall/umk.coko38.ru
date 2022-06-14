@@ -10,7 +10,7 @@
 				<EmcOnSchoolSelector v-if="activeRouteParams.subjectId" />
 			</v-col>
 			<v-card
-				v-if="emcsOnSchool.length === 0 && activeRouteParams.schoolId !== undefined"
+				v-if="emcsOnSchool.length === 0 && activeRouteParams.schoolId != null"
 				class="mx-auto text-center"
 			>
 				УМК у данного ОО отсутствует
@@ -20,11 +20,8 @@
 					<EmcOnSchoolCard :emc-on-school="emcOnSchool" @onDetachEmcFrom="detachEmcFrom" />
 				</v-row>
 			</v-col>
-			<v-col cols="12" :disabled="emcs.length > limit">
-				<v-pagination 
-					v-model="page"
-					:length="totalPages"
-				></v-pagination>
+			<v-col cols="12">
+				<v-pagination v-model="page" :length="totalPages"></v-pagination>
 			</v-col>
 		</v-row>
 	</v-container>
@@ -45,50 +42,67 @@ export default {
 		error: null,
 		page: 1,
 		totalPages: 1,
-		limit: 5,
+		limit: 20,
 	}),
 	computed: {
-		...mapFields(['activeSidebar', 'emcsOnSchool', 'isSignin', 'user', 'emcs', 'subjects', 'activeRouteParams']),
+		...mapFields([
+			'activeRouteParams',
+			'activeSidebar',
+			'emcsOnSchool',
+			'isSignin',
+			'user',
+			'emcs',
+			'subjects',
+		]),
 		subjectTitle() {
-			return this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ?? 'Все предметы' 
+			return (
+				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				'Все предметы'
+			)
 		},
 		routeParams() {
 			return this.activeRouteParams
-		}
+		},
 	},
 	watch: {
 		routeParams() {
-			this.page = 1
-			this.getEmcsOnSchool()
+			this.getEmcOnSchool()
+			this.getEmc()
 		},
 		page() {
-			this.getEmcsOnSchool()
-		}
+			this.getEmcOnSchool()
+		},
 	},
 	created() {
 		this.activeSidebar = 'poo'
-		this.getEmcsOnSchool()
+		this.getEmcOnSchool()
+		this.getEmc()
 	},
 	methods: {
-		async getEmcs() {
+		async getEmc() {
 			try {
-				const response = await PooService.getEmcsForAttach({
-					...this.activeRouteParams
-				})
-				this.emcs = [...response.data.emcs]
+				const response = await PooService.getEmcToAttach({ ...this.activeRouteParams })
+				console.log({ msg: 'get_emcs_for_attach', ...response.data })
+				this.emcs = response.data.emcs
 			} catch (err) {
 				this.error = err
 			}
 		},
-		async getEmcsOnSchool() {
+		async getEmcOnSchool() {
 			// Получение УМК школы
 			try {
-				const response = await PooService.getEmcsOnSchool({
-					subjectId: this.activeRouteParams.subjectId,
-					skip: (this.page-1)*this.limit, limit: this.limit
+				const response = await PooService.getEmcOnSchool({
+					...this.activeRouteParams,
+					skip: (this.page - 1) * this.limit,
+					limit: this.limit,
 				})
-				this.emcsOnSchool = [...response.data.emcsOnSchool]
-				this.totalPages = Math.ceil(response.data.totalEmcsOnSchool/this.limit)
+				console.log({
+					msg: 'get_emcs_on_school',
+					totalEmcsOnSchool: response.data.totalEmcsOnSchool,
+					emcsOnSchool: response.data.emcsOnSchool,
+				})
+				this.emcsOnSchool = response.data.emcsOnSchool
+				this.totalPages = Math.ceil(response.data.totalEmcsOnSchool / this.limit)
 			} catch (err) {
 				this.error = err
 			}
@@ -96,9 +110,12 @@ export default {
 		async detachEmcFrom(emcOnSchool) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				const response = await PooService.detachFrom({ ...this.activeRouteParams,  emcId: emcOnSchool.emcId },)
-				this.emcsOnSchool = [...response.data.emcsOnSchool]
-				this.getEmcs()
+				const response = await PooService.detachFrom({
+					...this.activeRouteParams,
+					emcOnSchoolId: emcOnSchool.id,
+				})
+				this.emcsOnSchool = response.data.emcsOnSchool
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}

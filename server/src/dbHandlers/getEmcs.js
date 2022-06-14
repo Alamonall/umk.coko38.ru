@@ -19,13 +19,14 @@ module.exports = async function ({
   emcId,
 }) {
   let emcWhere = {};
-  emcWhere = gia ? { ...emcWhere, gia } : emcWhere;
-  emcWhere = emcId ? { ...emcWhere, id: emcId } : emcWhere;
-  emcWhere = isCustom ? { ...emcWhere, isCustom } : emcWhere;
-  emcWhere = createdBy ? { ...emcWhere, createdBy } : emcWhere;
-  emcWhere = excludeEmcsId
-    ? { ...emcWhere, id: { [Op.ne]: excludeEmcsId } }
-    : emcWhere;
+  emcWhere = gia == null ? emcWhere : { ...emcWhere, gia };
+  emcWhere = emcId == null ? emcWhere : { ...emcWhere, id: emcId };
+  emcWhere = isCustom == null ? emcWhere : { ...emcWhere, isCustom };
+  emcWhere = createdBy == null ? emcWhere : { ...emcWhere, createdBy };
+  emcWhere =
+    excludeEmcsId == null
+      ? emcWhere
+      : { ...emcWhere, id: { [Op.ne]: excludeEmcsId } };
 
   console.log({
     msg: 'get_emcs',
@@ -60,7 +61,7 @@ module.exports = async function ({
       {
         model: Subject,
         attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
-        where: subjectId ? { SubjectGlobalID: subjectId } : {},
+        where: subjectId == null ? {} : { SubjectGlobalID: subjectId },
       },
       {
         model: Level,
@@ -75,33 +76,18 @@ module.exports = async function ({
     limit: limit ?? 20,
   });
 
-  const totalEmcs = await EMC.findAll({
-    attributes: [
-      'id',
-      'gia',
-      'authors',
-      'grades',
-      'isCustom',
-      'publisherId',
-      'subjectId',
-      'levelId',
-      'title',
-      'createdBy',
-    ],
+  const totalEmcs = await EMC.count({
     where: emcWhere,
     include: [
       {
         model: Publisher,
-        attributes: ['id', 'name'],
       },
       {
         model: Subject,
-        attributes: [['SubjectGlobalID', 'id'], 'code', 'name'],
-        where: subjectId ? { SubjectGlobalID: subjectId } : {},
+        where: subjectId == null ? {} : { SubjectGlobalID: subjectId },
       },
       {
         model: Level,
-        attributes: ['id', 'code', 'name'],
       },
       {
         model: EMCOnSchool,

@@ -10,7 +10,7 @@ import PooService from '../../services/pooService'
 
 export default {
 	computed: {
-		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'levels', 'publishers'])
+		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'levels', 'publishers']),
 	},
 	created() {
 		this.init()

@@ -20,9 +20,9 @@ export default new Vuex.Store({
 		emcs: [],
 		emcsOnSchool: [],
 		activeRouteParams: {
-			subjectId: 1,
-			areaId: 1,
-			schoolId: 1,
+			subjectId: null,
+			areaId: null,
+			schoolId: null,
 		},
 	},
 	mutations: {
@@ -61,9 +61,6 @@ export default new Vuex.Store({
 		},
 	},
 	getters: {
-		// activeRouteParams(state) {
-		// 	return state.activeRouteParams
-		// },
 		getField,
 	},
 })

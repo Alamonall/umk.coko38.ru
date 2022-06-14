@@ -1,9 +1,9 @@
 <template>
 	<v-app>
 		<PageHeader />
-		<TheAdminSidebar v-if="activeSidebar === 'admin' && user.UserRole.code === 1 && isSignin"/>
-		<ThePmoSidebar v-if="activeSidebar === 'pmo' && user.UserRole.code === 2 && isSignin"/>
-		<ThePooSidebar v-if="activeSidebar === 'poo' && user.UserRole.code === 3 && isSignin"/>
+		<TheAdminSidebar v-if="activeSidebar === 'admin' && user.UserRole.code === 1 && isSignin" />
+		<ThePmoSidebar v-if="activeSidebar === 'pmo' && user.UserRole.code === 2 && isSignin" />
+		<ThePooSidebar v-if="activeSidebar === 'poo' && user.UserRole.code === 3 && isSignin" />
 		<TheSubjectsSidebar v-if="activeSidebar === 'subjects' && isSignin" />
 
 		<v-main>
@@ -41,17 +41,17 @@ export default {
 		err: null,
 	}),
 	computed: {
-		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'areas', 'activeRouteParams'])
+		...mapFields(['isSignin', 'user', 'activeSidebar', 'subjects', 'areas', 'activeRouteParams']),
 	},
 	created() {
 		document.title = 'АИС «УМК»'
 	},
 	methods: {
 		goTo({ name, params }) {
-			console.debug({ msg:'goTo', name, params })
-			if(!_.isEqual(this.activeRouteParams, params)) {
+			console.debug({ msg: 'goTo', name, params })
+			if (!_.isEqual(this.activeRouteParams, params)) {
 				this.activeRouteParams = params
-				this.$router.push({ name }).catch(err => {
+				this.$router.push({ name }).catch((err) => {
 					// Ignore the vuex err regarding  navigating to the page they are already on.
 					if (
 						err.name !== 'NavigationDuplicated' &&
@@ -62,7 +62,7 @@ export default {
 					}
 				})
 			}
-		}
-	}
+		},
+	},
 }
 </script>

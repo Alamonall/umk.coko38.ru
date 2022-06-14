@@ -5,28 +5,35 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
 
 export default {
 	computed: {
-		...mapState(['isSignin', 'user', 'activeSidebar']),
+		...mapFields([
+			'isSignin',
+			'user',
+			'activeSidebar',
+			'subjects',
+			'levels',
+			'areas',
+			'publishers',
+		]),
 	},
 	created() {
-		this.getUserData()
+		this.init()
 		// Отключаем sidebar для страницы пользователя
 		this.activeSidebar = null
 	},
 	methods: {
-		async getUserData() {
+		async init() {
 			try {
 				const response = await AdminService.getUserData()
 
-				this.$store.dispatch('setAreas', response.data.areasAndSchools)
-				this.$store.dispatch('setSubjects', response.data.subjects)
-				this.$store.dispatch('setPublishers', response.data.publishers)
-				this.$store.dispatch('setLevels', response.data.levels)
-				this.$store.dispatch('setEMCs', response.data.emcs)
+				this.subjects = response.data.subjects
+				this.publishers = response.data.publishers
+				this.levels = response.data.levels
+				this.areas = response.data.areas
 			} catch (err) {
 				this.err = err
 			}
