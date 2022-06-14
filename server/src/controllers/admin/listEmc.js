@@ -14,8 +14,9 @@ module.exports = async function (req, res) {
       emcId,
     });
 
-    return res.json({ message: 'Данные получены', emcs, totalEmcs });
+    res.json({ msg: 'Данные получены', emcs, totalEmcs });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

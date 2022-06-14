@@ -5,12 +5,19 @@ module.exports = async function (req, res) {
     /** Удаляем умк при условии, что админ не сделал его официальным и
      * данный пользователь является создателем
      */
-    await EMC.destroy({
-      where: { id: req.params.emcId, createdBy: req.user.id, isCustom: true },
-    });
+    const { emcId } = req.body;
 
-    res.json({ message: 'УМК удалена' });
+    console.log('delete emc ', emcId);
+    if (emcId != null) {
+      const affected = await EMC.destroy({
+        where: { id: emcId, createdBy: req.user.id, isCustom: true },
+      });
+      console.log('deleted emc ', affected);
+    }
+
+    res.json({ msg: 'УМК удалена' });
   } catch (error) {
     console.error(error);
+    throw new Error(error);
   }
 };

@@ -1,5 +1,4 @@
 const { EMCOnSchool } = require('../../models');
-const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
   try {
@@ -12,32 +11,24 @@ module.exports = async function (req, res) {
       isApproved,
     } = req.body;
 
-    const updateFields = {
-      isApproved,
-      usingCoz,
-      correctionCoz,
-      swapCoz,
-      studentsCount,
+    let updateFields = {
+      isApproved: isApproved || false,
     };
+    updateFields =
+      usingCoz == null ? updateFields : { ...updateFields, usingCoz };
+    updateFields =
+      correctionCoz == null ? updateFields : { ...updateFields, correctionCoz };
+    updateFields =
+      swapCoz == null ? updateFields : { ...updateFields, swapCoz };
+    updateFields =
+      studentsCount == null ? updateFields : { ...updateFields, studentsCount };
 
-    console.log('updateEMCOnSchool: ', req.body);
-    const emcOnSchoolCount = await EMCOnSchool.update(updateFields, {
-      where: { id: emcOnSchoolId },
-    });
-    console.log({ msg: 'updated_emc_on_school_count', emcOnSchoolCount });
+    console.log({ msg: 'update_emc_on_school: ', emcOnSchoolId, updateFields });
+    await EMCOnSchool.update(updateFields, { where: { id: emcOnSchoolId } });
 
-    const { emcsOnSchool } = await getEmcsOnSchool({
-      gia: req.user.gia,
-      emcOnSchoolId,
-    });
-
-    console.log({
-      msg: 'update_emc_on_school',
-      emcsOnSchool,
-      emcOnSchool: emcsOnSchool[0],
-    });
-    res.json({ msg: 'Данные обновлены', emcOnSchool: emcsOnSchool[0] });
+    res.json({ msg: 'Данные обновлены' });
   } catch (err) {
     console.log(err);
+    throw new Error(err);
   }
 };

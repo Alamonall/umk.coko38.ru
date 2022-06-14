@@ -5,7 +5,17 @@ module.exports = async function (req, res) {
     const { title, authors, publisherId, grades, subjectId, levelId } =
       req.body;
 
-    const emc = await EMC.create({
+    if (
+      title == null ||
+      authors == null ||
+      publisherId == null ||
+      grades == null ||
+      subjectId == null ||
+      levelId == null
+    )
+      throw new Error('Одно из полей не заполнено');
+
+    await EMC.create({
       title: title,
       authors: authors,
       subjectId: subjectId,
@@ -17,8 +27,9 @@ module.exports = async function (req, res) {
       isCustom: true,
     });
 
-    res.json({ message: 'УМК создано', emc: emc });
+    res.json({ message: 'УМК создано' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

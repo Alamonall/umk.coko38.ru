@@ -8,48 +8,30 @@ const {
   Area,
 } = require('../../models');
 const { Op, fn, literal, col } = require('sequelize');
-const getEmcs = require('../../dbHandlers/getEmcs');
 
 module.exports = async function (req, res) {
   try {
-    // Информация для sidebar
-    // const { areaCode, schoolCode } = req.params;
-    let areaWhere, schoolWhere;
+    const { schoolId } = req.params;
 
-    schoolWhere = { ...schoolWhere, ...{ gia: req.user.gia } };
+    let schoolWhere = { gia: req.user.gia };
+    let areaWhere = { AreaID: req.user.areaId };
+
     areaWhere =
       req.user.gia === 9
         ? { gia: { [Op.in]: [9, 99] } }
         : { gia: { [Op.in]: [11, 99] } };
 
-    // switch (req.user.UserRole.code) {
-    //   case 1:
-    //     areaWhere = areaCode
-    //       ? { ...areaWhere, ...{ code: areaCode } }
-    //       : areaWhere;
-    //     schoolWhere = schoolCode
-    //       ? { ...schoolWhere, ...{ code: schoolCode } }
-    //       : schoolWhere;
-    //     break;
-    //   case 2:
-    //     areaWhere.AreaID = req.user.areaId;
-    //     schoolWhere = schoolCode
-    //       ? { ...schoolWhere, ...{ code: schoolCode } }
-    //       : schoolWhere;
-    //     break;
-    //   case 3:
-    //     schoolWhere.id = req.user.schoolId;
-    //     break;
-    // }
+    schoolWhere =
+      schoolId == null ? schoolWhere : { ...schoolWhere, id: schoolId };
 
-    const areasAndSchools = await Area.findAll({
-      attributes: ['name', 'code'],
+    const areas = await Area.findAll({
+      attributes: [['AreaID', 'id'], 'name', 'code'],
       where: areaWhere,
       include: [
         {
           model: School,
           require: true,
-          attributes: ['name', 'code', 'gia'],
+          attributes: ['id', 'name', 'code', 'gia'],
           where: schoolWhere,
           include: [
             {
@@ -62,7 +44,7 @@ module.exports = async function (req, res) {
                   include: [
                     {
                       model: Subject,
-                      attributes: ['name', 'code'],
+                      attributes: [['SubjectGlobalID', 'id'], 'name', 'code'],
                     },
                   ],
                 },
@@ -71,7 +53,7 @@ module.exports = async function (req, res) {
           ],
         },
       ],
-      order: [[School, 'code', 'ASC']],
+      order: [[School, 'id', 'ASC']],
     });
 
     // Информация для редактирования и создания умк
@@ -103,17 +85,15 @@ module.exports = async function (req, res) {
     });
     const levels = await Level.findAll();
 
-    // Список УМК, которые пользователю можно будет прикреплять к своему объекту (ОО)
-    const emcs = await getEmcs({ ...req });
-
     res.json({
-      areasAndSchools: areasAndSchools,
-      subjects: subjects,
-      publishers: publishers,
-      levels: levels,
-      emcs: emcs,
+      msg: 'OK',
+      areas,
+      subjects,
+      publishers,
+      levels,
     });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

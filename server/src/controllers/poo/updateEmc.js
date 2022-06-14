@@ -1,5 +1,5 @@
 const { EMC } = require('../../models');
-const getEmcs = require('../../dbHandlers/getEmcs');
+
 module.exports = async function (req, res) {
   try {
     /** Обновляем УМК с данными при условии, что данный пользователь
@@ -17,17 +17,9 @@ module.exports = async function (req, res) {
 
     console.log({ msg: 'update_emc', upadted });
 
-    const emcs = await getEmcs({
-      gia: req.user.gia,
-      subjectId,
-      skip,
-      limit,
-      isCustom: true,
-      createdBy: req.user.id,
-    });
-
-    res.json({ message: 'Данные обновлены', emcs });
+    res.json({ msg: 'Данные обновлены' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

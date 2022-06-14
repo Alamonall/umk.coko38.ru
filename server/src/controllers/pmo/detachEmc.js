@@ -1,26 +1,20 @@
 const { EMCOnSchool, School } = require('../../models');
-const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 const { Op } = require('sequelize');
 
 module.exports = async function (req, res) {
   try {
     //Переделать
-    const { schoolCode, emcId } = req.params;
+    const { schoolId, emcId } = req.body;
 
-    if (emcId == undefined)
-      return res.status(404).json({ message: 'УМК не найдена' });
+    if (emcId == null) throw new Error('УМК не найдена');
 
-    if (req.user.areaId === undefined || req.user.gia === undefined)
-      return res.status(403).json({
-        message:
-          'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.',
-      });
+    if (req.user.areaId == null || req.user.gia == null)
+      throw new Error(
+        'Проблема с доступом к информации пользователя. Перезайдите и попробуйте ещё раз.'
+      );
 
-    let schoolWhere = { areaId: req.user.areaId };
-
-    if (schoolCode != undefined) schoolWhere.code = schoolCode;
-
-    schoolWhere.gia = req.user.gia;
+    let schoolWhere = { areaId: req.user.areaId, gia: req.user.gia };
+    schoolWhere = schoolId == null ? schoolWhere : { id: schoolId };
 
     const schools = await School.findAll({ raw: true, where: schoolWhere });
 
@@ -31,15 +25,9 @@ module.exports = async function (req, res) {
       },
     });
 
-    const emcsOnSchool = await getEmcsOnSchool({
-      ...req,
-      areaId: req.user.areaId,
-      gia: req.user.gia,
-      roleCode: req.user.UserRole.code,
-    });
-
-    res.json({ message: 'УМК откреплены', emcsOnSchool: emcsOnSchool });
+    res.json({ msg: 'УМК откреплены' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

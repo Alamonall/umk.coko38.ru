@@ -19,7 +19,8 @@ module.exports = async function (req, res) {
       emcsOnSchool,
       totalEmcsOnSchool,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
+    throw new Error(err);
   }
 };

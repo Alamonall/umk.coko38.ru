@@ -41,5 +41,6 @@ module.exports = async function (req, res) {
     res.json({ message: 'УМК создано' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

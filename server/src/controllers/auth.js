@@ -44,14 +44,14 @@ module.exports = app = {
 
       if (!user) {
         return res.status(403).json({
-          message: 'Введены не корректные данные 1',
+          msg: 'Введены не корректные данные 1',
         });
       }
 
       const isPasswordValid = user.comparePassword(password);
       if (!isPasswordValid)
         return res.status(403).json({
-          message: 'Введены не корректные данные 2',
+          msg: 'Введены не корректные данные 2',
         });
 
       const userJson = user.toJSON();

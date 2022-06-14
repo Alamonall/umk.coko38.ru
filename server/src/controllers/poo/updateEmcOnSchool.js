@@ -1,5 +1,4 @@
 const { EMCOnSchool } = require('../../models');
-const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
   try {
@@ -9,21 +8,28 @@ module.exports = async function (req, res) {
     const { emcOnSchoolId, usingCoz, correctionCoz, swapCoz, studentsCount } =
       req.body;
 
-    const updateFields = { usingCoz, correctionCoz, swapCoz, studentsCount };
+    let updateFields = {};
+    updateFields =
+      usingCoz == null ? updateFields : { ...updateFields, usingCoz };
+    updateFields =
+      correctionCoz == null ? updateFields : { ...updateFields, correctionCoz };
+    updateFields =
+      swapCoz == null ? updateFields : { ...updateFields, swapCoz };
+    updateFields =
+      studentsCount == null ? updateFields : { ...updateFields, studentsCount };
 
-    const emcOnSchoolCount = await EMCOnSchool.update(updateFields, {
+    console.log({
+      msg: 'update_emc_on_school',
+      update_fields: updateFields,
+      id: emcOnSchoolId,
+    });
+    await EMCOnSchool.update(updateFields, {
       where: { id: emcOnSchoolId, schoolId: req.user.schoolId },
     });
-    console.log({ msg: 'updated_emc_on_school_count', emcOnSchoolCount });
 
-    const { emcsOnSchool } = await getEmcsOnSchool({
-      emcOnSchoolId,
-      gia: req.user.gia,
-    });
-
-    console.log({ msg: 'updated_emc_on_school', emcOnSchool: emcsOnSchool[0] });
-    res.json({ message: 'Данные обновлены', emcOnSchool: emcsOnSchool[0] });
+    res.json({ msg: 'Данные обновлены' });
   } catch (err) {
     console.error(err);
+    throw new Error(err);
   }
 };

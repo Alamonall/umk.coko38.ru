@@ -36,7 +36,7 @@ module.exports = async function (req, res) {
     });
 
     if (areas.length == 0)
-      res.status(404).json({ message: 'Не найдено районов для прикрепления' });
+      throw new Error('Не найдено районов для прикрепления');
 
     const areasIds = areas.map((item) => item.id);
 
@@ -61,10 +61,11 @@ module.exports = async function (req, res) {
       });
     }
 
-    await EMCOnSchool.bulkCreate(bulk, { returning: true });
+    await EMCOnSchool.bulkCreate(bulk);
 
-    res.json({ message: 'УМК добавлены' });
+    res.json({ msg: 'УМК добавлены' });
   } catch (err) {
     console.log(err);
+    throw new Error(err);
   }
 };
