@@ -34,8 +34,8 @@
 <script>
 import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
-import EmcOnSchoolCard from './EmcOnSchoolCard.vue'
-import EmcOnSchoolSelector from './EmcOnSchoolSelector.vue'
+import EmcOnSchoolCard from './EMCOnSchoolCard.vue'
+import EmcOnSchoolSelector from './EMCOnSchoolSelector.vue'
 
 export default {
 	components: {
@@ -115,11 +115,10 @@ export default {
 		async detachEmcFrom(emcOnSchool) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				const response = await AdminService.detachFrom({
+				 await AdminService.detachFrom({
 					...this.activeRouteParams,
 					emcOnSchoolId: emcOnSchool.id,
 				})
-				this.emcsOnSchool = response.data.emcsOnSchool
 				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
