@@ -1,5 +1,5 @@
 <template>
-	<v-navigation-drawer app width="20%" left="true" permanent absolute clipped>
+	<v-navigation-drawer app width="25%" left="true" height="100%" permanent absolute clipped>
 		<v-list-group
 			v-for="area in areas"
 			:key="area.AreaID"

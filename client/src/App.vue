@@ -6,14 +6,10 @@
 		<ThePooSidebar v-if="activeSidebar === 'poo' && user.UserRole.code === 3 && isSignin" />
 		<TheSubjectsSidebar v-if="activeSidebar === 'subjects' && isSignin" />
 
-		<v-main>
-			<!-- Provides the application the proper gutter -->
-			<v-container fluid>
-				<!-- If using vue-router -->
-				<router-view></router-view>
-			</v-container>
+		<v-main fixed>
+			<router-view></router-view>
 		</v-main>
-		<TheFooter />
+		<!-- <TheFooter /> -->
 	</v-app>
 </template>
 
@@ -25,7 +21,7 @@ import TheAdminSidebar from './components/admin/TheAdminSidebar.vue'
 import ThePmoSidebar from './components/pmo/ThePmoSidebar.vue'
 import ThePooSidebar from './components/poo/ThePooSidebar.vue'
 import TheSubjectsSidebar from './components/TheSubjectsSidebar.vue'
-import TheFooter from './components/TheFooter.vue'
+// import TheFooter from './components/TheFooter.vue'
 
 export default {
 	name: 'App',
@@ -35,7 +31,7 @@ export default {
 		ThePmoSidebar,
 		ThePooSidebar,
 		TheSubjectsSidebar,
-		TheFooter,
+		// TheFooter,
 	},
 	data: () => ({
 		err: null,

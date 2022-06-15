@@ -73,7 +73,7 @@ export default {
 		error: null,
 		page: 1,
 		totalPages: 1,
-		limit: 10,
+		limit: 5,
 	}),
 	computed: {
 		...mapFields(['subjects', 'isSignin', 'user', 'emcs', 'activeRouteParams', 'activeSidebar']),

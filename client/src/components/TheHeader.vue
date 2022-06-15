@@ -2,7 +2,7 @@
 	<v-app-bar app clipped-left>
 		<div class="d-flex align-center">
 			<v-img
-				alt="Vuetify Logo"
+				alt="AIS EMC Logo"
 				class="shrink mr-2"
 				contain
 				src="../assets/logo.png"
