@@ -17,7 +17,7 @@ module.exports = async function (req, res) {
       where: { schoolId: req.user.schoolId, id: emcOnSchoolId },
     });
 
-    res.json({ message: 'УМК откреплены' });
+    res.json({ msg: 'УМК откреплены' });
   } catch (err) {
     console.error(err);
     throw new Error(err);

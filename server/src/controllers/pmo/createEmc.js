@@ -27,7 +27,7 @@ module.exports = async function (req, res) {
       isCustom: true,
     });
 
-    res.json({ message: 'УМК создано' });
+    res.json({ msg: 'УМК создано' });
   } catch (err) {
     console.error(err);
     throw new Error(err);

@@ -15,7 +15,7 @@ module.exports = async function (req, res) {
       console.log('deleted emc ', affected);
     }
 
-    res.json({ message: 'УМК удалена' });
+    res.json({ msg: 'УМК удалена' });
   } catch (err) {
     console.error(err);
     throw new Error(err);

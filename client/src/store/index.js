@@ -12,7 +12,7 @@ export default new Vuex.Store({
 		user: null,
 		token: null,
 		isSignin: false,
-		activeSidebar: '', // активность sidebar со списком предметов
+		activeSidebar: null, // активность sidebar со списком предметов
 		publishers: [], // Издатели для умк. Так как они не будут меняться часто, можно хранить их в store
 		subjects: [],
 		areas: [],
@@ -27,38 +27,6 @@ export default new Vuex.Store({
 	},
 	mutations: {
 		updateField,
-		updateEmc(state, emc) {
-			const index = state.emcs.findIndex((x) => x.id === emc.id)
-			if (index !== -1) {
-				state.emcs[index] = { ...emc }
-			}
-			state.emcs = [...state.emcs]
-		},
-		deleteEmc(state, emc) {
-			const index = state.emcs.findIndex((x) => x.id === emc.emcId)
-			if (index !== -1) {
-				state.emcs.splice(index, 1)
-			}
-			state.emcs = [...state.emcs]
-		},
-		updateEmcOnSchool(state, emcOnSchool) {
-			const index = state.emcsOnSchool.findIndex((x) => x.id === emcOnSchool.id)
-			if (index !== -1) {
-				state.emcsOnSchool[index] = { ...emcOnSchool }
-			}
-			state.emcsOnSchool = [...state.emcsOnSchool]
-		},
-	},
-	actions: {
-		updateEmcOnSchool({ commit }, emcOnSchool) {
-			commit('updateEmcOnSchool', emcOnSchool)
-		},
-		updateEmc({ commit }, emc) {
-			commit('updateEmc', emc)
-		},
-		deleteEmc({ commit }, emc) {
-			commit('deleteEmc', emc)
-		},
 	},
 	getters: {
 		getField,

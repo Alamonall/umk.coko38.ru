@@ -29,7 +29,6 @@ export default {
 		async init() {
 			try {
 				const response = await AdminService.getUserData()
-
 				this.subjects = response.data.subjects
 				this.publishers = response.data.publishers
 				this.levels = response.data.levels

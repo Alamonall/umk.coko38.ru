@@ -7,12 +7,12 @@
 			<v-btn text color="teal accent-4" :to="{ name: 'pmo-emc-create' }"> Создать УМК </v-btn>
 		</v-col>
 		<v-col cols="12">
-			<v-card v-if="emcsFilteredForPMO.length == 0" class="mx-auto text-center">
+			<v-card v-if="emcs.length == 0" class="mx-auto text-center">
 				Учебников по этому предмету нету
 			</v-card>
 		</v-col>
 		<v-col cols="12">
-			<v-card v-for="emc in emcsFilteredForPMO" :key="emc.id">
+			<v-card v-for="emc in emcs" :key="emc.id">
 				<v-card-title class="text-h4"> {{ emc.title }} </v-card-title>
 				<v-card-text class="text-h5">
 					<div>
@@ -70,12 +70,15 @@ import PmoService from '../../services/pmoService'
 export default {
 	data: () => ({
 		error: null,
+		page: 1,
+		totalPages: 1,
+		limit: 10,
 	}),
 	computed: {
-		...mapFields(['activeRouteParams', 'isSignin', 'user', 'emcs', 'activeSidebar']),
+		...mapFields(['activeRouteParams', 'subjects', 'isSignin', 'user', 'emcs', 'activeSidebar']),
 		subjectTitle() {
 			return (
-				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				this.subjects.find((subject) => subject.id === this.activeRouteParams?.subjectId)?.name ??
 				'Все предметы'
 			)
 		},
@@ -86,18 +89,18 @@ export default {
 	watch: {
 		routeParams() {
 			this.page = 1
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 		page() {
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 	},
 	created() {
 		this.activeSidebar = 'subjects'
-		this.getEmcsForConstructor()
+		this.getEmcForConstructor()
 	},
 	methods: {
-		async getEmcsForConstructor() {
+		async getEmcForConstructor() {
 			try {
 				const response = await PmoService.getEmc({
 					...this.activeRouteParams,

@@ -5,26 +5,26 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapFields } from 'vuex-map-fields'
 import PmoService from '../../services/pmoService'
 
 export default {
 	computed: {
-		...mapState(['isSignin', 'user', 'activeSidebar']),
+		...mapFields(['isSignin', 'user', 'schools','subjects','levels','publishers','activeSidebar']),
 	},
 	created() {
 		this.init()
+		// Отключаем sidebar для страницы пользователя
 		this.activeSidebar = null
 	},
 	methods: {
 		async init() {
 			try {
 				const response = await PmoService.getUserData()
-				this.$store.dispatch('setAreas', response.data.areasAndSchools)
-				this.$store.dispatch('setSubjects', response.data.subjects)
-				this.$store.dispatch('setPublishers', response.data.publishers)
-				this.$store.dispatch('setLevels', response.data.levels)
-				this.$store.dispatch('setEMCs', response.data.emcs)
+				this.schools = response.data.schools
+				this.subjects = response.data.subjects
+				this.publishers = response.data.publishers
+				this.levels = response.data.levels
 			} catch (err) {
 				this.err = err
 			}

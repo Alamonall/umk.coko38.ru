@@ -48,7 +48,6 @@ export default {
 	},
 	methods: {
 		goTo({ name, params }) {
-			console.debug({ msg: 'goTo', name, params })
 			if (!_.isEqual(this.activeRouteParams, params)) {
 				this.activeRouteParams = params
 				this.$router.push({ name }).catch((err) => {

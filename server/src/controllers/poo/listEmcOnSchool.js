@@ -15,7 +15,7 @@ module.exports = async function (req, res) {
     });
 
     res.json({
-      message: 'Данные получены',
+      msg: 'Данные получены',
       emcsOnSchool,
       totalEmcsOnSchool,
     });

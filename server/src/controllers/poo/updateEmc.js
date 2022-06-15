@@ -11,11 +11,11 @@ module.exports = async function (req, res) {
 
     console.log({ msg: 'updating_emc', emc, subjectId, skip, limit });
 
-    const upadted = await EMC.update(emc, {
+    const updated = await EMC.update(emc, {
       where: { id: emc.id, createdBy: req.user.id, isCustom: true },
     });
 
-    console.log({ msg: 'update_emc', upadted });
+    console.log({ msg: 'update_emc', updated });
 
     res.json({ msg: 'Данные обновлены' });
   } catch (err) {

@@ -10,7 +10,7 @@ router.post('/list_emc_on_school', pooController.listEmcOnSchool);
 // получение всех умк
 router.post('/list_emc', pooController.listEmc);
 
-router.post('/list_emc_for_attach', pooController.listEmcToAttach);
+router.post('/list_emc_to_attach', pooController.listEmcToAttach);
 
 // Добавление нового умк
 router.post('/create_emc', pooController.createEmc);

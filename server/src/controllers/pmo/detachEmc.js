@@ -4,9 +4,9 @@ const { Op } = require('sequelize');
 module.exports = async function (req, res) {
   try {
     //Переделать
-    const { schoolId, emcId } = req.body;
+    const { schoolId, emcOnSchoolId } = req.body;
 
-    if (emcId == null) throw new Error('УМК не найдена');
+    if (emcOnSchoolId == null) throw new Error('УМК не найдена');
 
     if (req.user.areaId == null || req.user.gia == null)
       throw new Error(
@@ -21,7 +21,7 @@ module.exports = async function (req, res) {
     await EMCOnSchool.destroy({
       where: {
         schoolId: { [Op.in]: schools.map((item) => item.id) },
-        emcId: emcId,
+        id: emcOnSchoolId,
       },
     });
 

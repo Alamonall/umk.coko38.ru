@@ -4,7 +4,7 @@
 			<h1 class="text-center">{{ subjectTitle }}</h1>
 		</v-col>
 		<v-col cols="12">
-			<v-btn text color="teal accent-4" @click="goTo({ name: 'poo-emc-create' })">
+			<v-btn text color="teal accent-4" :to="{ name: 'poo-emc-create' }">
 				Создать УМК
 			</v-btn>
 		</v-col>
@@ -86,28 +86,28 @@ export default {
 		},
 		subjectTitle() {
 			return (
-				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				this.subjects.find((subject) => subject.id === this.activeRouteParams?.subjectId)?.name ??
 				'Все предметы'
 			)
 		},
 	},
 	watch: {
 		routeParams() {
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 		page() {
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 	},
 	created() {
 		this.activeSidebar = 'subjects'
-		this.getEmcsForConstructor()
+		this.getEmcForConstructor()
 	},
 	methods: {
-		async getEmcsForConstructor() {
+		async getEmcForConstructor() {
 			try {
 				console.log('this.activeRouteParams: ', this.activeRouteParams)
-				const response = await PooService.getEmcs({
+				const response = await PooService.getEmc({
 					...this.activeRouteParams,
 					skip: (this.page - 1) * this.limit,
 					limit: this.limit,

@@ -8,7 +8,10 @@ router.post('/', pmoController.pmo);
 router.post('/list_emc_on_school', pmoController.listEmcOnSchool);
 
 // получение всех умк
-router.post('/emc', pmoController.listEmcs);
+router.post('/list_emc', pmoController.listEmc);
+
+// получение всех умк
+router.post('/list_emc_to_attach', pmoController.listEmcToAttach);
 
 // Добавление нового умк
 router.post('/create_emc', pmoController.createEmc);

@@ -5,7 +5,6 @@ export default {
 		return api().post('/poo')
 	},
 	getEmcOnSchool({ subjectId, skip, limit }) {
-		console.log('poo service ', { subjectId, skip, limit })
 		return api().post('/poo/list_emc_on_school', {
 			subjectId,
 			skip,
@@ -13,10 +12,10 @@ export default {
 		})
 	},
 	getEmc({ emcId, subjectId, skip, limit }) {
-		return api().post('/poo/list_emcs', { emcId, subjectId, skip, limit })
+		return api().post('/poo/list_emc', { emcId, subjectId, skip, limit })
 	},
 	getEmcToAttach({ subjectId, skip, limit }) {
-		return api().post('/poo/list_emcs_for_attach', { subjectId, skip, limit })
+		return api().post('/poo/list_emc_to_attach', { subjectId, skip, limit })
 	},
 	updateEmc({ subjectId, skip, limit, emc }) {
 		return api().post('/poo/update_emc', { subjectId, skip, limit, emc })

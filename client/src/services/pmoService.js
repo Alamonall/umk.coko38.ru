@@ -4,19 +4,20 @@ export default {
 	getUserData() {
 		return api().post('/pmo')
 	},
-	getEmcsOnSchool({ schoolId, subjectId, skip, limit }) {
+	getEmcOnSchool({ schoolId, subjectId, skip, limit }) {
 		console.log('pmo service ', { subjectId, schoolId, skip, limit })
 		return api().post('/pmo/list_emc_on_school', {
+			schoolId,
 			subjectId,
 			skip,
 			limit,
 		})
 	},
-	getEmcs({ emcId, subjectId, schoolId, skip, limit }) {
-		return api().post('/pmo/list_emcs', { emcId, subjectId, schoolId, skip, limit })
+	getEmc({ emcId, subjectId, schoolId, skip, limit }) {
+		return api().post('/pmo/list_emc', { emcId, subjectId, schoolId, skip, limit })
 	},
-	getEmcsForAttach({ subjectId, schoolId, skip, limit }) {
-		return api().post('/pmo/list_emcs_for_attach', { subjectId, schoolId, skip, limit })
+	getEmcToAttach({ subjectId, schoolId, skip, limit }) {
+		return api().post('/pmo/list_emc_to_attach', { subjectId, schoolId, skip, limit })
 	},
 	updateEmc({ subjectId, schoolId, skip, limit, emc }) {
 		return api().post('/pmo/update_emc', { subjectId, schoolId, skip, limit, emc })
@@ -54,7 +55,7 @@ export default {
 			schoolId,
 		})
 	},
-	detachFrom({ schoolId, subjectId, emcId }) {
-		return api().post('/pmo/detach_emc', { subjectId, schoolId, emcId })
+	detachFrom({ schoolId, subjectId, emcOnSchoolId }) {
+		return api().post('/pmo/detach_emc', { subjectId, schoolId, emcOnSchoolId })
 	},
 }

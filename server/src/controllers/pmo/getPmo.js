@@ -5,7 +5,6 @@ const {
   Publisher,
   School,
   Subject,
-  Area,
 } = require('../../models');
 const { Op, fn, literal, col } = require('sequelize');
 
@@ -13,47 +12,37 @@ module.exports = async function (req, res) {
   try {
     const { schoolId } = req.params;
 
-    let schoolWhere = { gia: req.user.gia };
-    let areaWhere = { AreaID: req.user.areaId };
+    let schoolWhere = { areaId: req.user.areaId };
 
-    areaWhere =
+    schoolWhere =
       req.user.gia === 9
-        ? { gia: { [Op.in]: [9, 99] } }
-        : { gia: { [Op.in]: [11, 99] } };
+        ? { ...schoolWhere, gia: { [Op.in]: [9, 99] } }
+        : { ...schoolWhere, gia: { [Op.in]: [11, 99] } };
 
     schoolWhere =
       schoolId == null ? schoolWhere : { ...schoolWhere, id: schoolId };
 
-    const areas = await Area.findAll({
-      attributes: [['AreaID', 'id'], 'name', 'code'],
-      where: areaWhere,
+    const schools = await School.findAll({
+      attributes: ['id', 'name', 'code', 'gia'],
+      where: schoolWhere,
       include: [
         {
-          model: School,
-          require: true,
-          attributes: ['id', 'name', 'code', 'gia'],
-          where: schoolWhere,
+          model: EMCOnSchool,
+          attributes: [],
           include: [
             {
-              model: EMCOnSchool,
+              model: EMC,
               attributes: [],
               include: [
                 {
-                  model: EMC,
-                  attributes: [],
-                  include: [
-                    {
-                      model: Subject,
-                      attributes: [['SubjectGlobalID', 'id'], 'name', 'code'],
-                    },
-                  ],
+                  model: Subject,
+                  attributes: [['SubjectGlobalID', 'id'], 'name', 'code'],
                 },
               ],
             },
           ],
         },
       ],
-      order: [[School, 'id', 'ASC']],
     });
 
     // Информация для редактирования и создания умк
@@ -87,7 +76,7 @@ module.exports = async function (req, res) {
 
     res.json({
       msg: 'OK',
-      areas,
+      schools,
       subjects,
       publishers,
       levels,

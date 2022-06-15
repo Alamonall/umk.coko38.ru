@@ -1,19 +1,19 @@
 <template>
 	<v-container v-if="isSignin && user.UserRole.code == 3" fluid>
-		<v-row v-if="activeRouteParams.subjectId">
+		<v-row>
 			<v-col cols="12">
 				<h1 class="text-center">{{ subjectTitle }}</h1>
 			</v-col>
 		</v-row>
 		<v-row dense>
 			<v-col cols="12">
-				<EmcOnSchoolSelector v-if="activeRouteParams.subjectId" />
+				<EmcOnSchoolSelector v-if="activeRouteParams && activeRouteParams.subjectId" />
 			</v-col>
 			<v-card
-				v-if="emcsOnSchool.length === 0 && activeRouteParams.schoolId != null"
+				v-if="emcsOnSchool.length === 0"
 				class="mx-auto text-center"
 			>
-				УМК у данного ОО отсутствует
+				Отсутствуют УМК
 			</v-card>
 			<v-col cols="12">
 				<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
@@ -42,7 +42,7 @@ export default {
 		error: null,
 		page: 1,
 		totalPages: 1,
-		limit: 20,
+		limit: 10,
 	}),
 	computed: {
 		...mapFields([
@@ -56,7 +56,7 @@ export default {
 		]),
 		subjectTitle() {
 			return (
-				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				this.subjects.find((subject) => subject.id === this.activeRouteParams?.subjectId)?.name ??
 				'Все предметы'
 			)
 		},
@@ -110,11 +110,10 @@ export default {
 		async detachEmcFrom(emcOnSchool) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				const response = await PooService.detachFrom({
+				await PooService.detachFrom({
 					...this.activeRouteParams,
 					emcOnSchoolId: emcOnSchool.id,
 				})
-				this.emcsOnSchool = response.data.emcsOnSchool
 				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err

@@ -5,6 +5,7 @@ module.exports = async function (req, res) {
   try {
     const { subjectId, skip, limit } = req.body;
 
+    console.log({ msg: 'list_emc_to_attach', subjectId, skip, limit });
     const response = await getEmcsOnSchool({
       schoolId: req.user.schoolId,
       areaId: req.user.areaId,
@@ -23,6 +24,11 @@ module.exports = async function (req, res) {
       excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
     });
 
+    console.log({
+      msg: 'Данные получены',
+      emcs_length: emcs.length,
+      totalEmcs,
+    });
     res.json({ msg: 'Данные получены', emcs, totalEmcs });
   } catch (err) {
     console.error(err);

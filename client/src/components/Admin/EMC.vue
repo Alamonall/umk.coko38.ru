@@ -82,25 +82,25 @@ export default {
 		},
 		subjectTitle() {
 			return (
-				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				this.subjects.find((subject) => subject.id === this.activeRouteParams?.subjectId)?.name ??
 				'Все предметы'
 			)
 		},
 	},
 	watch: {
 		routeParams() {
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 		page() {
-			this.getEmcsForConstructor()
+			this.getEmcForConstructor()
 		},
 	},
 	created() {
 		this.activeSidebar = 'subjects'
-		this.getEmcsForConstructor()
+		this.getEmcForConstructor()
 	},
 	methods: {
-		async getEmcsForConstructor() {
+		async getEmcForConstructor() {
 			try {
 				const response = await AdminService.getEmc({
 					...this.activeRouteParams,
@@ -129,7 +129,7 @@ export default {
 				this.error = error
 			}
 		},
-		async deleteEmc(emc) {
+		async deleteEmc({emc}) {
 			try {
 				await AdminService.deleteEmc({ emcId: emc.id })
 				const { emcId, ...rest } = this.activeRouteParams

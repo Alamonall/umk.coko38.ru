@@ -4,7 +4,14 @@ module.exports = async function (req, res) {
   try {
     const { emcOnSchoolId, schoolId, subjectId, skip, limit } = req.body;
 
-    console.log({ emcOnSchoolId, subjectId, skip, limit });
+    console.log({
+      msg: 'list_emc_on_school',
+      emcOnSchoolId,
+      schoolId,
+      subjectId,
+      skip,
+      limit,
+    });
     const { emcsOnSchool, totalEmcsOnSchool } = await getEmcsOnSchool({
       schoolId,
       subjectId,
@@ -14,7 +21,11 @@ module.exports = async function (req, res) {
       skip,
       limit,
     });
-
+    console.log({
+      msg: 'Данные получены',
+      emcs_on_school_length: emcsOnSchool.length,
+      totalEmcsOnSchool,
+    });
     res.json({
       msg: 'Данные получены',
       emcsOnSchool,

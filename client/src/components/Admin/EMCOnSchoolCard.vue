@@ -13,6 +13,9 @@
 					<v-chip v-show="emcOnSchool.EMC.isCustom" color="red" text-color="white" pill>
 						Пользовательский
 					</v-chip>
+					<v-chip color="green" text-color="white" pill>
+						{{emcOnSchool.School.schoolName}} {{emcOnSchool.School.schoolCode}} 
+					</v-chip>
 				</div>
 				<p><strong>Издательство:</strong> {{ emcOnSchool.EMC.Publisher.publisherName }}</p>
 				<p><strong>Авторы:</strong> {{ emcOnSchool.EMC.authors }}</p>
@@ -45,7 +48,6 @@
 					Редактировать
 				</v-btn>
 				<v-btn
-					v-if="activeRouteParams.subjectId"
 					text
 					color="teal accent-4"
 					@click="$emit('onDetachEmcFrom', emcOnSchool)"
@@ -53,7 +55,6 @@
 					Открепить УМК
 				</v-btn>
 				<v-btn
-					v-if="!activeRouteParams.subjectId"
 					text
 					color="teal accent-4"
 					@click="$emit('onDetachEmcFrom', emcOnSchool)"

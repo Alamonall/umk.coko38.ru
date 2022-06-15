@@ -46,12 +46,14 @@ import { mapFields } from 'vuex-map-fields'
 
 export default {
 	computed: {
-		...mapFields(['isSignin', 'user', 'token']),
+		...mapFields(['isSignin', 'user', 'token', 'activeSidebar', 'activeRouteParams']),
 	},
 	methods: {
 		signout() {
 			this.token = null
 			this.user = null
+			this.activeSidebar = null
+			this.isSignin = false
 			this.goTo({ name: '/', params: null })
 		},
 		goTo({ name, params }) {

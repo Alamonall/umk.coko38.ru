@@ -1,11 +1,10 @@
 <template>
 	<v-navigation-drawer app width="20%" left="true" permanent absolute clipped>
 		<v-list-group
-			v-for="school in area.Schools"
+			v-for="school in schools"
 			:key="school.id"
 			:value="false"
-			no-action
-			sub-group
+			prepend-icon="mdi-account-circle"
 		>
 			<template v-slot:activator>
 				<v-list-item-content>
@@ -19,7 +18,7 @@
 						plain
 						@click="
 							goTo({
-								name: 'admin-emc-on-school',
+								name: 'pmo-emc-on-school',
 								params: { subjectId: subject.id, schoolId: school.id },
 							})
 						"
@@ -29,8 +28,6 @@
 				</v-list-item-content>
 			</v-list-item>
 		</v-list-group>
-		<v-divider></v-divider>
-		<slot> Нет данных </slot>
 	</v-navigation-drawer>
 </template>
 
@@ -39,12 +36,12 @@ import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 
 export default {
-	name: 'ThePooSidebar',
+	name: 'ThePmoSidebar',
 	data: () => ({
 		err: null,
 	}),
 	computed: {
-		...mapFields(['subjects', 'activeRouteParams']),
+		...mapFields(['subjects', 'schools', 'activeRouteParams']),
 	},
 	methods: {
 		goTo({ name, params }) {

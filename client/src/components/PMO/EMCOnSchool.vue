@@ -1,19 +1,19 @@
 <template>
 	<v-container v-if="isSignin && user.UserRole.code == 2" fluid>
-		<v-row v-if="activeRouteParams.subjectId">
+		<v-row>
 			<v-col cols="12">
 				<h1 class="text-center">{{ subjectTitle }}</h1>
 			</v-col>
 		</v-row>
 		<v-row dense>
 			<v-col cols="12">
-				<EmcOnSchoolSelector v-if="activeRouteParams.subjectId" />
+				<EmcOnSchoolSelector v-if="activeRouteParams && activeRouteParams.subjectId" />
 			</v-col>
 			<v-card
-				v-if="emcsOnSchool.length == 0 && activeRouteParams.schoolId != null"
+				v-if="emcsOnSchool.length == 0"
 				class="mx-auto text-center"
 			>
-				УМК у данного ОО отсутствует
+				Отсутствуют УМК
 			</v-card>
 			<v-col cols="12">
 				<v-row v-for="emcOnSchool in emcsOnSchool" :key="emcOnSchool.id">
@@ -24,7 +24,7 @@
 					/>
 				</v-row>
 			</v-col>
-			<v-col cols="12">
+			<v-col cols="12" v-if="emcsOnSchool.length > 0">
 				<v-pagination v-model="page" :length="totalPages"></v-pagination>
 			</v-col>
 		</v-row>
@@ -44,6 +44,9 @@ export default {
 	},
 	data: () => ({
 		error: null,
+		page: 1,
+		totalPages: 1,
+		limit: 10,
 	}),
 	computed: {
 		...mapFields([
@@ -57,7 +60,7 @@ export default {
 		]),
 		subjectTitle() {
 			return (
-				this.subjects.find((subject) => subject.id === this.activeRouteParams.subjectId)?.name ??
+				this.subjects.find((subject) => subject.id === this.activeRouteParams?.subjectId)?.name ??
 				'Все предметы'
 			)
 		},
@@ -82,7 +85,7 @@ export default {
 	methods: {
 		async getEmc() {
 			try {
-				const response = await PmoService.getEmc({ ...this.activeRouteParams })
+				const response = await PmoService.getEmcToAttach({ ...this.activeRouteParams })
 				console.log({ msg: 'get_emcs_for_attach', ...response.data })
 				this.emcs = response.data.emcs
 			} catch (err) {
@@ -99,6 +102,9 @@ export default {
 				})
 				console.log({
 					msg: 'get_emcs_on_school',
+					...this.activeRouteParams,
+					skip: (this.page - 1) * this.limit,
+					limit: this.limit,
 					totalEmcsOnSchool: response.data.totalEmcsOnSchool,
 					emcsOnSchool: response.data.emcsOnSchool,
 				})
@@ -111,12 +117,11 @@ export default {
 		async detachEmcFrom(emcOnSchool) {
 			try {
 				// Отправляем запрос серверу на удаление умк из данной школы (через параметры)
-				const response = await PmoService.detachFrom({
+				await PmoService.detachFrom({
 					...this.activeRouteParams,
 					emcOnSchoolId: emcOnSchool.id,
-				})
-				this.emcsOnSchool = response.data.emcsOnSchool
-				this.getEmc()
+				}) 
+				this.activeRouteParams = { ...this.activeRouteParams }
 			} catch (err) {
 				this.error = err
 			}

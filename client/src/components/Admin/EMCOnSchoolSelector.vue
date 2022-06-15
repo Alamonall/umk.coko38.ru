@@ -115,7 +115,7 @@ export default {
 			return this.emcs.reduce((filtered, entry) => {
 				if (
 					!!entry &&
-					entry.Subject.id === this.activeRouteParams.subjectId &&
+					entry.Subject.id === this.activeRouteParams?.subjectId &&
 					this.emcsOnSchool.filter(
 						(eos) => eos.emcId === entry.id && eos.School.id === this.activeRouteParams.schoolId,
 					).length === 0

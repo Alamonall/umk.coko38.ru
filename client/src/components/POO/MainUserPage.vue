@@ -14,6 +14,8 @@ export default {
 	},
 	created() {
 		this.init()
+		// Отключаем sidebar для страницы пользователя
+		this.activeSidebar = null
 	},
 	methods: {
 		async init() {
@@ -22,7 +24,6 @@ export default {
 				this.subjects = response.data.subjects
 				this.publishers = response.data.publishers
 				this.levels = response.data.levels
-				this.activeSidebar = null
 			} catch (err) {
 				this.err = err
 			}
