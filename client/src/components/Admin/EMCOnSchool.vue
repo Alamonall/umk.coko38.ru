@@ -25,7 +25,7 @@
 				</v-row>
 			</v-col>
 			<v-col v-if="emcsOnSchool.length > 0" cols="12">
-				<v-pagination v-model="page" :length="totalPages"></v-pagination>
+				<v-pagination v-model="page" :length="totalPages" :total-visible="20"></v-pagination>
 			</v-col>
 		</v-row>
 	</v-container>

@@ -1,13 +1,41 @@
 <template>
 	<v-row v-if="isSignin && user.UserRole.code == 1" dense>
-		<v-col cols="12">
+		<v-col cols="12" >
 			<h1 class="text-center">{{ subjectTitle }}</h1>
 		</v-col>
-		<v-col cols="12">
-			<v-btn text color="teal accent-4" @click="goTo({ name: 'admin-emc-create' })">
-				Создать УМК
-			</v-btn>
-		</v-col>
+			<v-col cols="12" >
+				<v-btn text color="teal accent-4" @click="goTo({ name: 'admin-emc-create' })">
+					Создать УМК
+				</v-btn>
+			</v-col>
+		<v-row class="pl-2 pr-2">
+			<!-- <v-col cols="12"
+        lg="3" >
+				<v-select
+					:items="filterParams"
+					label="Фильтр"
+					solo
+				></v-select>
+			</v-col> -->
+			<!-- <v-col cols="12"
+        lg="3" >
+				<v-select
+					:items="items"
+					label="Solo field"
+					solo
+				></v-select>
+			</v-col> -->
+			<v-col 
+				cols="12"
+        lg="3"
+				>
+				<DatePicker @onSetDate="(date) => from = date" datePickerLabel="От"/>
+			</v-col>
+			<v-col cols="12"
+        lg="3">
+				<DatePicker @onSetDate="(date) => to = date" datePickerLabel="До"/>
+			</v-col>
+		</v-row>
 		<v-col cols="12">
 			<v-card v-if="emcs.length === 0" class="mx-auto text-center">
 				Учебников по этому предмету нету
@@ -18,8 +46,8 @@
 				<v-card-title class="text-h4"> {{ emc.title }} </v-card-title>
 				<v-card-text class="text-h5">
 					<div>
-						<v-chip v-show="emc.isCustom" color="red" text-color="white" pill>
-							Пользовательский
+						<v-chip v-show="emc.isCustom" color="green" text-color="white" pill>
+							Пользоватльская
 						</v-chip>
 					</div>
 					<p><strong> Издательство: </strong> {{ emc.Publisher.name }}</p>
@@ -59,7 +87,7 @@
 			</v-card>
 		</v-col>
 		<v-col cols="12">
-			<v-pagination v-model="page" :length="totalPages"></v-pagination>
+			<v-pagination v-model="page" :length="totalPages" :total-visible="20"></v-pagination>
 		</v-col>
 	</v-row>
 </template>
@@ -67,13 +95,25 @@
 import _ from 'lodash'
 import { mapFields } from 'vuex-map-fields'
 import AdminService from '../../services/adminService'
+import DatePicker from '../DatePicker.vue'
 
 export default {
+	components: {
+		DatePicker
+	},
 	data: () => ({
 		error: null,
 		page: 1,
 		totalPages: 1,
 		limit: 5,
+		isCreatedBy: null,
+		customOnly: null,
+		from: null,
+		to: null,
+		filterParams: [
+			'Пользоватльская',
+			'Не утверждённая'
+		]
 	}),
 	computed: {
 		...mapFields(['subjects', 'isSignin', 'user', 'emcs', 'activeRouteParams', 'activeSidebar']),
@@ -88,6 +128,12 @@ export default {
 		},
 	},
 	watch: {
+		from() {
+			this.getEmcForConstructor()
+		},
+		to() {
+		 this.getEmcForConstructor()
+		},
 		routeParams() {
 			this.getEmcForConstructor()
 		},
@@ -102,15 +148,15 @@ export default {
 	methods: {
 		async getEmcForConstructor() {
 			try {
+				console.log('getting emcs for constructor')
 				const response = await AdminService.getEmc({
 					...this.activeRouteParams,
+					isCreatedBy: this.isCreatedBy,
+					isCustom: this.isCustom,
+					from: this.from, 
+					to: this.to, 
 					skip: (this.page - 1) * this.limit,
 					limit: this.limit,
-				})
-				console.log({
-					msg: 'response: ',
-					emcs: response.data.emcs,
-					totalEmcs: response.data.totalEmcs,
 				})
 				this.emcs = response.data.emcs
 				this.totalPages = Math.ceil(response.data.totalEmcs / this.limit)

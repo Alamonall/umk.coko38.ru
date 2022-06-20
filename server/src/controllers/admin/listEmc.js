@@ -1,8 +1,9 @@
-const getEmc = require('../../dbHandlers/getEmcs');
+const adminGetEmc = require('../../dbHandlers/adminGetEmc');
 
 module.exports = async function (req, res) {
   try {
-    const { subjectId, skip, limit, isCustom, createdBy, emcId } = req.body;
+    const { subjectId, skip, limit, isCustom, emcId, isCreatedBy, from, to } =
+      req.body;
 
     console.log({
       msg: 'list_emc',
@@ -10,18 +11,22 @@ module.exports = async function (req, res) {
       skip,
       limit,
       isCustom,
-      createdBy,
       emcId,
+      isCreatedBy,
+      from,
+      to,
     });
 
-    const { emcs, totalEmcs } = await getEmc({
+    const { emcs, totalEmcs } = await adminGetEmc({
       gia: req.user.gia,
       subjectId,
       skip,
       limit,
       isCustom,
-      createdBy,
       emcId,
+      isCreatedBy,
+      from,
+      to,
     });
 
     console.log({

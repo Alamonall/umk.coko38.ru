@@ -18,7 +18,6 @@ module.exports = async function (req, res) {
       subjectId,
       skip: skip ?? 0,
       limit: limit ?? 10000,
-      isCustom: false,
       excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
     });
 
