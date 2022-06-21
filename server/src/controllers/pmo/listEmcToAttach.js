@@ -1,4 +1,4 @@
-const getEmcs = require('../../dbHandlers/getEmcs');
+const pmoGetEmc = require('../../dbHandlers/pmoGetEmc');
 const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
@@ -15,12 +15,13 @@ module.exports = async function (req, res) {
       limit: 10000,
     });
 
-    const { emcs, totalEmcs } = await getEmcs({
+    const { emcs, totalEmcs } = await pmoGetEmc({
       gia: req.user.gia,
       subjectId,
       skip: skip ?? 0,
       limit: limit ?? 10000,
       excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
+      createdBy: req.user.id,
     });
 
     console.log({

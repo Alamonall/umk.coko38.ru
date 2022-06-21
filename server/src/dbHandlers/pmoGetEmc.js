@@ -13,6 +13,7 @@ module.exports = async function ({
   subjectId,
   skip,
   limit,
+  createdBy,
   excludeEmcsId,
   emcId,
 }) {
@@ -24,14 +25,29 @@ module.exports = async function ({
       ? emcWhere
       : { ...emcWhere, id: { [Op.ne]: excludeEmcsId } };
 
+  emcWhere = {
+    ...emcWhere,
+    [Op.or]: [
+      {
+        isCustom: true,
+        createdBy,
+      },
+      {
+        isCustom: false,
+      },
+    ],
+  };
+
   console.log({
-    msg: 'get_emcs',
+    msg: 'pmo_get_emcs',
     gia,
     subjectId,
     skip,
     limit,
+    createdBy,
     excludeEmcsId,
     emcId,
+    emcWhere,
   });
   const emcs = await EMC.findAll({
     attributes: [
