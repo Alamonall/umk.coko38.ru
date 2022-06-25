@@ -16,13 +16,8 @@
 				<v-card-title class="text-h4"> {{ emc.title }} </v-card-title>
 				<v-card-text class="text-h5">
 					<div>
-						<v-chip
-							v-show="emc.isCustom && emc.createdBy === user.id"
-							color="red"
-							text-color="white"
-							pill
-						>
-							Созданный вами
+						<v-chip v-show="emc.isCustom" color="green" text-color="white" pill>
+							Создана {{ emc.User == null && emc.createdBy != user.id ? 'кем-то' : emc.User.username}} {{ emc.createdBy == user.id ? 'вами' : ''}}
 						</v-chip>
 					</div>
 					<p><strong>Издательство: </strong> {{ emc.Publisher.name }}</p>

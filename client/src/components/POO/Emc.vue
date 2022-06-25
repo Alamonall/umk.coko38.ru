@@ -26,6 +26,9 @@
 						>
 							Созданный вами
 						</v-chip>
+						<v-chip v-show="emc.isCustom && emc.createdBy !== user.id" color="green" text-color="white" pill>
+							Создана {{ emc.User == null ? 'кем-то' : emc.User.username}}
+						</v-chip>
 					</div>
 					<p><strong> Издательство: </strong> {{ emc.Publisher.name }}</p>
 					<p><strong> Авторы: </strong> {{ emc.authors }}</p>
@@ -106,16 +109,10 @@ export default {
 	methods: {
 		async getEmcForConstructor() {
 			try {
-				console.log('this.activeRouteParams: ', this.activeRouteParams)
 				const response = await PooService.getEmc({
 					...this.activeRouteParams,
 					skip: (this.page - 1) * this.limit,
 					limit: this.limit,
-				})
-				console.log({
-					msg: 'response: ',
-					emcs: response.data.emcs,
-					totalEmcs: response.data.totalEmcs,
 				})
 				this.emcs = response.data.emcs
 				this.totalPages = Math.ceil(response.data.totalEmcs / this.limit)

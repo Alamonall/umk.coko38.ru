@@ -7,7 +7,7 @@ export default {
 	getEmcOnSchool({ areaId, schoolId, subjectId, limit, skip }) {
 		return api().post('/admin/list_emc_on_school', { areaId, schoolId, subjectId, limit, skip })
 	},
-	getEmc({ emcId, areaId, schoolId, subjectId, limit, skip, isCustom, isCreatedBy, from, to }) {
+	getEmc({ emcId, areaId, schoolId, subjectId, limit, skip, isCustom, from, to }) {
 		return api().post('/admin/list_emc', {
 			emcId,
 			areaId,
@@ -16,7 +16,6 @@ export default {
 			limit,
 			skip,
 			isCustom,
-			isCreatedBy,
 			from,
 			to,
 		})

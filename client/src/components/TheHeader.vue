@@ -48,6 +48,9 @@ export default {
 	computed: {
 		...mapFields(['isSignin', 'user', 'token', 'activeSidebar', 'activeRouteParams']),
 	},
+	watch: {
+		
+	},
 	methods: {
 		signout() {
 			this.token = null

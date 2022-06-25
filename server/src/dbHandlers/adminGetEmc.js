@@ -1,11 +1,4 @@
-const {
-  EMC,
-  Publisher,
-  Subject,
-  Level,
-  EMCOnSchool,
-  School,
-} = require('../models');
+const { EMC, User, Publisher, Subject, Level } = require('../models');
 const { Op } = require('sequelize');
 
 module.exports = async function ({
@@ -17,25 +10,21 @@ module.exports = async function ({
   createdBy,
   excludeEmcsId,
   emcId,
-  isCreatedBy,
   from,
   to,
 }) {
   let emcWhere = {};
   emcWhere = gia == null ? emcWhere : { ...emcWhere, gia };
   emcWhere = emcId == null ? emcWhere : { ...emcWhere, id: emcId };
-  emcWhere = !isCustom ? emcWhere : { ...emcWhere, isCustom };
+  emcWhere = isCustom == null ? emcWhere : { ...emcWhere, isCustom };
   emcWhere =
     excludeEmcsId == null
       ? emcWhere
-      : { ...emcWhere, id: { [Op.ne]: excludeEmcsId } };
+      : { ...emcWhere, id: { [Op.notIn]: excludeEmcsId } };
   emcWhere =
     from == null ? emcWhere : { ...emcWhere, createdAt: { [Op.gte]: from } };
   emcWhere =
     to == null ? emcWhere : { ...emcWhere, createdAt: { [Op.lte]: to } };
-  emcWhere = !isCreatedBy
-    ? emcWhere
-    : { ...emcWhere, createdBy: { [Op.ne]: null } };
 
   console.log({
     msg: 'admin_get_emcs',
@@ -47,7 +36,6 @@ module.exports = async function ({
     createdBy,
     excludeEmcsId,
     emcId,
-    isCreatedBy,
     from,
     to,
   });
@@ -80,32 +68,34 @@ module.exports = async function ({
         attributes: ['id', 'code', 'name'],
       },
       {
-        model: EMCOnSchool,
-        include: [School],
+        model: User,
+        attributes: ['id', 'username'],
       },
     ],
     offset: skip ?? 0,
     limit: limit ?? 20,
+    distinct: true,
   });
 
   const totalEmcs = await EMC.count({
+    attributes: [],
     where: emcWhere,
     include: [
       {
         model: Publisher,
+        attributes: [],
       },
       {
         model: Subject,
+        attributes: [],
         where: subjectId == null ? {} : { SubjectGlobalID: subjectId },
       },
       {
         model: Level,
-      },
-      {
-        model: EMCOnSchool,
-        include: [School],
+        attributes: [],
       },
     ],
+    distinct: true,
   });
 
   return {

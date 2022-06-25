@@ -1,11 +1,11 @@
-const getEmcs = require('../../dbHandlers/getEmcs');
+const pooGetEmc = require('../../dbHandlers/pooGetEmc');
 
 module.exports = async function (req, res) {
   try {
     const { subjectId, emcId, skip, limit } = req.body;
 
     console.log({ msg: 'list_emc', subjectId, emcId, skip, limit });
-    const { emcs, totalEmcs } = await getEmcs({
+    const { emcs, totalEmcs } = await pooGetEmc({
       gia: req.user.gia,
       subjectId,
       skip,

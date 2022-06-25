@@ -19,6 +19,16 @@ module.exports = async function ({
   skip,
   limit,
 }) {
+  console.log({
+    msg: 'get_emcs_on_school',
+    schoolId,
+    subjectId,
+    emcOnSchoolId,
+    areaId,
+    gia,
+    skip,
+    limit,
+  });
   const emcsOnSchool = await EMCOnSchool.findAll({
     attribute: [
       'correctionCoz',
@@ -166,6 +176,7 @@ module.exports = async function ({
         ],
       },
     ],
+    distinct: true,
   });
 
   return {

@@ -1,7 +1,14 @@
 <template>
 	<v-navigation-drawer app width="25%" left="true"  height="100%" permanent absolute clipped>
+		<v-list-item>
+			<v-list-item-content>
+				<v-list-item-title class="text-h6 text-center">
+					Предметы
+				</v-list-item-title>
+			</v-list-item-content>
+		</v-list-item>
+		<v-divider></v-divider>
 		<v-list dense>
-			<v-subheader>Предметы</v-subheader>
 			<v-list-item v-for="subject in subjects" :key="subject.id">
 				<v-list-item-content>
 					<v-btn

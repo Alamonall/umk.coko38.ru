@@ -9,22 +9,18 @@
 				</v-btn>
 			</v-col>
 		<v-row class="pl-2 pr-2">
-			<!-- <v-col cols="12"
+			<v-col cols="12"
         lg="3" >
 				<v-select
+					v-model='defaultFilterValue'
 					:items="filterParams"
+					:item-text="(item) => item.name"
+					:item-value="(item) => item.isCustom"
 					label="Фильтр"
 					solo
+					@change="activeRouteParams = { ...activeRouteParams }"
 				></v-select>
-			</v-col> -->
-			<!-- <v-col cols="12"
-        lg="3" >
-				<v-select
-					:items="items"
-					label="Solo field"
-					solo
-				></v-select>
-			</v-col> -->
+			</v-col>
 			<v-col 
 				cols="12"
         lg="3"
@@ -47,7 +43,10 @@
 				<v-card-text class="text-h5">
 					<div>
 						<v-chip v-show="emc.isCustom" color="green" text-color="white" pill>
-							Пользоватльская
+							Пользовательская
+						</v-chip>
+						<v-chip v-show="emc.isCustom" color="green" text-color="white" pill>
+							Создана {{ emc.User == null ? 'кем-то' : emc.User.username}}
 						</v-chip>
 					</div>
 					<p><strong> Издательство: </strong> {{ emc.Publisher.name }}</p>
@@ -110,9 +109,11 @@ export default {
 		customOnly: null,
 		from: null,
 		to: null,
+		defaultFilterValue: null,
 		filterParams: [
-			'Пользоватльская',
-			'Не утверждённая'
+			{ isCustom: null, name: 'Все УМК'},
+			{ isCustom: false, name: 'Официальные УМК'},
+			{ isCustom: true, name: 'Пользоватльские УМК'},
 		]
 	}),
 	computed: {
@@ -140,6 +141,10 @@ export default {
 		page() {
 			this.getEmcForConstructor()
 		},
+		totalPages() {
+			if(this.totalPages < this.page)
+				this.page = 1
+		}
 	},
 	created() {
 		this.activeSidebar = 'subjects'
@@ -148,11 +153,9 @@ export default {
 	methods: {
 		async getEmcForConstructor() {
 			try {
-				console.log('getting emcs for constructor')
 				const response = await AdminService.getEmc({
 					...this.activeRouteParams,
-					isCreatedBy: this.isCreatedBy,
-					isCustom: this.isCustom,
+					isCustom: this.defaultFilterValue,
 					from: this.from, 
 					to: this.to, 
 					skip: (this.page - 1) * this.limit,

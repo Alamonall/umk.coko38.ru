@@ -1,4 +1,4 @@
-const getEmcs = require('../../dbHandlers/getEmcs');
+const adminGetEmc = require('../../dbHandlers/adminGetEmc');
 const getEmcsOnSchool = require('../../dbHandlers/getEmcsOnSchool');
 
 module.exports = async function (req, res) {
@@ -14,14 +14,17 @@ module.exports = async function (req, res) {
       limit: 10000,
     });
 
-    const { emcs, totalEmcs } = await getEmcs({
+    const excludeEmcsId = response.emcsOnSchool.map((eos) => eos.emcId);
+
+    console.log({ msg: 'excludeEmcsId', excludeEmcsId });
+    const { emcs, totalEmcs } = await adminGetEmc({
       gia: req.user.gia,
       subjectId,
       areaId,
       schoolId,
       skip: skip ?? 0,
       limit: limit ?? 10000,
-      excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
+      excludeEmcsId: [...new Set(excludeEmcsId)],
     });
 
     res.json({ msg: 'Данные получены', emcs, totalEmcs });

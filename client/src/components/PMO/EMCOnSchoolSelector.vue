@@ -1,6 +1,6 @@
 <template>
 	<v-card>
-		<v-card-title class="text-h5"> Добавить УМК </v-card-title>
+		<v-card-title class="text-h5"> Добавить УМК</v-card-title>
 		<v-card-text>
 			<v-row>
 				<v-col cols="12">
@@ -99,7 +99,7 @@ export default {
 		error: null,
 	}),
 	computed: {
-		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams']),
+		...mapFields(['emcs', 'emcsOnSchool', 'user', 'activeRouteParams', 'schools']),
 		routeParams() {
 			return this.activeRouteParams
 		},

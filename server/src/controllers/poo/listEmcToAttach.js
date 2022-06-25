@@ -13,12 +13,19 @@ module.exports = async function (req, res) {
       limit: 10000,
     });
 
+    const emcsToExclude = response.emcsOnSchool.map((eos) => eos.EMC.id);
+
+    console.log({
+      msg: 'emcs to exclude ',
+      emcsToExclude: [...new Set(emcsToExclude)],
+    });
+
     const { emcs, totalEmcs } = await pooGetEmc({
       gia: req.user.gia,
       subjectId,
       skip: skip ?? 0,
       limit: limit ?? 10000,
-      excludeSchoolIds: response.emcsOnSchool.map((eos) => eos.emcId),
+      excludeEmcsId: [...new Set(emcsToExclude)],
       createdBy: req.user.id,
     });
 

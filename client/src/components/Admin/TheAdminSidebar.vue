@@ -1,5 +1,16 @@
 <template>
 	<v-navigation-drawer app width="25%" left="true" height="100%" permanent absolute clipped>
+		 <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6">
+            {{areaTitle}}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{schoolTitle}}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+			
 		<v-list-group
 			v-for="area in areas"
 			:key="area.AreaID"
@@ -54,6 +65,19 @@ export default {
 	}),
 	computed: {
 		...mapFields(['subjects', 'activeRouteParams', 'areas']),
+		areaTitle() {
+			return this.areas?.find((a) => a.id === this.activeRouteParams?.areaId)?.name ?? 'Территория'
+		},
+		schoolTitle() {
+			if(this.areas != null) {
+				const area = this.areas.find((a) => a.id === this.activeRouteParams?.areaId)
+				if(area == null) {
+					return 'Школа'
+				}
+				return area.Schools?.find((school) => school.id === this.activeRouteParams?.schoolId)?.name ?? 'Школа'
+			}
+			return 'Школа'
+		},
 	},
 	methods: {
 		goTo({ name, params }) {

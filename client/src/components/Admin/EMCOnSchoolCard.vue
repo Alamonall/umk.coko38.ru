@@ -52,14 +52,7 @@
 					color="teal accent-4"
 					@click="$emit('onDetachEmcFrom', emcOnSchool)"
 				>
-					Открепить УМК
-				</v-btn>
-				<v-btn
-					text
-					color="teal accent-4"
-					@click="$emit('onDetachEmcFrom', emcOnSchool)"
-				>
-					Открепить УМК от всех МО и ОО
+					Открепить УМК {{ activeRouteParams == null ? 'ото всех' : 'от данного объекта	'}}
 				</v-btn>
 			</v-card-actions>
 			<v-expand-transition>

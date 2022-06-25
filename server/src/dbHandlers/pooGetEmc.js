@@ -16,39 +16,48 @@ module.exports = async function ({
   createdBy,
   excludeEmcsId,
   emcId,
+  isCustom,
 }) {
+  console.log({
+    msg: 'poo_get_emcs',
+    gia,
+    subjectId,
+    skip,
+    limit,
+    isCustom,
+    createdBy,
+    excludeEmcsId,
+    emcId,
+  });
+
   let emcWhere = {};
   emcWhere = gia == null ? emcWhere : { ...emcWhere, gia };
   emcWhere = emcId == null ? emcWhere : { ...emcWhere, id: emcId };
   emcWhere =
     excludeEmcsId == null
       ? emcWhere
-      : { ...emcWhere, id: { [Op.ne]: excludeEmcsId } };
+      : { ...emcWhere, id: { [Op.notIn]: excludeEmcsId } };
 
-  emcWhere = {
-    ...emcWhere,
-    [Op.or]: [
-      {
-        isCustom: true,
-        createdBy,
-      },
-      {
-        isCustom: false,
-      },
-    ],
-  };
+  emcWhere =
+    isCustom == null
+      ? {
+          ...emcWhere,
+          [Op.or]: [
+            {
+              isCustom: true,
+              createdBy,
+            },
+            {
+              isCustom: false,
+            },
+          ],
+        }
+      : {
+          ...emcWhere,
+          isCustom,
+          createdBy,
+        };
 
-  console.log({
-    msg: 'pmo_get_emcs',
-    gia,
-    subjectId,
-    skip,
-    limit,
-    createdBy,
-    excludeEmcsId,
-    emcId,
-    emcWhere,
-  });
   const emcs = await EMC.findAll({
     attributes: [
       'id',
@@ -84,6 +93,7 @@ module.exports = async function ({
     ],
     offset: skip ?? 0,
     limit: limit ?? 20,
+    distinct: true,
   });
 
   const totalEmcs = await EMC.count({
@@ -104,6 +114,7 @@ module.exports = async function ({
         include: [School],
       },
     ],
+    distinct: true,
   });
 
   return {

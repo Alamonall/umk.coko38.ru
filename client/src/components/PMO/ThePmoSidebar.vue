@@ -1,5 +1,12 @@
 <template>
 	<v-navigation-drawer app width="25%" left="true"  height="100%" permanent absolute clipped>
+		<v-list-item>
+			<v-list-item-content>
+				<v-list-item-title class="text-h6">
+					{{schoolTitle}}
+				</v-list-item-title>
+			</v-list-item-content>
+		</v-list-item>
 		<v-list-group
 			v-for="school in schools"
 			:key="school.id"
@@ -42,6 +49,9 @@ export default {
 	}),
 	computed: {
 		...mapFields(['subjects', 'schools', 'activeRouteParams']),
+		schoolTitle() {
+			return this.schools?.find((school) => school.id === this.activeRouteParams?.schoolId)?.name ?? 'Не выбрана территория'
+		}
 	},
 	methods: {
 		goTo({ name, params }) {
